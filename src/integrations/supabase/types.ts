@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      opportunities: {
+        Row: {
+          ai_insight: string | null
+          apply_url: string | null
+          category: string
+          created_at: string
+          deadline: string | null
+          description: string | null
+          discovered_by: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          organization: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_insight?: string | null
+          apply_url?: string | null
+          category: string
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          discovered_by?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          organization: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_insight?: string | null
+          apply_url?: string | null
+          category?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          discovered_by?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          organization?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          country: string | null
+          created_at: string
+          display_name: string | null
+          education_level: string | null
+          id: string
+          interests: string[] | null
+          onboarded: boolean
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          country?: string | null
+          created_at?: string
+          display_name?: string | null
+          education_level?: string | null
+          id: string
+          interests?: string[] | null
+          onboarded?: boolean
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          country?: string | null
+          created_at?: string
+          display_name?: string | null
+          education_level?: string | null
+          id?: string
+          interests?: string[] | null
+          onboarded?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_opportunities: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_opportunities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
