@@ -37,16 +37,26 @@ function Analytics() {
       <h2 className="text-sm font-bold uppercase tracking-wider text-text-s mb-3">Top opportunities</h2>
       <div className="space-y-1 text-xs">
         {Object.entries(data.perOpp)
-          .map(([id, totals]) => ({ id, ...totals, total: (totals.view ?? 0) + (totals.save ?? 0) * 2 + (totals.share ?? 0) * 3 + (totals.apply_click ?? 0) * 5 }))
+          .map(([id, totals]) => {
+            const t = totals as Record<string, number>;
+            return {
+              id,
+              view: t.view ?? 0,
+              save: t.save ?? 0,
+              share: t.share ?? 0,
+              apply_click: t.apply_click ?? 0,
+              total: (t.view ?? 0) + (t.save ?? 0) * 2 + (t.share ?? 0) * 3 + (t.apply_click ?? 0) * 5,
+            };
+          })
           .sort((a, b) => b.total - a.total)
           .slice(0, 20)
           .map((row) => (
             <div key={row.id} className="flex items-center gap-3 py-2 border-b border-border/50 font-mono">
               <span className="truncate flex-1 text-text-s">{row.id}</span>
-              <span>👁 {row.view ?? 0}</span>
-              <span>🔖 {row.save ?? 0}</span>
-              <span>↗ {row.share ?? 0}</span>
-              <span>🚀 {row.apply_click ?? 0}</span>
+              <span>👁 {row.view}</span>
+              <span>🔖 {row.save}</span>
+              <span>↗ {row.share}</span>
+              <span>🚀 {row.apply_click}</span>
             </div>
           ))}
       </div>
