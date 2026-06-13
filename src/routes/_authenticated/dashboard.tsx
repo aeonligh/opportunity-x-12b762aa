@@ -59,59 +59,65 @@ function Dashboard() {
 
   const { data: admin } = useQuery({ queryKey: ["isAdmin"], queryFn: () => adminFn() });
 
-  const sections = [
+  const sections: Array<{
+    key: string;
+    title: string;
+    icon: React.ReactNode;
+    subtitle?: string;
+    fn: () => Promise<Opportunity[]>;
+  }> = [
     {
       key: "recommended",
       title: "Recommended For You",
       icon: <Sparkles size={16} className="text-accent" />,
       subtitle: "Hand-picked by AEON X intelligence",
-      fn: () => recommendedFn(),
+      fn: () => recommendedFn() as Promise<Opportunity[]>,
     },
     {
       key: "trending",
       title: "Trending Opportunities",
       icon: <Flame size={16} className="text-accent" />,
       subtitle: "Most viewed this week",
-      fn: () => trendingFn(),
+      fn: () => trendingFn() as Promise<Opportunity[]>,
     },
     {
       key: "new",
       title: "New This Week",
       icon: <TrendingUp size={16} className="text-accent" />,
-      fn: () => newWeekFn(),
+      fn: () => newWeekFn() as Promise<Opportunity[]>,
     },
     {
       key: "ending",
       title: "Ending Soon",
       icon: <Clock size={16} className="text-accent" />,
       subtitle: "Closing within the next 30 days",
-      fn: () => endingFn(),
+      fn: () => endingFn() as Promise<Opportunity[]>,
     },
     {
       key: "scholarships",
       title: "Scholarships",
       icon: <GraduationCap size={16} className="text-accent" />,
-      fn: () => categoryFn({ data: { category: "Scholarships" } }),
+      fn: () => categoryFn({ data: { category: "Scholarships" } }) as Promise<Opportunity[]>,
     },
     {
       key: "internships",
       title: "Internships",
       icon: <Briefcase size={16} className="text-accent" />,
-      fn: () => categoryFn({ data: { category: "Internships" } }),
+      fn: () => categoryFn({ data: { category: "Internships" } }) as Promise<Opportunity[]>,
     },
     {
       key: "certifications",
       title: "Certifications",
       icon: <FileBadge size={16} className="text-accent" />,
-      fn: () => categoryFn({ data: { category: "Certifications" } }),
+      fn: () => categoryFn({ data: { category: "Certifications" } }) as Promise<Opportunity[]>,
     },
     {
       key: "fellowships",
       title: "Fellowships",
       icon: <Sparkles size={16} className="text-accent" />,
-      fn: () => categoryFn({ data: { category: "Fellowships" } }),
+      fn: () => categoryFn({ data: { category: "Fellowships" } }) as Promise<Opportunity[]>,
     },
-  ] as const;
+  ];
 
   const sectionQueries = sections.map((s) =>
     // eslint-disable-next-line react-hooks/rules-of-hooks
