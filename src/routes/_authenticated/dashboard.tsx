@@ -1,40 +1,42 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { discoverOpportunities } from "@/lib/opportunities.functions";
-import OpportunityCard, { type Opportunity } from "@/components/OpportunityCard";
 import {
-  LayoutGrid,
+  discoverOpportunities,
+  recommendedForUser,
+  trendingOpportunities,
+  newThisWeek,
+  endingSoon,
+  listByCategory,
+  searchOpportunities,
+} from "@/lib/intelligence.functions";
+import { isAdmin } from "@/lib/admin.functions";
+import OpportunityCard, { type Opportunity } from "@/components/OpportunityCard";
+import OpportunitySection from "@/components/OpportunitySection";
+import {
+  Sparkles,
+  TrendingUp,
+  Clock,
+  Flame,
   GraduationCap,
   Briefcase,
   FileBadge,
-  Globe2,
-  Bookmark,
   Search,
-  Sparkles,
   LogOut,
   Loader2,
   RefreshCw,
+  Bookmark,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
-import { motion } from "motion/react";
-
-const categories = [
-  { id: "All", label: "All", icon: LayoutGrid },
-  { id: "Scholarship", label: "Scholarships", icon: GraduationCap },
-  { id: "Internship", label: "Internships", icon: Briefcase },
-  { id: "Fellowship", label: "Fellowships", icon: Sparkles },
-  { id: "Certification", label: "Certificates", icon: FileBadge },
-  { id: "Webinar", label: "Webinars", icon: Globe2 },
-] as const;
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Opportunity X" },
-      { name: "description", content: "Your personalized opportunity feed." },
+      { name: "description", content: "Your personalized opportunity feed, powered by AEON X." },
     ],
   }),
   component: Dashboard,
@@ -43,47 +45,130 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [category, setCategory] = useState<(typeof categories)[number]["id"]>("All");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const discoverFn = useServerFn(discoverOpportunities);
 
-  const { data: opps = [], isLoading } = useQuery({
-    queryKey: ["opportunities", category, search],
-    queryFn: async () => {
-      let q = supabase
-        .from("opportunities")
-        .select(
-          "id, title, organization, category, location, deadline, description, ai_insight, apply_url, image_url",
-        )
-        .order("created_at", { ascending: false })
-        .limit(40);
-      if (category !== "All") q = q.eq("category", category);
-      if (search) q = q.ilike("title", `%${search}%`);
-      const { data, error } = await q;
-      if (error) throw error;
-      return (data ?? []) as Opportunity[];
+  const discoverFn = useServerFn(discoverOpportunities);
+  const recommendedFn = useServerFn(recommendedForUser);
+  const trendingFn = useServerFn(trendingOpportunities);
+  const newWeekFn = useServerFn(newThisWeek);
+  const endingFn = useServerFn(endingSoon);
+  const categoryFn = useServerFn(listByCategory);
+  const searchFn = useServerFn(searchOpportunities);
+  const adminFn = useServerFn(isAdmin);
+
+  const { data: admin } = useQuery({ queryKey: ["isAdmin"], queryFn: () => adminFn() });
+
+  const sections: Array<{
+    key: string;
+    title: string;
+    icon: React.ReactNode;
+    subtitle?: string;
+    fn: () => Promise<Opportunity[]>;
+  }> = [
+    {
+      key: "recommended",
+      title: "Recommended For You",
+      icon: <Sparkles size={16} className="text-accent" />,
+      subtitle: "Hand-picked by AEON X intelligence",
+      fn: () => recommendedFn() as Promise<Opportunity[]>,
     },
+    {
+      key: "trending",
+      title: "Trending Opportunities",
+      icon: <Flame size={16} className="text-accent" />,
+      subtitle: "Most viewed this week",
+      fn: () => trendingFn() as Promise<Opportunity[]>,
+    },
+    {
+      key: "new",
+      title: "New This Week",
+      icon: <TrendingUp size={16} className="text-accent" />,
+      fn: () => newWeekFn() as Promise<Opportunity[]>,
+    },
+    {
+      key: "ending",
+      title: "Ending Soon",
+      icon: <Clock size={16} className="text-accent" />,
+      subtitle: "Closing within the next 30 days",
+      fn: () => endingFn() as Promise<Opportunity[]>,
+    },
+    {
+      key: "scholarships",
+      title: "Scholarships",
+      icon: <GraduationCap size={16} className="text-accent" />,
+      fn: () => categoryFn({ data: { category: "Scholarships" } }) as Promise<Opportunity[]>,
+    },
+    {
+      key: "internships",
+      title: "Internships",
+      icon: <Briefcase size={16} className="text-accent" />,
+      fn: () => categoryFn({ data: { category: "Internships" } }) as Promise<Opportunity[]>,
+    },
+    {
+      key: "certifications",
+      title: "Certifications",
+      icon: <FileBadge size={16} className="text-accent" />,
+      fn: () => categoryFn({ data: { category: "Certifications" } }) as Promise<Opportunity[]>,
+    },
+    {
+      key: "fellowships",
+      title: "Fellowships",
+      icon: <Sparkles size={16} className="text-accent" />,
+      fn: () => categoryFn({ data: { category: "Fellowships" } }) as Promise<Opportunity[]>,
+    },
+  ];
+
+  const sectionQueries = sections.map((s) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useQuery({ queryKey: ["section", s.key], queryFn: s.fn as () => Promise<Opportunity[]> }),
+  );
+
+  const { data: savedSnap = [] } = useQuery({
+    queryKey: ["section", "saved-snap"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return [];
+      const { data } = await supabase
+        .from("saved_opportunities")
+        .select(
+          "opportunity:opportunities(id, title, organization, category, categories, opportunity_type, location, deadline, description, ai_insight, apply_url, image_url, tags, verification_score, match_score_default)",
+        )
+        .eq("user_id", u.user.id)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      return (data ?? []).map((r) => r.opportunity as unknown as Opportunity).filter(Boolean);
+    },
+  });
+
+  const { data: searchResults = [], isFetching: searching } = useQuery({
+    queryKey: ["search", search],
+    queryFn: () => searchFn({ data: { query: search, category: "All" } }),
+    enabled: search.length > 0,
   });
 
   const discover = useMutation({
-    mutationFn: () => discoverFn({ data: { query: search, category } }),
-    onSuccess: () => {
-      toast.success("New opportunities discovered");
-      queryClient.invalidateQueries({ queryKey: ["opportunities"] });
+    mutationFn: () => discoverFn({ data: { query: search, category: "All" } }),
+    onSuccess: (res) => {
+      toast.success(
+        res?.inserted
+          ? `Discovered ${res.inserted} new opportunities`
+          : "No new verified opportunities yet — try again",
+      );
+      queryClient.invalidateQueries({ queryKey: ["section"] });
     },
-    onError: (err) => {
-      toast.error(err instanceof Error ? err.message : "Discovery failed");
-    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : "Discovery failed"),
   });
 
-  // First-load: if no opportunities exist at all, kick off a discovery
+  // First-load: trigger discovery if recommended is empty
   useEffect(() => {
-    if (!isLoading && opps.length === 0 && !discover.isPending) {
+    const rec = sectionQueries[0];
+    if (!rec.isLoading && (rec.data ?? []).length === 0 && !discover.isPending) {
       discover.mutate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [sectionQueries[0].isLoading]);
 
   const signOut = async () => {
     await queryClient.cancelQueries();
@@ -94,34 +179,34 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6">
-        <Link to="/" className="font-mono text-lg font-bold tracking-tighter">
-          OPPORTUNITY <span className="text-accent">X</span>
+      <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
+        <Link to="/" className="flex flex-col leading-tight">
+          <span className="font-mono text-lg font-bold tracking-tighter">
+            OPPORTUNITY <span className="text-accent">X</span>
+          </span>
+          <span className="text-[9px] uppercase tracking-widest text-text-s">
+            Powered by AEON X
+          </span>
         </Link>
         <nav className="flex items-center gap-2">
-          <Link
-            to="/dashboard"
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg text-accent"
-          >
+          <Link to="/dashboard" className="px-3 py-1.5 text-xs font-semibold rounded-lg text-accent">
             Discover
           </Link>
-          <Link
-            to="/vault"
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground"
-          >
+          <Link to="/vault" className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground">
             Vault
           </Link>
-          <Link
-            to="/onboarding"
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground"
-          >
+          <Link to="/onboarding" className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground">
             Profile
           </Link>
-          <button
-            onClick={signOut}
-            title="Sign out"
-            className="p-2 rounded-lg text-text-s hover:text-foreground transition"
-          >
+          {admin?.admin && (
+            <Link
+              to="/admin/queue"
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground inline-flex items-center gap-1"
+            >
+              <Shield size={12} /> Admin
+            </Link>
+          )}
+          <button onClick={signOut} title="Sign out" className="p-2 rounded-lg text-text-s hover:text-foreground transition">
             <LogOut size={16} />
           </button>
         </nav>
@@ -129,29 +214,28 @@ function Dashboard() {
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight mb-2">Your opportunities</h1>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
+            Welcome to the Intelligence Engine
+          </h1>
           <p className="text-sm text-text-s">
-            AI-curated for you. Save what matters. Share to WhatsApp in one tap.
+            Verified, AI-scored opportunities — built for your profile. Save what matters. Share to WhatsApp in one tap.
           </p>
         </div>
 
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setSearch(searchInput);
+            setSearch(searchInput.trim());
           }}
-          className="relative mb-6 max-w-2xl"
+          className="relative mb-8 max-w-2xl"
         >
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-s"
-          />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-s" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search opportunities..."
-            className="w-full pl-10 pr-32 py-2.5 rounded-xl bg-surface border border-border focus:border-accent outline-none text-sm"
+            placeholder="Search verified opportunities…"
+            className="w-full pl-10 pr-32 py-2.5 rounded-xl bg-surface/60 backdrop-blur-md border border-border focus:border-accent outline-none text-sm"
           />
           <button
             type="button"
@@ -168,47 +252,51 @@ function Dashboard() {
           </button>
         </form>
 
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map((c) => {
-            const Icon = c.icon;
-            const active = category === c.id;
-            return (
-              <button
-                key={c.id}
-                onClick={() => setCategory(c.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition ${
-                  active
-                    ? "bg-accent/10 border-accent/40 text-accent"
-                    : "bg-surface border-border text-text-s hover:text-foreground"
-                }`}
-              >
-                <Icon size={12} /> {c.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {isLoading || (opps.length === 0 && discover.isPending) ? (
-          <div className="text-center py-20 text-text-s">
-            <Loader2 className="mx-auto mb-3 animate-spin" />
-            <p className="text-sm">Discovering opportunities…</p>
-          </div>
-        ) : opps.length === 0 ? (
-          <div className="text-center py-20 text-text-s">
-            <p className="text-sm mb-3">No opportunities yet.</p>
+        {search ? (
+          <section className="mb-10">
+            <h2 className="text-lg font-black mb-3">Search results for "{search}"</h2>
+            {searching ? (
+              <p className="text-sm text-text-s">Searching…</p>
+            ) : searchResults.length === 0 ? (
+              <p className="text-sm text-text-s">No matches. Try a different keyword or click Discover.</p>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {searchResults.map((o) => (
+                  <OpportunityCard key={o.id} opportunity={o as Opportunity} />
+                ))}
+              </div>
+            )}
             <button
-              onClick={() => discover.mutate()}
-              className="px-4 py-2 rounded-xl bg-accent text-accent-foreground text-sm font-semibold"
+              onClick={() => {
+                setSearch("");
+                setSearchInput("");
+              }}
+              className="mt-4 text-xs text-accent underline"
             >
-              Discover for me
+              ← Back to feed
             </button>
-          </div>
+          </section>
         ) : (
-          <motion.div layout className="grid md:grid-cols-2 gap-4">
-            {opps.map((o) => (
-              <OpportunityCard key={o.id} opportunity={o} />
+          <>
+            {sections.map((s, i) => (
+              <OpportunitySection
+                key={s.key}
+                title={s.title}
+                subtitle={s.subtitle}
+                icon={s.icon}
+                items={(sectionQueries[i].data ?? []) as Opportunity[]}
+                isLoading={sectionQueries[i].isLoading}
+                emptyHint="Run Discover to populate."
+              />
             ))}
-          </motion.div>
+            <OpportunitySection
+              title="Saved Opportunities"
+              icon={<Bookmark size={16} className="text-accent" />}
+              subtitle="Recent saves from your vault"
+              items={savedSnap}
+              emptyHint="Save opportunities to find them here."
+            />
+          </>
         )}
       </main>
     </div>

@@ -1,17 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import OpportunityCard, { type Opportunity } from "@/components/OpportunityCard";
-import { Bookmark, ArrowLeft } from "lucide-react";
+import { Bookmark, ArrowLeft, Search } from "lucide-react";
+import { OPPORTUNITY_CATEGORIES } from "@/lib/intelligence.functions";
 
 export const Route = createFileRoute("/_authenticated/vault")({
-  head: () => ({
-    meta: [{ title: "Saved vault — Opportunity X" }],
-  }),
+  head: () => ({ meta: [{ title: "Saved vault — Opportunity X" }] }),
   component: Vault,
 });
 
 function Vault() {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<string>("All");
+
   const { data: saved = [], isLoading } = useQuery({
     queryKey: ["vault"],
     queryFn: async () => {
@@ -20,20 +23,29 @@ function Vault() {
       const { data, error } = await supabase
         .from("saved_opportunities")
         .select(
-          "opportunity:opportunities(id, title, organization, category, location, deadline, description, ai_insight, apply_url, image_url)",
+          "opportunity:opportunities(id, title, organization, category, categories, opportunity_type, location, deadline, description, ai_insight, apply_url, image_url, tags, verification_score, match_score_default)",
         )
         .eq("user_id", user.user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? [])
-        .map((r) => r.opportunity as unknown as Opportunity)
-        .filter(Boolean);
+      return (data ?? []).map((r) => r.opportunity as unknown as Opportunity).filter(Boolean);
     },
   });
 
+  const filtered = useMemo(() => {
+    return saved.filter((o) => {
+      if (search && !o.title.toLowerCase().includes(search.toLowerCase())) return false;
+      if (category !== "All") {
+        const cats = o.categories?.length ? o.categories : [o.category];
+        if (!cats.includes(category)) return false;
+      }
+      return true;
+    });
+  }, [saved, search, category]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6">
+      <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground">
           <ArrowLeft size={14} /> Dashboard
         </Link>
@@ -50,23 +62,52 @@ function Vault() {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight">Your vault</h1>
-            <p className="text-xs text-text-s">Saved opportunities — share or apply anytime.</p>
+            <p className="text-xs text-text-s">Saved opportunities — search, filter, share, or apply anytime.</p>
           </div>
+        </div>
+
+        <div className="relative mb-4 max-w-xl">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-s" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search your saved opportunities…"
+            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-surface/60 border border-border focus:border-accent outline-none text-sm"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-8">
+          {["All", ...OPPORTUNITY_CATEGORIES].map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition ${
+                category === c
+                  ? "bg-accent/10 border-accent/40 text-accent"
+                  : "bg-surface border-border text-text-s hover:text-foreground"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
         </div>
 
         {isLoading ? (
           <p className="text-text-s text-sm">Loading…</p>
-        ) : saved.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <p className="text-text-s text-sm">
-            Your vault is empty. Save opportunities from the{" "}
-            <Link to="/dashboard" className="text-accent underline">
-              dashboard
-            </Link>
-            .
+            {saved.length === 0 ? (
+              <>
+                Your vault is empty. Save opportunities from the{" "}
+                <Link to="/dashboard" className="text-accent underline">dashboard</Link>.
+              </>
+            ) : (
+              "No matches for your filters."
+            )}
           </p>
         ) : (
-          <div className="grid md:grid-cols-2 gap-4">
-            {saved.map((o) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((o) => (
               <OpportunityCard key={o.id} opportunity={o} initiallySaved />
             ))}
           </div>

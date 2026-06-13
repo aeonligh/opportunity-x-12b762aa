@@ -16,6 +16,10 @@ import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
+import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authenticated/_admin/queue'
+import { Route as AuthenticatedAdminFeaturedRouteImport } from './routes/_authenticated/_admin/featured'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/_admin/analytics'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -51,6 +55,27 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminQueueRoute = AuthenticatedAdminQueueRouteImport.update({
+  id: '/queue',
+  path: '/queue',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminFeaturedRoute =
+  AuthenticatedAdminFeaturedRouteImport.update({
+    id: '/featured',
+    path: '/featured',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,6 +84,9 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/featured': typeof AuthenticatedAdminFeaturedRoute
+  '/queue': typeof AuthenticatedAdminQueueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,16 +95,23 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/featured': typeof AuthenticatedAdminFeaturedRoute
+  '/queue': typeof AuthenticatedAdminQueueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/_authenticated/_admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/_authenticated/_admin/featured': typeof AuthenticatedAdminFeaturedRoute
+  '/_authenticated/_admin/queue': typeof AuthenticatedAdminQueueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +122,9 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/vault'
     | '/opportunity/$id'
+    | '/analytics'
+    | '/featured'
+    | '/queue'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -95,15 +133,22 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/vault'
     | '/opportunity/$id'
+    | '/analytics'
+    | '/featured'
+    | '/queue'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/_admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/vault'
     | '/opportunity/$id'
+    | '/_authenticated/_admin/analytics'
+    | '/_authenticated/_admin/featured'
+    | '/_authenticated/_admin/queue'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -164,16 +209,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/_admin': {
+      id: '/_authenticated/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_admin/queue': {
+      id: '/_authenticated/_admin/queue'
+      path: '/queue'
+      fullPath: '/queue'
+      preLoaderRoute: typeof AuthenticatedAdminQueueRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/featured': {
+      id: '/_authenticated/_admin/featured'
+      path: '/featured'
+      fullPath: '/featured'
+      preLoaderRoute: typeof AuthenticatedAdminFeaturedRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/analytics': {
+      id: '/_authenticated/_admin/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
+  AuthenticatedAdminFeaturedRoute: typeof AuthenticatedAdminFeaturedRoute
+  AuthenticatedAdminQueueRoute: typeof AuthenticatedAdminQueueRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
+    AuthenticatedAdminFeaturedRoute: AuthenticatedAdminFeaturedRoute,
+    AuthenticatedAdminQueueRoute: AuthenticatedAdminQueueRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedVaultRoute: AuthenticatedVaultRoute,
