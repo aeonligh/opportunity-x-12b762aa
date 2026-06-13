@@ -14,86 +14,213 @@ export type Database = {
   }
   public: {
     Tables: {
+      match_scores: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          reasoning: string | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          reasoning?: string | null
+          score?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          reasoning?: string | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_scores_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opportunities: {
         Row: {
           ai_insight: string | null
+          ai_reasoning: string | null
           apply_url: string | null
+          categories: string[] | null
           category: string
           created_at: string
           deadline: string | null
           description: string | null
           discovered_by: string | null
+          featured: boolean | null
           id: string
           image_url: string | null
           location: string | null
+          match_score_default: number | null
+          module: string | null
+          opportunity_type: string | null
           organization: string
+          source_url: string | null
+          tags: string[] | null
           title: string
+          trending_score: number | null
           updated_at: string
+          verification_score: number | null
+          verified: boolean | null
+          views_count: number | null
         }
         Insert: {
           ai_insight?: string | null
+          ai_reasoning?: string | null
           apply_url?: string | null
+          categories?: string[] | null
           category: string
           created_at?: string
           deadline?: string | null
           description?: string | null
           discovered_by?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
           location?: string | null
+          match_score_default?: number | null
+          module?: string | null
+          opportunity_type?: string | null
           organization: string
+          source_url?: string | null
+          tags?: string[] | null
           title: string
+          trending_score?: number | null
           updated_at?: string
+          verification_score?: number | null
+          verified?: boolean | null
+          views_count?: number | null
         }
         Update: {
           ai_insight?: string | null
+          ai_reasoning?: string | null
           apply_url?: string | null
+          categories?: string[] | null
           category?: string
           created_at?: string
           deadline?: string | null
           description?: string | null
           discovered_by?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
           location?: string | null
+          match_score_default?: number | null
+          module?: string | null
+          opportunity_type?: string | null
           organization?: string
+          source_url?: string | null
+          tags?: string[] | null
           title?: string
+          trending_score?: number | null
           updated_at?: string
+          verification_score?: number | null
+          verified?: boolean | null
+          views_count?: number | null
         }
         Relationships: []
+      }
+      opportunity_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          opportunity_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          opportunity_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          opportunity_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_analytics_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           bio: string | null
+          career_interests: string[] | null
           country: string | null
+          course_of_study: string | null
           created_at: string
+          degree_type: string | null
           display_name: string | null
           education_level: string | null
+          graduation_year: number | null
           id: string
           interests: string[] | null
+          level_of_study: string | null
           onboarded: boolean
+          preferred_categories: string[] | null
+          skill_tags: string[] | null
+          university: string | null
           updated_at: string
         }
         Insert: {
           bio?: string | null
+          career_interests?: string[] | null
           country?: string | null
+          course_of_study?: string | null
           created_at?: string
+          degree_type?: string | null
           display_name?: string | null
           education_level?: string | null
+          graduation_year?: number | null
           id: string
           interests?: string[] | null
+          level_of_study?: string | null
           onboarded?: boolean
+          preferred_categories?: string[] | null
+          skill_tags?: string[] | null
+          university?: string | null
           updated_at?: string
         }
         Update: {
           bio?: string | null
+          career_interests?: string[] | null
           country?: string | null
+          course_of_study?: string | null
           created_at?: string
+          degree_type?: string | null
           display_name?: string | null
           education_level?: string | null
+          graduation_year?: number | null
           id?: string
           interests?: string[] | null
+          level_of_study?: string | null
           onboarded?: boolean
+          preferred_categories?: string[] | null
+          skill_tags?: string[] | null
+          university?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -127,15 +254,42 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -262,6 +416,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
