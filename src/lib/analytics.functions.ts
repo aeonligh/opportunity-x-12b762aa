@@ -19,13 +19,17 @@ export const trackEvent = createServerFn({ method: "POST" })
       event_type: data.event_type,
     });
     if (data.event_type === "view") {
-      await supabaseAdmin.rpc("increment_views", { _id: data.opportunity_id }).catch(() => {
-        // RPC may not exist; fall back to direct update.
-        return supabaseAdmin
+      const { data: row } = await supabaseAdmin
+        .from("opportunities")
+        .select("views_count")
+        .eq("id", data.opportunity_id)
+        .maybeSingle();
+      if (row) {
+        await supabaseAdmin
           .from("opportunities")
-          .update({ views_count: 1 })
+          .update({ views_count: (row.views_count ?? 0) + 1 })
           .eq("id", data.opportunity_id);
-      });
+      }
     }
     return { ok: true };
   });

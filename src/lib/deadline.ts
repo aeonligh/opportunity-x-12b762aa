@@ -1,10 +1,7 @@
 /** Deadline urgency helpers — pure, no deps. */
 
-export type Urgency =
-  | { label: "Deadline Passed"; tone: "passed"; daysLeft: number }
-  | { label: "Closing Soon"; tone: "urgent"; daysLeft: number }
-  | { label: string; tone: "warn" | "ok"; daysLeft: number }
-  | null;
+export type UrgencyTone = "passed" | "urgent" | "warn" | "ok";
+export type Urgency = { label: string; tone: UrgencyTone; daysLeft: number } | null;
 
 /**
  * Best-effort parse of free-form deadline strings ("Jan 15, 2026",
