@@ -28,8 +28,13 @@ function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="max-w-6xl mx-auto h-16 px-6 flex items-center justify-between">
-          <Link to="/" className="font-mono text-lg font-bold tracking-tighter">
-            OPPORTUNITY <span className="text-accent">X</span>
+          <Link to="/" className="flex flex-col leading-tight">
+            <span className="font-mono text-lg font-bold tracking-tighter">
+              OPPORTUNITY <span className="text-accent">X</span>
+            </span>
+            <span className="text-[9px] uppercase tracking-widest text-text-s">
+              Powered by AEON X
+            </span>
           </Link>
           <nav className="flex items-center gap-3">
             <Link
