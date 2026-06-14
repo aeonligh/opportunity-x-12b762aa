@@ -28,7 +28,7 @@ export function computeUrgency(deadline?: string | null, now = new Date()): Urge
   const ms = d.getTime() - now.getTime();
   const days = Math.ceil(ms / 86400000);
   if (days < 0) return { label: "Deadline Passed", tone: "passed", daysLeft: days };
-  if (days <= 7) return { label: `${days} Days Left`, tone: "urgent", daysLeft: days };
-  if (days <= 30) return { label: `${days} Days Left`, tone: "warn", daysLeft: days };
-  return { label: `${days} Days Left`, tone: "ok", daysLeft: days };
+  if (days <= 7) return { label: `Closes in ${days} days`, tone: "urgent", daysLeft: days };
+  if (days <= 30) return { label: `Closes in ${days} days`, tone: "warn", daysLeft: days };
+  return { label: `Closes in ${days} days`, tone: "ok", daysLeft: days };
 }

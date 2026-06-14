@@ -14,6 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          id: string
+          notes: string | null
+          opportunity_id: string
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          opportunity_id: string
+          status: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          opportunity_id?: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cv_optimizations: {
+        Row: {
+          created_at: string
+          id: string
+          score: number
+          suggestions: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          score: number
+          suggestions: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          score?: number
+          suggestions?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      eligibility_results: {
+        Row: {
+          checked_at: string
+          id: string
+          opportunity_id: string
+          requirements_met: string[] | null
+          requirements_missing: string[] | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          checked_at?: string
+          id?: string
+          opportunity_id: string
+          requirements_met?: string[] | null
+          requirements_missing?: string[] | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          checked_at?: string
+          id?: string
+          opportunity_id?: string
+          requirements_met?: string[] | null
+          requirements_missing?: string[] | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eligibility_results_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generated_sops: {
+        Row: {
+          career_goals: string | null
+          content: string
+          created_at: string
+          id: string
+          opportunity_id: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          career_goals?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          opportunity_id?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          career_goals?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          opportunity_id?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_sops_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_scores: {
         Row: {
           created_at: string
@@ -48,6 +189,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       opportunities: {
         Row: {
@@ -175,6 +343,7 @@ export type Database = {
           degree_type: string | null
           display_name: string | null
           education_level: string | null
+          email_notifications: boolean
           graduation_year: number | null
           id: string
           interests: string[] | null
@@ -194,6 +363,7 @@ export type Database = {
           degree_type?: string | null
           display_name?: string | null
           education_level?: string | null
+          email_notifications?: boolean
           graduation_year?: number | null
           id: string
           interests?: string[] | null
@@ -213,6 +383,7 @@ export type Database = {
           degree_type?: string | null
           display_name?: string | null
           education_level?: string | null
+          email_notifications?: boolean
           graduation_year?: number | null
           id?: string
           interests?: string[] | null
@@ -253,6 +424,62 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sent_reminders: {
+        Row: {
+          days_before: number
+          id: string
+          opportunity_id: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          days_before: number
+          id?: string
+          opportunity_id: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          days_before?: number
+          id?: string
+          opportunity_id?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sent_reminders_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_documents: {
+        Row: {
+          document_type: string
+          file_url: string
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          document_type: string
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          document_type?: string
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

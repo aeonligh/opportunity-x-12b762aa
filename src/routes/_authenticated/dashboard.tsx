@@ -13,8 +13,11 @@ import {
   searchOpportunities,
 } from "@/lib/intelligence.functions";
 import { isAdmin } from "@/lib/admin.functions";
+import { getSuccessMetrics, triggerDeadlineCheck } from "@/lib/execution.functions";
 import OpportunityCard, { type Opportunity } from "@/components/OpportunityCard";
 import OpportunitySection from "@/components/OpportunitySection";
+import Header from "@/components/Header";
+import { motion } from "motion/react";
 import {
   Sparkles,
   TrendingUp,
@@ -24,11 +27,15 @@ import {
   Briefcase,
   FileBadge,
   Search,
-  LogOut,
   Loader2,
   RefreshCw,
   Bookmark,
-  Shield,
+  Trophy,
+  Send,
+  CheckCircle2,
+  CalendarDays,
+  Percent,
+  BookmarkCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -56,8 +63,22 @@ function Dashboard() {
   const categoryFn = useServerFn(listByCategory);
   const searchFn = useServerFn(searchOpportunities);
   const adminFn = useServerFn(isAdmin);
+  const getMetricsFn = useServerFn(getSuccessMetrics);
+  const triggerDeadlineCheckFn = useServerFn(triggerDeadlineCheck);
 
   const { data: admin } = useQuery({ queryKey: ["isAdmin"], queryFn: () => adminFn() });
+  
+  const { data: metrics } = useQuery({
+    queryKey: ["successMetrics"],
+    queryFn: () => getMetricsFn(),
+  });
+
+  // Check deadlines on dashboard mount
+  useEffect(() => {
+    triggerDeadlineCheckFn().catch((err) => {
+      console.warn("Could not check deadlines:", err);
+    });
+  }, [triggerDeadlineCheckFn]);
 
   const sections: Array<{
     key: string;
@@ -179,40 +200,72 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
-        <Link to="/" className="flex flex-col leading-tight">
-          <span className="font-mono text-lg font-bold tracking-tighter">
-            OPPORTUNITY <span className="text-accent">X</span>
-          </span>
-          <span className="text-[9px] uppercase tracking-widest text-text-s">
-            Powered by AEON X
-          </span>
-        </Link>
-        <nav className="flex items-center gap-2">
-          <Link to="/dashboard" className="px-3 py-1.5 text-xs font-semibold rounded-lg text-accent">
-            Discover
-          </Link>
-          <Link to="/vault" className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground">
-            Vault
-          </Link>
-          <Link to="/onboarding" className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground">
-            Profile
-          </Link>
-          {admin?.admin && (
-            <Link
-              to="/admin/queue"
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg text-text-s hover:text-foreground inline-flex items-center gap-1"
-            >
-              <Shield size={12} /> Admin
-            </Link>
-          )}
-          <button onClick={signOut} title="Sign out" className="p-2 rounded-lg text-text-s hover:text-foreground transition">
-            <LogOut size={16} />
-          </button>
-        </nav>
-      </header>
+      <Header />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Success Metrics Dashboard */}
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="text-accent" size={16} />
+            <h2 className="text-xs font-mono font-bold tracking-wider uppercase">Opportunity Success Dashboard</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {[
+              {
+                label: "Saved Opportunities",
+                value: metrics?.savedOpportunities ?? 0,
+                icon: <BookmarkCheck className="text-accent" size={16} />,
+                tone: "border-accent/20 bg-accent/5",
+              },
+              {
+                label: "Applications Submitted",
+                value: metrics?.submitted ?? 0,
+                icon: <Send className="text-[oklch(0.85_0.20_150)]" size={16} />,
+                tone: "border-[oklch(0.85_0.20_150)]/20 bg-[oklch(0.85_0.20_150)]/5",
+              },
+              {
+                label: "Interviews Secured",
+                value: metrics?.interviews ?? 0,
+                icon: <CalendarDays className="text-[oklch(0.88_0.18_95)]" size={16} />,
+                tone: "border-[oklch(0.88_0.18_95)]/20 bg-[oklch(0.88_0.18_95)]/5",
+              },
+              {
+                label: "Acceptances (Wins)",
+                value: metrics?.acceptances ?? 0,
+                icon: <CheckCircle2 className="text-[oklch(0.72_0.17_152)]" size={16} />,
+                tone: "border-[oklch(0.72_0.17_152)]/20 bg-[oklch(0.72_0.17_152)]/5",
+              },
+              {
+                label: "Success Rate",
+                value: `${metrics?.successRate ?? 0}%`,
+                icon: <Percent className="text-accent" size={16} />,
+                tone: "border-accent/20 bg-accent/5 col-span-2 md:col-span-1",
+              },
+            ].map((card, idx) => (
+              <div
+                key={card.label}
+                className={`p-4 rounded-2xl border ${card.tone} flex flex-col justify-between h-28 backdrop-blur-md`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wider text-text-s font-semibold leading-tight">{card.label}</span>
+                  {card.icon}
+                </div>
+                <div>
+                  <div className="text-2xl font-black font-mono tracking-tight text-foreground">{card.value}</div>
+                  {card.label === "Success Rate" && (
+                    <div className="w-full bg-border h-1 rounded-full overflow-hidden mt-2">
+                      <div 
+                        className="bg-accent h-full transition-all duration-500"
+                        style={{ width: `${metrics?.successRate ?? 0}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
             Welcome to the Intelligence Engine

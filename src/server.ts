@@ -37,6 +37,22 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+// Start periodic deadline intelligence scan (every hour) when the server starts
+if (typeof process !== "undefined" && process.env.NODE_ENV !== "test") {
+  import("./lib/deadline-intelligence.server")
+    .then((m) => {
+      // Run once on startup
+      void m.runDeadlineIntelligenceCheck();
+      // Schedule hourly runs
+      setInterval(() => {
+        void m.runDeadlineIntelligenceCheck();
+      }, 60 * 60 * 1000);
+    })
+    .catch((err) => {
+      console.error("[Server Startup] Failed to load deadline intelligence:", err);
+    });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
@@ -52,3 +68,4 @@ export default {
     }
   },
 };
+

@@ -17,6 +17,8 @@ import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
+import { Route as AuthenticatedDashboardDocumentsRouteImport } from './routes/_authenticated/dashboard.documents'
+import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
 import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authenticated/_admin/queue'
 import { Route as AuthenticatedAdminFeaturedRouteImport } from './routes/_authenticated/_admin/featured'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/_admin/analytics'
@@ -59,6 +61,18 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/_admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardDocumentsRoute =
+  AuthenticatedDashboardDocumentsRouteImport.update({
+    id: '/documents',
+    path: '/documents',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardApplicationsRoute =
+  AuthenticatedDashboardApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAdminQueueRoute = AuthenticatedAdminQueueRouteImport.update({
   id: '/queue',
   path: '/queue',
@@ -80,24 +94,28 @@ const AuthenticatedAdminAnalyticsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/featured': typeof AuthenticatedAdminFeaturedRoute
   '/queue': typeof AuthenticatedAdminQueueRoute
+  '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/featured': typeof AuthenticatedAdminFeaturedRoute
   '/queue': typeof AuthenticatedAdminQueueRoute
+  '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,13 +123,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/_authenticated/_admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/_admin/featured': typeof AuthenticatedAdminFeaturedRoute
   '/_authenticated/_admin/queue': typeof AuthenticatedAdminQueueRoute
+  '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -125,6 +145,8 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/featured'
     | '/queue'
+    | '/dashboard/applications'
+    | '/dashboard/documents'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -136,6 +158,8 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/featured'
     | '/queue'
+    | '/dashboard/applications'
+    | '/dashboard/documents'
   id:
     | '__root__'
     | '/'
@@ -149,6 +173,8 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin/analytics'
     | '/_authenticated/_admin/featured'
     | '/_authenticated/_admin/queue'
+    | '/_authenticated/dashboard/applications'
+    | '/_authenticated/dashboard/documents'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,6 +242,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard/documents': {
+      id: '/_authenticated/dashboard/documents'
+      path: '/documents'
+      fullPath: '/dashboard/documents'
+      preLoaderRoute: typeof AuthenticatedDashboardDocumentsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/applications': {
+      id: '/_authenticated/dashboard/applications'
+      path: '/applications'
+      fullPath: '/dashboard/applications'
+      preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/_admin/queue': {
       id: '/_authenticated/_admin/queue'
       path: '/queue'
@@ -258,16 +298,33 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
+  AuthenticatedDashboardDocumentsRoute: typeof AuthenticatedDashboardDocumentsRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardApplicationsRoute:
+      AuthenticatedDashboardApplicationsRoute,
+    AuthenticatedDashboardDocumentsRoute: AuthenticatedDashboardDocumentsRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedVaultRoute: AuthenticatedVaultRoute,
 }
@@ -284,13 +341,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
