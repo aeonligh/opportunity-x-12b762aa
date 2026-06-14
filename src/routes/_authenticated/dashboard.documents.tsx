@@ -348,50 +348,52 @@ function DocumentVault() {
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  {latestCV.suggestions.formatting?.length > 0 && (
-                    <div className="space-y-1">
-                      <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Formatting & Structure</h5>
-                      <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                        {latestCV.suggestions.formatting.map((s: string, idx: number) => (
-                          <li key={idx}>{s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {latestCV.suggestions.keywords?.length > 0 && (
-                    <div className="space-y-1">
-                      <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Target Keywords</h5>
-                      <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                        {latestCV.suggestions.keywords.map((s: string, idx: number) => (
-                          <li key={idx}>{s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {latestCV.suggestions.achievements?.length > 0 && (
-                    <div className="space-y-1">
-                      <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Achievements & Quantification</h5>
-                      <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                        {latestCV.suggestions.achievements.map((s: string, idx: number) => (
-                          <li key={idx}>{s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {latestCV.suggestions.relevance?.length > 0 && (
-                    <div className="space-y-1">
-                      <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Scholarship Relevance</h5>
-                      <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                        {latestCV.suggestions.relevance.map((s: string, idx: number) => (
-                          <li key={idx}>{s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {(() => {
+                    const s = (latestCV.suggestions ?? {}) as {
+                      formatting?: string[];
+                      keywords?: string[];
+                      achievements?: string[];
+                      relevance?: string[];
+                    };
+                    return (
+                      <>
+                        {s.formatting && s.formatting.length > 0 && (
+                          <div className="space-y-1">
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Formatting & Structure</h5>
+                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
+                              {s.formatting.map((t, idx) => (<li key={idx}>{t}</li>))}
+                            </ul>
+                          </div>
+                        )}
+                        {s.keywords && s.keywords.length > 0 && (
+                          <div className="space-y-1">
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Target Keywords</h5>
+                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
+                              {s.keywords.map((t, idx) => (<li key={idx}>{t}</li>))}
+                            </ul>
+                          </div>
+                        )}
+                        {s.achievements && s.achievements.length > 0 && (
+                          <div className="space-y-1">
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Achievements & Quantification</h5>
+                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
+                              {s.achievements.map((t, idx) => (<li key={idx}>{t}</li>))}
+                            </ul>
+                          </div>
+                        )}
+                        {s.relevance && s.relevance.length > 0 && (
+                          <div className="space-y-1">
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Scholarship Relevance</h5>
+                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
+                              {s.relevance.map((t, idx) => (<li key={idx}>{t}</li>))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
+
               </div>
             )}
           </div>
