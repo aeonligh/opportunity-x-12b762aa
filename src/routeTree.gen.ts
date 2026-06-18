@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminFeaturedRouteImport } from './routes/_authenticated/_admin/featured'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/_admin/analytics'
 import { Route as ApiPublicHooksDeadlineRemindersRouteImport } from './routes/api/public/hooks/deadline-reminders'
+import { Route as ApiPublicHooksCrawlOpportunitiesRouteImport } from './routes/api/public/hooks/crawl-opportunities'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -97,6 +98,12 @@ const ApiPublicHooksDeadlineRemindersRoute =
     path: '/api/public/hooks/deadline-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksCrawlOpportunitiesRoute =
+  ApiPublicHooksCrawlOpportunitiesRouteImport.update({
+    id: '/api/public/hooks/crawl-opportunities',
+    path: '/api/public/hooks/crawl-opportunities',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/queue': typeof AuthenticatedAdminQueueRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
+  '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
   '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
 }
 export interface FileRoutesByTo {
@@ -124,6 +132,7 @@ export interface FileRoutesByTo {
   '/queue': typeof AuthenticatedAdminQueueRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
+  '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
   '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
 }
 export interface FileRoutesById {
@@ -141,6 +150,7 @@ export interface FileRoutesById {
   '/_authenticated/_admin/queue': typeof AuthenticatedAdminQueueRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
+  '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
   '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
 }
 export interface FileRouteTypes {
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/queue'
     | '/dashboard/applications'
     | '/dashboard/documents'
+    | '/api/public/hooks/crawl-opportunities'
     | '/api/public/hooks/deadline-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/queue'
     | '/dashboard/applications'
     | '/dashboard/documents'
+    | '/api/public/hooks/crawl-opportunities'
     | '/api/public/hooks/deadline-reminders'
   id:
     | '__root__'
@@ -187,6 +199,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_admin/queue'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/documents'
+    | '/api/public/hooks/crawl-opportunities'
     | '/api/public/hooks/deadline-reminders'
   fileRoutesById: FileRoutesById
 }
@@ -195,6 +208,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
+  ApiPublicHooksCrawlOpportunitiesRoute: typeof ApiPublicHooksCrawlOpportunitiesRoute
   ApiPublicHooksDeadlineRemindersRoute: typeof ApiPublicHooksDeadlineRemindersRoute
 }
 
@@ -298,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDeadlineRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/crawl-opportunities': {
+      id: '/api/public/hooks/crawl-opportunities'
+      path: '/api/public/hooks/crawl-opportunities'
+      fullPath: '/api/public/hooks/crawl-opportunities'
+      preLoaderRoute: typeof ApiPublicHooksCrawlOpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -358,6 +379,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OpportunityIdRoute: OpportunityIdRoute,
+  ApiPublicHooksCrawlOpportunitiesRoute: ApiPublicHooksCrawlOpportunitiesRoute,
   ApiPublicHooksDeadlineRemindersRoute: ApiPublicHooksDeadlineRemindersRoute,
 }
 export const routeTree = rootRouteImport

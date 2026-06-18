@@ -76,6 +76,45 @@ export type Database = {
         }
         Relationships: []
       }
+      discovery_runs: {
+        Row: {
+          candidates_found: number | null
+          category: string | null
+          created_at: string
+          error: string | null
+          id: string
+          inserted_count: number | null
+          query: string | null
+          source: string
+          user_id: string | null
+          verified_count: number | null
+        }
+        Insert: {
+          candidates_found?: number | null
+          category?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          inserted_count?: number | null
+          query?: string | null
+          source?: string
+          user_id?: string | null
+          verified_count?: number | null
+        }
+        Update: {
+          candidates_found?: number | null
+          category?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          inserted_count?: number | null
+          query?: string | null
+          source?: string
+          user_id?: string | null
+          verified_count?: number | null
+        }
+        Relationships: []
+      }
       eligibility_results: {
         Row: {
           checked_at: string
@@ -224,23 +263,29 @@ export type Database = {
           apply_url: string | null
           categories: string[] | null
           category: string
+          confidence_score: number | null
           created_at: string
           deadline: string | null
           description: string | null
           discovered_by: string | null
+          discovery_query: string | null
           featured: boolean | null
           id: string
           image_url: string | null
+          last_verified_at: string | null
           location: string | null
           match_score_default: number | null
           module: string | null
           opportunity_type: string | null
           organization: string
+          source_domain: string | null
           source_url: string | null
           tags: string[] | null
           title: string
           trending_score: number | null
           updated_at: string
+          url_hash: string
+          verification_method: string | null
           verification_score: number | null
           verified: boolean | null
           views_count: number | null
@@ -251,23 +296,29 @@ export type Database = {
           apply_url?: string | null
           categories?: string[] | null
           category: string
+          confidence_score?: number | null
           created_at?: string
           deadline?: string | null
           description?: string | null
           discovered_by?: string | null
+          discovery_query?: string | null
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          last_verified_at?: string | null
           location?: string | null
           match_score_default?: number | null
           module?: string | null
           opportunity_type?: string | null
           organization: string
+          source_domain?: string | null
           source_url?: string | null
           tags?: string[] | null
           title: string
           trending_score?: number | null
           updated_at?: string
+          url_hash: string
+          verification_method?: string | null
           verification_score?: number | null
           verified?: boolean | null
           views_count?: number | null
@@ -278,23 +329,29 @@ export type Database = {
           apply_url?: string | null
           categories?: string[] | null
           category?: string
+          confidence_score?: number | null
           created_at?: string
           deadline?: string | null
           description?: string | null
           discovered_by?: string | null
+          discovery_query?: string | null
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          last_verified_at?: string | null
           location?: string | null
           match_score_default?: number | null
           module?: string | null
           opportunity_type?: string | null
           organization?: string
+          source_domain?: string | null
           source_url?: string | null
           tags?: string[] | null
           title?: string
           trending_score?: number | null
           updated_at?: string
+          url_hash?: string
+          verification_method?: string | null
           verification_score?: number | null
           verified?: boolean | null
           views_count?: number | null
