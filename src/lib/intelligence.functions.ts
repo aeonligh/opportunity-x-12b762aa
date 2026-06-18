@@ -266,13 +266,15 @@ async function verifyCandidate(c: AICandidate): Promise<VerifiedCandidate | null
 
 // ───────── Stage 3 — Pipeline core ─────────
 
+type SupabaseAdmin = typeof import("@/integrations/supabase/client.server")["supabaseAdmin"];
+
 async function runPipeline(opts: {
   profile: Record<string, unknown> | null;
   query: string;
   category: string;
   source: "user" | "cron" | "live_search";
   userId?: string | null;
-  supabaseAdmin: ReturnType<typeof import("@/integrations/supabase/client.server")["supabaseAdmin"]["from"]> extends never ? never : import("@/integrations/supabase/client.server")["supabaseAdmin"];
+  supabaseAdmin: SupabaseAdmin;
 }) {
   const { profile, query, category, source, userId, supabaseAdmin } = opts;
   const runStart = Date.now();
