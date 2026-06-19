@@ -103,39 +103,45 @@ export default function EligibilityPanel({ opportunityId, aiReasoning }: Props) 
               <p className="text-xs leading-relaxed">{aiReasoning}</p>
             </div>
           )}
-          {cached.requirements_met?.length > 0 && (
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mb-1.5">
-                Requirements you meet
+          {(() => {
+            const met = (cached.requirements_met ?? []) as string[];
+            return met.length > 0 ? (
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mb-1.5">
+                  Requirements you meet
+                </div>
+                <ul className="space-y-1.5">
+                  {met.map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs">
+                      <CheckCircle2
+                        size={14}
+                        className="text-[oklch(0.78_0.17_152)] mt-0.5 shrink-0"
+                      />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-1.5">
-                {cached.requirements_met.map((r: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-xs">
-                    <CheckCircle2
-                      size={14}
-                      className="text-[oklch(0.78_0.17_152)] mt-0.5 shrink-0"
-                    />
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {cached.requirements_missing?.length > 0 && (
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mb-1.5">
-                Gaps to close
+            ) : null;
+          })()}
+          {(() => {
+            const missing = (cached.requirements_missing ?? []) as string[];
+            return missing.length > 0 ? (
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mb-1.5">
+                  Gaps to close
+                </div>
+                <ul className="space-y-1.5">
+                  {missing.map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs">
+                      <XCircle size={14} className="text-destructive mt-0.5 shrink-0" />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-1.5">
-                {cached.requirements_missing.map((r: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-xs">
-                    <XCircle size={14} className="text-destructive mt-0.5 shrink-0" />
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            ) : null;
+          })()}
           <button
             type="button"
             onClick={() => check.mutate()}
