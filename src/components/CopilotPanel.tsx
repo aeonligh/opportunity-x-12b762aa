@@ -41,9 +41,7 @@ export default function CopilotPanel({ opportunityId, opportunityTitle }: Props)
     enabled: !!userId,
   });
 
-  const sopsForThis = allSops.filter(
-    (s: { opportunity_id: string }) => s.opportunity_id === opportunityId,
-  );
+  const sopsForThis = allSops.filter((s) => s.opportunity_id === opportunityId);
 
   const generate = useMutation({
     mutationFn: () =>
