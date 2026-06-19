@@ -38,6 +38,12 @@ function Landing() {
           </Link>
           <nav className="flex items-center gap-3">
             <Link
+              to="/search"
+              className="px-4 py-2 rounded-xl border border-border text-sm font-semibold text-text-s hover:text-foreground hover:border-accent/40 transition"
+            >
+              Live Search
+            </Link>
+            <Link
               to="/auth"
               className="px-4 py-2 rounded-xl bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition"
             >
