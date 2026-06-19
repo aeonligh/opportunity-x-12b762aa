@@ -7,6 +7,8 @@ import { trackEvent } from "@/lib/analytics.functions";
 import ShareToWhatsApp from "@/components/ShareToWhatsApp";
 import MatchScoreBadge from "@/components/MatchScoreBadge";
 import UrgencyBadge from "@/components/UrgencyBadge";
+import EligibilityPanel from "@/components/EligibilityPanel";
+import CopilotPanel from "@/components/CopilotPanel";
 import {
   ArrowLeft,
   Building2,
