@@ -71,12 +71,18 @@ function Landing() {
             Discover scholarships, internships, fellowships, grants and webinars — then share them
             to WhatsApp in one tap. Built for students, campus groups, and community organizers.
           </p>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link
               to="/auth"
               className="px-6 py-3 rounded-xl bg-accent text-accent-foreground font-semibold hover:opacity-90 transition inline-flex items-center gap-2"
             >
               <Rocket size={18} /> Start discovering
+            </Link>
+            <Link
+              to="/search"
+              className="px-6 py-3 rounded-xl border border-border font-semibold hover:border-accent/40 transition inline-flex items-center gap-2"
+            >
+              <Sparkles size={18} /> Try live search
             </Link>
           </div>
         </section>
