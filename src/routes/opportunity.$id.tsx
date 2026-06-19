@@ -194,6 +194,11 @@ function OpportunityDetail() {
           )}
         </div>
 
+        <div className="grid md:grid-cols-2 gap-4 mt-6">
+          <EligibilityPanel opportunityId={op.id} aiReasoning={op.ai_insight} />
+          <CopilotPanel opportunityId={op.id} opportunityTitle={op.title} />
+        </div>
+
         <div className="mt-12 pt-6 border-t border-border text-xs text-text-s">
           🚀 Discovered via <Link to="/" className="text-accent">Opportunity X</Link> · Powered by AEON X
         </div>
