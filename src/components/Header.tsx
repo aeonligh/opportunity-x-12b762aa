@@ -74,6 +74,14 @@ export default function Header() {
         >
           Discover
         </Link>
+        <Link
+          to="/search"
+          activeProps={{ className: "text-accent bg-accent/5 border border-accent/20" }}
+          inactiveProps={{ className: "text-text-s hover:text-foreground border border-transparent" }}
+          className="px-3 py-1.5 text-xs font-semibold rounded-lg transition"
+        >
+          Live Search
+        </Link>
         <Link 
           to="/dashboard/applications" 
           activeProps={{ className: "text-accent bg-accent/5 border border-accent/20" }}
