@@ -38,6 +38,12 @@ function Landing() {
           </Link>
           <nav className="flex items-center gap-3">
             <Link
+              to="/search"
+              className="px-4 py-2 rounded-xl border border-border text-sm font-semibold text-text-s hover:text-foreground hover:border-accent/40 transition"
+            >
+              Live Search
+            </Link>
+            <Link
               to="/auth"
               className="px-4 py-2 rounded-xl bg-accent text-accent-foreground text-sm font-semibold hover:opacity-90 transition"
             >
@@ -65,12 +71,18 @@ function Landing() {
             Discover scholarships, internships, fellowships, grants and webinars — then share them
             to WhatsApp in one tap. Built for students, campus groups, and community organizers.
           </p>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link
               to="/auth"
               className="px-6 py-3 rounded-xl bg-accent text-accent-foreground font-semibold hover:opacity-90 transition inline-flex items-center gap-2"
             >
               <Rocket size={18} /> Start discovering
+            </Link>
+            <Link
+              to="/search"
+              className="px-6 py-3 rounded-xl border border-border font-semibold hover:border-accent/40 transition inline-flex items-center gap-2"
+            >
+              <Sparkles size={18} /> Try live search
             </Link>
           </div>
         </section>

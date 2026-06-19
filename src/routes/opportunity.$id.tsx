@@ -7,6 +7,8 @@ import { trackEvent } from "@/lib/analytics.functions";
 import ShareToWhatsApp from "@/components/ShareToWhatsApp";
 import MatchScoreBadge from "@/components/MatchScoreBadge";
 import UrgencyBadge from "@/components/UrgencyBadge";
+import EligibilityPanel from "@/components/EligibilityPanel";
+import CopilotPanel from "@/components/CopilotPanel";
 import {
   ArrowLeft,
   Building2,
@@ -190,6 +192,11 @@ function OpportunityDetail() {
               <Link2 size={12} /> Source
             </a>
           )}
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4 mt-6">
+          <EligibilityPanel opportunityId={op.id} aiReasoning={op.ai_insight} />
+          <CopilotPanel opportunityId={op.id} opportunityTitle={op.title} />
         </div>
 
         <div className="mt-12 pt-6 border-t border-border text-xs text-text-s">
