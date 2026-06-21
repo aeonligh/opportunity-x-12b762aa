@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "sonner";
+import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 
 function NotFoundComponent() {
   return (
@@ -114,13 +115,20 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function ThemedToaster() {
+  const { resolved } = useTheme();
+  return <Toaster richColors theme={resolved} position="top-right" />;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster richColors theme="dark" position="top-right" />
+      <ThemeProvider>
+        <Outlet />
+        <ThemedToaster />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

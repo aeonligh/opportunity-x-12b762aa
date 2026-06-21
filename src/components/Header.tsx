@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/admin.functions";
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { toast } from "sonner";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   const navigate = useNavigate();
