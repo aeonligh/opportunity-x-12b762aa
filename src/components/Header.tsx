@@ -129,6 +129,7 @@ export default function Header() {
       </nav>
 
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         {/* Notifications Popover */}
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
