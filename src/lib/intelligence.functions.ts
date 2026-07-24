@@ -181,22 +181,13 @@ Return ${count} verifiable opportunities now, biased toward open/upcoming deadli
 // ───────── Stage 2 — Verification ─────────
 
 async function firecrawlScrape(url: string): Promise<{ ok: boolean; title?: string; text?: string }> {
-  const key = process.env.FIRECRAWL_API_KEY;
-  if (!key) return { ok: false };
-  try {
-    const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: true, timeout: 15000 }),
-    });
-    if (!res.ok) return { ok: false };
-    const j = await res.json();
-    const md: string = j?.data?.markdown ?? j?.markdown ?? "";
-    const title: string = j?.data?.metadata?.title ?? j?.metadata?.title ?? "";
-    if (md.length < 200) return { ok: false };
-    return { ok: true, title, text: md.slice(0, 4000) };
-  } catch { return { ok: false }; }
+  const { scrapePage, isFirecrawlConfigured } = await import("./firecrawl.server");
+  if (!isFirecrawlConfigured()) return { ok: false };
+  const r = await scrapePage(url);
+  if (!r.ok) return { ok: false };
+  return { ok: true, title: r.title, text: r.text.slice(0, 4000) };
 }
+
 
 async function httpHeadVerify(url: string): Promise<boolean> {
   try {
