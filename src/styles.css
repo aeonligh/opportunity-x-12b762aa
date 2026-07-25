@@ -87,4 +87,41 @@ html.light {
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: var(--color-border); border-radius: 9999px;
   }
+
+  .glass-panel {
+    background: color-mix(in oklab, var(--surface) 55%, transparent);
+    backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, white 6%, transparent) inset,
+      0 20px 60px -20px color-mix(in oklab, black 55%, transparent);
+  }
+  html.light .glass-panel {
+    background: color-mix(in oklab, white 70%, transparent);
+    box-shadow:
+      0 1px 0 color-mix(in oklab, white 80%, transparent) inset,
+      0 20px 50px -25px color-mix(in oklab, var(--foreground) 20%, transparent);
+  }
+
+  .aurora-bg {
+    background:
+      radial-gradient(60% 60% at 20% 30%, color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 60%),
+      radial-gradient(50% 50% at 80% 20%, color-mix(in oklab, oklch(0.75 0.18 152) 18%, transparent) 0%, transparent 60%),
+      radial-gradient(60% 60% at 60% 90%, color-mix(in oklab, oklch(0.6 0.2 280) 18%, transparent) 0%, transparent 60%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--accent), oklch(0.78 0.18 152));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .grid-fade {
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
 }
