@@ -111,18 +111,6 @@ function Nav() {
   );
 }
 
-function RotatingPlaceholder() {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % PLACEHOLDERS.length), 2600);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <span key={i} className="animate-[fade-in_0.4s_ease-out] text-text-s truncate">
-      {PLACEHOLDERS[i]}
-    </span>
-  );
-}
 
 function Hero() {
   const [running, setRunning] = useState(false);
