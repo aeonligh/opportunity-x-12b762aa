@@ -111,22 +111,18 @@ function Nav() {
   );
 }
 
-function RotatingPlaceholder() {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % PLACEHOLDERS.length), 2600);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <span key={i} className="animate-[fade-in_0.4s_ease-out] text-text-s truncate">
-      {PLACEHOLDERS[i]}
-    </span>
-  );
-}
 
 function Hero() {
   const [running, setRunning] = useState(false);
   const [step, setStep] = useState(0);
+  const [query, setQuery] = useState("");
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
+
+  useEffect(() => {
+    if (query) return;
+    const t = setInterval(() => setPlaceholderIdx((v) => (v + 1) % PLACEHOLDERS.length), 2600);
+    return () => clearInterval(t);
+  }, [query]);
 
   const simulate = () => {
     if (running) return;
@@ -143,6 +139,8 @@ function Hero() {
       }
     }, 550);
   };
+
+  const suggestionChips = ["DAAD", "Scholarships in Germany", "Research in Canada", "Fully funded", "Fulbright"];
 
   return (
     <section className="relative pt-28 pb-16 md:pt-36 md:pb-24">
@@ -185,13 +183,18 @@ function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="glass-panel rounded-2xl p-2 flex items-center gap-2 mb-4"
+            className="glass-panel rounded-2xl p-2 flex items-center gap-2 mb-3"
           >
             <div className="flex items-center gap-3 flex-1 min-w-0 px-3">
               <Search size={16} className="text-accent shrink-0" />
-              <div className="text-sm truncate min-w-0">
-                <RotatingPlaceholder />
-              </div>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={PLACEHOLDERS[placeholderIdx]}
+                className="w-full bg-transparent outline-none text-sm placeholder:text-text-s"
+                aria-label="Explore the opportunity globe"
+              />
             </div>
             <button
               type="button"
@@ -201,6 +204,19 @@ function Hero() {
               <Sparkles size={12} /> Ask AI
             </button>
           </motion.div>
+
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {suggestionChips.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setQuery(s)}
+                className="px-2.5 py-1 rounded-full border border-border bg-surface/50 text-[10px] text-text-s hover:text-accent hover:border-accent/40 transition"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
 
           <div className="h-6 mb-6">
             {running && (
@@ -250,17 +266,18 @@ function Hero() {
           <div className="absolute inset-0 rounded-full bg-accent/10 blur-3xl" />
           <div className="relative w-full h-full">
             <Suspense fallback={<GlobeFallback />}>
-              <OpportunityGlobe activeCount={30} />
+              <OpportunityGlobe query={query} />
             </Suspense>
           </div>
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 glass-panel px-3 py-1.5 rounded-full text-[10px] font-mono text-text-s inline-flex items-center gap-2 whitespace-nowrap">
-            <Globe2 size={11} className="text-accent" /> Drag · Zoom · Explore
+            <Globe2 size={11} className="text-accent" /> Search · Hover · Click a country
           </div>
         </div>
       </div>
     </section>
   );
 }
+
 
 function GlobeFallback() {
   return (
