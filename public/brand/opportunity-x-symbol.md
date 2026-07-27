@@ -1,41 +1,46 @@
 # Opportunity X — The Convergence
 
-One symbol. Four arcs. One point.
+**Two curves. One point.**
 
 ## The Idea
-The exact point where preparation meets opportunity — rendered as pure geometry. Four arcs sweep inward from the four corners of the world and cross at a single luminous center. That crossing is the entire brand: the moment a person and a possibility meet and become a path.
+The exact point where preparation meets opportunity — rendered as pure geometry. Two trajectories arrive from opposite ends of the world, curve inward, and pinch together at the center of the frame. They do not merely cross. They meet. That meeting is the entire brand: the moment a person and a possibility become one path.
 
 ## Geometry
-- Canvas: a 256×256 square (the platonic frame — infinitely scalable).
-- Four identical arcs, each a segment of a circle whose center sits on the opposite outer edge, radius = 176 (11/16 of the canvas).
-- The arcs are congruent under 90° rotation and mirrored across both axes and both diagonals — eightfold symmetry.
-- All four arcs pass exactly through the geometric center (128,128).
-- At the center, a small solid dot marks the point of convergence.
+- Frame: 256 × 256 — the platonic square, infinitely scalable.
+- Two cubic Bézier curves, each running corner-to-diagonal-corner.
+- Both control points of both curves sit on the vertical axis of symmetry (x = 128), at y = 96 and y = 160 — pulling each trajectory toward the center and pinching them together at (128, 128).
+- The two curves are exact mirror reflections across the vertical axis, and the whole mark is mirror-symmetric across the horizontal axis as well.
+- Single stroke weight. Rounded caps. One color. No fill.
 
-Nothing is arbitrary. Every measurement is derived from the frame itself, which is why the mark is drawable from memory: two crossing curves, one point.
+Nothing is arbitrary. Every coordinate is derived from the frame itself, which is why the mark is drawable from memory: two curves that meet in the middle.
 
 ## Hidden Meaning (revealed slowly)
-- **The X.** The four arcs form an implicit X — the name, never spelled.
-- **The Aperture.** The same four arcs read as a camera aperture opening — discovery, verification, focus.
-- **The Compass Rose.** Rotated 45°, the arcs become the cardinal reach of a compass — opportunities across the world.
-- **The Seed / The Eye.** The negative space at the center is a lens, a seed, a pupil — human potential observed and grown.
-- **The Four Stages.** Four arcs = Discover · Verify · Rank · Connect. The pipeline made visible without a diagram.
-- **The Point.** The single dot is the user. Every arc bends toward that person.
+- **The X.** The two curves form the letter — the name, never spelled.
+- **The Meeting.** The pinch at the center is the moment preparation meets opportunity. It is not drawn. It is where the two lines become one.
+- **The Hourglass.** Read vertically, the mark is an hourglass — time, deadlines, the urgency the platform lives on.
+- **The Lens / Aperture.** The negative space between the curves is a vesica, an eye, a lens focusing the world onto a point — discovery, verification, focus.
+- **Two Sides of One Thing.** One curve is the person; one curve is the opportunity. Their paths are already shaped to meet.
+- **A Path Continued.** The strokes do not stop at the center. They pass through it. Meeting an opportunity is not an ending — it is the beginning of a new trajectory.
 
 ## Why It Lasts
-- **Impossible to date.** No gradients, no bevels, no trend cues. It could have been carved on stone in 1400 or laser-etched on titanium in 2140.
-- **Reduces perfectly.** Works as a 16px favicon, a 3mm embossed metal button, a watch face, a billboard, a watermark, a monochrome tattoo.
-- **Currency-agnostic medium.** Renders in one stroke color — ink, gold leaf, glass etching, letterpress, neon, single-color print.
-- **Memorable at first sight.** Two curves crossing at a point is one of the oldest and most stable visual archetypes in human culture (the mandorla, the vesica, the star chart).
+- **Impossible to date.** No gradients, no bevels, no trend cues. It could have been chiseled in stone in 1400 or laser-etched on titanium in 2140.
+- **Reduces perfectly.** Reads at 16 × 16 px as a favicon, at 3 mm as embossed metal, at a billboard scale as monolithic form.
+- **Medium-agnostic.** Single stroke color: ink, gold leaf, glass etching, letterpress, laser, neon, embroidery, single-color print.
+- **One-second memory.** Two curves that meet is one of the oldest and most stable visual archetypes: the mandorla, the vesica piscis, the hourglass, the X on a treasure map.
+- **Drawable by anyone.** A child can draw it. A machine can reproduce it. That is the mark of a mark that lasts.
 
 ## Motion
-When animated, the four arcs draw themselves inward from their outer corners — trajectories from four ends of the earth — and meet at the center. The point ignites on impact. No spin. No bounce. One breath, then stillness. Intelligence converging into a single, inevitable moment.
+When animated, the two curves draw themselves inward from their opposite corners — trajectories from opposite ends of the earth — and meet at the center. No spin. No bounce. One breath, and the mark completes. Intelligence, possibility, and preparation converging into a single, inevitable moment.
 
-## Usage
-- Symbol color: `currentColor` — inherits from context. Deploy as ink, gold, glass, or single-tone brand color.
-- Minimum size: 16×16px (favicon safe).
-- Never enclose in a badge. Never pair with a wordmark inside the frame.
-- Clear space: at least one arc-radius (½ the mark) on every side.
-- Do not add a second color. Do not skew. Do not rotate. The eightfold symmetry is the identity.
+Suggested timing: 900 ms `ease-out` stroke-draw, both paths in parallel, arriving on the same frame.
 
-File: `public/brand/opportunity-x-symbol.svg`
+## Rules of Use
+- Symbol color: `currentColor` — inherits from any context.
+- Minimum size: 16 × 16 px (favicon safe).
+- Clear space: at least half the mark's width on every side.
+- Never enclose in a badge or circular container.
+- Never pair with a wordmark inside the frame.
+- Do not add a second color, a fill, a gradient, or a shadow.
+- Do not rotate, skew, or add a third curve. The two-fold mirror symmetry is the identity.
+
+Files: `public/brand/opportunity-x-symbol.svg` · `public/brand/opportunity-x-symbol.md`
