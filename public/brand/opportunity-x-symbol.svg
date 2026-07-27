@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Opportunity X">
+  <title>Opportunity X — The Convergence</title>
+  <!--
+    Two curves. One point.
+
+    Each stroke is a cubic Bézier from an outer corner of a 256×256 frame
+    to the diagonally opposite corner. Both control points sit on the
+    vertical axis of symmetry (x = 128) at y = 96 and y = 160 — pulling
+    each curve toward the center and pinching them together at (128,128).
+    The two curves are exact mirror images across the vertical axis.
+
+    The pinch at the center is the mark: the exact point where
+    preparation meets opportunity. It is not drawn — it is where the
+    two trajectories become one.
+
+    Symmetry: mirror across the vertical axis and across the horizontal
+    axis. Reads as X, as an hourglass, as a lens, as convergence.
+  -->
+  <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round">
+    <path d="M 56 56 C 128 96, 128 160, 200 200" />
+    <path d="M 200 56 C 128 96, 128 160, 56 200" />
+  </g>
+</svg>
