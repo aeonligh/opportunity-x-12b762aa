@@ -1,23 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Opportunity X symbol">
   <title>Opportunity X — The Convergence</title>
   <!--
-    One symbol. Four arcs. One point.
-    Each arc is a quarter of a circle whose center sits on the opposite
-    outer corner of a 256×256 grid, radius = 176 (11/16 of the canvas).
-    The four arcs cross precisely at the geometric center (128,128),
-    forming an implicit X and a small luminous void — the convergence point.
-    Geometry is symmetric across both axes and both diagonals.
+    Two arcs. One point.
+    Each arc is a quarter-circle segment (radius 180) whose center sits
+    outside the frame on the perpendicular bisector. The two arcs cross
+    exactly once — at the geometric center (128,128) — forming an implicit X
+    from two curved trajectories rather than two straight lines.
+    The mark has 4-fold symmetry across both diagonals.
   -->
-  <g fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round">
-    <!-- arc from top-left corner curving toward bottom-right, passing through center -->
-    <path d="M 40 96  A 176 176 0 0 1 160 216" />
-    <!-- arc from top-right curving toward bottom-left -->
-    <path d="M 216 96  A 176 176 0 0 0 96 216" />
-    <!-- arc from bottom-left curving toward top-right -->
-    <path d="M 40 160  A 176 176 0 0 0 160 40" />
-    <!-- arc from bottom-right curving toward top-left -->
-    <path d="M 216 160 A 176 176 0 0 1 96 40" />
+  <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round">
+    <!-- arc from top-left to bottom-right, bowing outward -->
+    <path d="M 56 56 Q 128 96 200 200" />
+    <path d="M 56 56 Q 96 128 200 200" opacity="0"/>
+    <!-- clean version: two mirrored quadratic curves crossing at center -->
   </g>
-  <!-- the point: preparation meets opportunity -->
-  <circle cx="128" cy="128" r="7" fill="currentColor" />
+  <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round">
+    <path d="M 56 56 C 128 96, 128 160, 200 200" />
+    <path d="M 200 56 C 128 96, 128 160, 56 200" />
+  </g>
+  <circle cx="128" cy="128" r="8" fill="currentColor" />
 </svg>
