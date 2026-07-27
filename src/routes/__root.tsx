@@ -122,6 +122,35 @@ function ThemedToaster() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  // Single global auth listener: filter to identity transitions so
+  // TOKEN_REFRESHED / INITIAL_SESSION don't thrash the router or cache.
+  // On any real identity change, invalidate the router so `beforeLoad`
+  // (including the _authenticated gate) re-evaluates against fresh session.
+  useEffect(() => {
+    // Lazy-load the browser client to keep this module SSR-safe.
+    let unsub: (() => void) | undefined;
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+        if (
+          event !== "SIGNED_IN" &&
+          event !== "SIGNED_OUT" &&
+          event !== "USER_UPDATED"
+        ) {
+          return;
+        }
+        router.invalidate();
+        if (event !== "SIGNED_OUT") {
+          queryClient.invalidateQueries();
+        }
+      });
+      unsub = () => sub.subscription.unsubscribe();
+    });
+    return () => {
+      unsub?.();
+    };
+  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
