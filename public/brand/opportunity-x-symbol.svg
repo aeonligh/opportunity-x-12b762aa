@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Opportunity X symbol">
+  <title>Opportunity X — The Convergence</title>
+  <!--
+    One symbol. Four arcs. One point.
+    Each arc is a quarter of a circle whose center sits on the opposite
+    outer corner of a 256×256 grid, radius = 176 (11/16 of the canvas).
+    The four arcs cross precisely at the geometric center (128,128),
+    forming an implicit X and a small luminous void — the convergence point.
+    Geometry is symmetric across both axes and both diagonals.
+  -->
+  <g fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round">
+    <!-- arc from top-left corner curving toward bottom-right, passing through center -->
+    <path d="M 40 96  A 176 176 0 0 1 160 216" />
+    <!-- arc from top-right curving toward bottom-left -->
+    <path d="M 216 96  A 176 176 0 0 0 96 216" />
+    <!-- arc from bottom-left curving toward top-right -->
+    <path d="M 40 160  A 176 176 0 0 0 160 40" />
+    <!-- arc from bottom-right curving toward top-left -->
+    <path d="M 216 160 A 176 176 0 0 1 96 40" />
+  </g>
+  <!-- the point: preparation meets opportunity -->
+  <circle cx="128" cy="128" r="7" fill="currentColor" />
+</svg>
