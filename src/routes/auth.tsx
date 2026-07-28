@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { BrandLoader } from "@/components/BrandLoader";
@@ -111,28 +110,17 @@ function AuthPage() {
   const handleGoogle = async () => {
     setLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth`,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth` },
       });
-      if (result.error) {
+      if (error) {
         toast.error("Google sign-in failed");
         setLoading(false);
         return;
       }
       // Full-page redirect: browser is leaving; keep the loader up.
-      if (result.redirected) {
-        setHandingOff(true);
-        return;
-      }
-      // Popup path: session should now be set. Confirm, then hand off.
-      const ok = await waitForSession(8000);
-      if (!ok) {
-        toast.error("Sign-in did not complete. Please try again.");
-        setLoading(false);
-        return;
-      }
       setHandingOff(true);
-      await navigate({ to: "/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
       setLoading(false);
