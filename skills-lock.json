@@ -151,6 +151,12 @@
       "skillPath": "skills/paint/SKILL.md",
       "computedHash": "bc290bab388b2edf1379255739896ff46155f58b8346a6ddea3a65bc36bf57c1"
     },
+    "prompt-engineering": {
+      "source": "neolabhq/context-engineering-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/customaize-agent/skills/prompt-engineering/SKILL.md",
+      "computedHash": "28717ed0eafe344d25d9d76e74109c0f1db3f5ced98d67406cee55d85d48d553"
+    },
     "swiftui-graphics": {
       "source": "AThevon/creative-excellence",
       "sourceType": "github",
