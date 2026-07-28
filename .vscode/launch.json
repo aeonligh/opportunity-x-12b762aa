@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Starts the Vite dev server in VS Code's integrated terminal.
+      "name": "Dev server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      // Attaches the debugger to the browser. Start "Dev server" first,
+      // or use the "Dev server + browser" compound below to do both.
+      "name": "Debug in browser",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMapPathOverrides": {
+        "/@fs/*": "*",
+        "/src/*": "${workspaceFolder}/src/*"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Dev server + browser",
+      "configurations": ["Dev server", "Debug in browser"],
+      "stopAll": true
+    }
+  ]
+}
