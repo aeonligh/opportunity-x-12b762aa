@@ -146,8 +146,11 @@ function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-6">
       <div className="w-full max-w-md">
-        <Link to="/" className="font-mono text-lg font-bold tracking-tighter block text-center mb-8">
-          OPPORTUNITY <span className="text-accent">X</span>
+        <Link to="/" className="flex flex-col items-center gap-3 mb-8" aria-label="Opportunity X home">
+          <BrandMark size={44} className="text-accent" />
+          <span className="font-mono text-lg font-bold tracking-tighter">
+            OPPORTUNITY <span className="text-accent">X</span>
+          </span>
         </Link>
         <div className="bg-surface border border-border rounded-2xl p-8">
           <h1 className="text-2xl font-bold mb-1">
