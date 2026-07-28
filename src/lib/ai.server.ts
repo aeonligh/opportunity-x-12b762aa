@@ -1,10 +1,7 @@
 /**
  * Shared Anthropic Claude client for server-side AI calls.
  * Server-only — never import from client code.
- *
- * Replaces the previous Lovable AI Gateway (ai.gateway.lovable.dev), which
- * required a Lovable-provisioned LOVABLE_API_KEY. Calls api.anthropic.com
- * directly with a user-supplied ANTHROPIC_API_KEY.
+ * Calls api.anthropic.com directly using ANTHROPIC_API_KEY.
  */
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5";

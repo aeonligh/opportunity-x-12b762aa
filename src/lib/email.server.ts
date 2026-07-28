@@ -55,7 +55,7 @@ export async function sendDeadlineEmail({
         Complete your application before the deadline. You can use our **AI Copilot** tools inside the platform to check your eligibility, generate custom essays, and optimize your CV.
       </p>
       
-      <p><a href="https://opportunity-x.lovable.app/dashboard" style="display: inline-block; background-color: #00E5FF; color: #0b0f19; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; transition: opacity 0.2s;">Go to Dashboard</a></p>
+      <p><a href="${process.env.SITE_URL || "https://opportunityx.app"}/dashboard" style="display: inline-block; background-color: #00E5FF; color: #0b0f19; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; transition: opacity 0.2s;">Go to Dashboard</a></p>
       
       <hr style="border: 0; border-top: 1px solid #334155; margin: 32px 0 20px 0;" />
       <p style="font-size: 11px; color: #64748b; line-height: 1.4;">

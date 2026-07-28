@@ -1,7 +1,7 @@
 /**
  * Firecrawl server-side wrapper.
  * Server-only. Never import from client code.
- * Requires FIRECRAWL_API_KEY in Lovable Secrets.
+ * Requires FIRECRAWL_API_KEY to be set in the environment.
  */
 
 const FC_BASE = "https://api.firecrawl.dev/v2";

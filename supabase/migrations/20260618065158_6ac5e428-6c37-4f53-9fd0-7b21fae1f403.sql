@@ -68,9 +68,9 @@ DO $$ BEGIN
 EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 -- The daily crawl cron job is intentionally NOT (re)scheduled here.
--- It previously pointed at a Lovable-hosted preview URL with the old
--- anon key baked in. Once the app's real deployment URL is decided,
--- schedule it with:
+-- It previously pointed at a stale preview URL with an old anon key
+-- baked in. Once the app's real deployment URL is decided, schedule
+-- it with:
 --
 -- SELECT cron.schedule(
 --   'opportunity-x-daily-crawl',

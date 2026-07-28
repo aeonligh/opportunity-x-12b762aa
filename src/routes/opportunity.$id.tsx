@@ -37,7 +37,8 @@ export const Route = createFileRoute("/opportunity/$id")({
     if (!o) return { meta: [{ title: "Opportunity not found — Opportunity X" }] };
     const title = `${o.title} — ${o.organization}`;
     const desc = (o.description ?? `${o.category} opportunity from ${o.organization}.`).slice(0, 160);
-    const url = `https://opportunity-x.lovable.app/opportunity/${params.id}`;
+    const siteUrl = import.meta.env.VITE_SITE_URL || "https://opportunityx.app";
+    const url = `${siteUrl}/opportunity/${params.id}`;
     return {
       meta: [
         { title },
