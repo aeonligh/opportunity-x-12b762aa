@@ -38,10 +38,10 @@
       "computedHash": "f26e667d9be5499d62cfda1c507891c329e6545f7b491a32d9ff0e8f5275024d"
     },
     "deep-research": {
-      "source": "199-biotechnologies/claude-deep-research-skill",
+      "source": "glebis/claude-skills",
       "sourceType": "github",
-      "skillPath": "SKILL.md",
-      "computedHash": "685efecf2091dccf219506641671acc3c0c31ecb83f54b8473b9d399ba0337b8"
+      "skillPath": "deep-research/SKILL.md",
+      "computedHash": "3fe86767e0ca4fed76f5acc6efcc382d0d7f73be00af740529ecebe5d4f94341"
     },
     "deploy-to-vercel": {
       "source": "vercel-labs/agent-skills",
