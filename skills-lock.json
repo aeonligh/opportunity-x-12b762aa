@@ -157,6 +157,12 @@
       "skillPath": "plugins/customaize-agent/skills/prompt-engineering/SKILL.md",
       "computedHash": "28717ed0eafe344d25d9d76e74109c0f1db3f5ced98d67406cee55d85d48d553"
     },
+    "ruflo": {
+      "source": "ruvnet/ruflo",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "1f50c7feb49298569bb6e903c7780da4dec355724b4e50c3df1a42a319c4c877"
+    },
     "storm": {
       "source": "kunjan-p/storm-skill",
       "sourceType": "github",
