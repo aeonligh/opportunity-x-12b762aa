@@ -67,14 +67,19 @@ DO $$ BEGIN
   PERFORM cron.unschedule('opportunity-x-daily-crawl');
 EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
-SELECT cron.schedule(
-  'opportunity-x-daily-crawl',
-  '0 6 * * *',
-  $$
-  SELECT net.http_post(
-    url := 'https://project--e297105a-a0e0-48de-9e7d-d7e7101e7e27.lovable.app/api/public/hooks/crawl-opportunities',
-    headers := '{"Content-Type":"application/json","apikey":"sb_publishable_5sR_3DAfIqPPPlEGkXEZWA_Q3S9g_DI"}'::jsonb,
-    body := '{}'::jsonb
-  ) AS request_id;
-  $$
-);
+-- The daily crawl cron job is intentionally NOT (re)scheduled here.
+-- It previously pointed at a Lovable-hosted preview URL with the old
+-- anon key baked in. Once the app's real deployment URL is decided,
+-- schedule it with:
+--
+-- SELECT cron.schedule(
+--   'opportunity-x-daily-crawl',
+--   '0 6 * * *',
+--   $$
+--   SELECT net.http_post(
+--     url := '<deployment-url>/api/public/hooks/crawl-opportunities',
+--     headers := '{"Content-Type":"application/json","apikey":"<current anon/publishable key>"}'::jsonb,
+--     body := '{}'::jsonb
+--   ) AS request_id;
+--   $$
+-- );
