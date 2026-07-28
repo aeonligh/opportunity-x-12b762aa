@@ -78,21 +78,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#0b0b0f" },
+      { title: "Opportunity X — AI Opportunity Intelligence" },
+      {
+        name: "description",
+        content:
+          "Opportunity X discovers, verifies, and personalizes scholarships, fellowships, grants, and research programs from across the world.",
+      },
+      { name: "author", content: "Opportunity X" },
+      { property: "og:site_name", content: "Opportunity X" },
+      { property: "og:title", content: "Opportunity X — AI Opportunity Intelligence" },
+      {
+        property: "og:description",
+        content:
+          "Discover, verify, and secure life-changing opportunities from across the world.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "apple-touch-icon", href: "/favicon.svg" },
     ],
   }),
   shellComponent: RootShell,
