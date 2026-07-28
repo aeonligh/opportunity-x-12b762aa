@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { toast } from "sonner";
 import ThemeToggle from "./ThemeToggle";
+import { BrandMark } from "./BrandMark";
 
 export default function Header() {
   const navigate = useNavigate();
