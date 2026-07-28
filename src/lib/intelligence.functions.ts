@@ -10,6 +10,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { createHash } from "crypto";
+import { callClaude } from "./ai.server";
 
 export const OPPORTUNITY_CATEGORIES = [
   "Scholarships",
@@ -28,9 +29,6 @@ export const OPPORTUNITY_CATEGORIES = [
 ] as const;
 
 export type OpportunityCategory = (typeof OPPORTUNITY_CATEGORIES)[number];
-
-const MODEL = "google/gemini-2.5-flash";
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 const SELECT_COLS =
   "id, title, organization, category, categories, opportunity_type, location, deadline, description, ai_insight, apply_url, source_url, source_domain, image_url, tags, verification_score, confidence_score, match_score_default, featured, verified, views_count, created_at, last_verified_at";
@@ -67,29 +65,6 @@ const PRIORITY_KEYWORDS = [
   "scholarship", "fellowship", "internship", "grant", "research",
   "program", "apply", "application", "admission", "fund",
 ];
-
-async function callGemini(messages: Array<{ role: string; content: string }>) {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      response_format: { type: "json_object" },
-    }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    if (res.status === 429) throw new Error("Rate limit reached. Try again shortly.");
-    if (res.status === 402) throw new Error("AI credits exhausted. Add credits to continue.");
-    throw new Error(`AI gateway error (${res.status}): ${text.slice(0, 200)}`);
-  }
-  const payload = await res.json();
-  const content: string = payload?.choices?.[0]?.message?.content ?? "{}";
-  try { return JSON.parse(content); } catch { return {}; }
-}
 
 // ───────────────────── types ─────────────────────
 
@@ -171,7 +146,7 @@ Category filter: ${data.category}
 
 Return ${count} verifiable opportunities now, biased toward open/upcoming deadlines.`;
 
-  const parsed = await callGemini([
+  const parsed = await callClaude([
     { role: "system", content: system },
     { role: "user", content: user },
   ]);

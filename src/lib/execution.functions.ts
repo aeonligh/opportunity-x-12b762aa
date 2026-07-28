@@ -1,44 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-
-const MODEL = "google/gemini-2.5-flash";
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
-async function callGemini(messages: Array<{ role: string; content: string }>, jsonMode = true) {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
-  
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { 
-      "Authorization": `Bearer ${apiKey}`, 
-      "Content-Type": "application/json" 
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    if (res.status === 429) throw new Error("Rate limit reached. Try again shortly.");
-    if (res.status === 402)
-      throw new Error("AI credits exhausted. Add credits to continue.");
-    throw new Error(`AI gateway error (${res.status}): ${text.slice(0, 200)}`);
-  }
-
-  const payload = await res.json();
-  const content: string = payload?.choices?.[0]?.message?.content ?? "{}";
-  
-  try {
-    return jsonMode ? JSON.parse(content) : content;
-  } catch {
-    return jsonMode ? {} : content;
-  }
-}
+import { callClaude } from "./ai.server";
 
 // ============ APPLICATIONS ============
 
@@ -195,7 +158,7 @@ Opportunity Details:
 
 Return the eligibility match score and the checklist of requirements.`;
 
-    const result = await callGemini([
+    const result = await callClaude([
       { role: "system", content: system },
       { role: "user", content: user }
     ], true);
@@ -292,7 +255,7 @@ Opportunity details:
 
 Generate the ${type} now.`;
 
-    const result = await callGemini([
+    const result = await callClaude([
       { role: "system", content: system },
       { role: "user", content: user }
     ], true);
@@ -390,7 +353,7 @@ ${cvText}
 ---
 Please evaluate and score it.`;
 
-    const result = await callGemini([
+    const result = await callClaude([
       { role: "system", content: system },
       { role: "user", content: user }
     ], true);
