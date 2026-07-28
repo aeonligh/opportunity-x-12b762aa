@@ -674,13 +674,16 @@ function Footer() {
   return (
     <footer className="border-t border-border">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex flex-col leading-tight">
-          <span className="font-mono text-sm font-bold tracking-tighter">
-            OPPORTUNITY <span className="text-accent">X</span>
-          </span>
-          <span className="text-[10px] uppercase tracking-widest text-text-s">
-            Powered by AEON X
-          </span>
+        <div className="flex items-center gap-3">
+          <BrandMark size={32} className="text-accent shrink-0" />
+          <div className="flex flex-col leading-tight">
+            <span className="font-mono text-sm font-bold tracking-tighter">
+              OPPORTUNITY <span className="text-accent">X</span>
+            </span>
+            <span className="text-[10px] uppercase tracking-widest text-text-s">
+              Powered by AEON X
+            </span>
+          </div>
         </div>
         <p className="text-[11px] text-text-s text-center md:text-right max-w-md">
           Built for the students, researchers, and dreamers whose next opportunity is waiting somewhere on the web.
