@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 const OpportunityGlobe = lazy(() => import("@/components/landing/OpportunityGlobe"));
 
@@ -76,12 +77,15 @@ function Nav() {
     <header className="fixed top-0 inset-x-0 z-50">
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-4">
         <div className="glass-panel rounded-2xl h-14 px-4 flex items-center justify-between">
-          <Link to="/" className="flex flex-col leading-tight">
-            <span className="font-mono text-sm font-bold tracking-tighter">
-              OPPORTUNITY <span className="text-accent">X</span>
-            </span>
-            <span className="text-[8px] uppercase tracking-widest text-text-s">
-              AI Opportunity Intelligence
+          <Link to="/" className="flex items-center gap-2.5" aria-label="Opportunity X home">
+            <BrandMark size={24} className="text-accent shrink-0" />
+            <span className="flex flex-col leading-tight">
+              <span className="font-mono text-sm font-bold tracking-tighter">
+                OPPORTUNITY <span className="text-accent">X</span>
+              </span>
+              <span className="text-[8px] uppercase tracking-widest text-text-s">
+                AI Opportunity Intelligence
+              </span>
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-xs text-text-s">
@@ -670,13 +674,16 @@ function Footer() {
   return (
     <footer className="border-t border-border">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex flex-col leading-tight">
-          <span className="font-mono text-sm font-bold tracking-tighter">
-            OPPORTUNITY <span className="text-accent">X</span>
-          </span>
-          <span className="text-[10px] uppercase tracking-widest text-text-s">
-            Powered by AEON X
-          </span>
+        <div className="flex items-center gap-3">
+          <BrandMark size={32} className="text-accent shrink-0" />
+          <div className="flex flex-col leading-tight">
+            <span className="font-mono text-sm font-bold tracking-tighter">
+              OPPORTUNITY <span className="text-accent">X</span>
+            </span>
+            <span className="text-[10px] uppercase tracking-widest text-text-s">
+              Powered by AEON X
+            </span>
+          </div>
         </div>
         <p className="text-[11px] text-text-s text-center md:text-right max-w-md">
           Built for the students, researchers, and dreamers whose next opportunity is waiting somewhere on the web.

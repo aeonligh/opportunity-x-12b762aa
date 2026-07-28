@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { toast } from "sonner";
 import ThemeToggle from "./ThemeToggle";
+import { BrandMark } from "./BrandMark";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -57,12 +58,15 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
-      <Link to="/" className="flex flex-col leading-tight hover:opacity-95 transition">
-        <span className="font-mono text-lg font-bold tracking-tighter">
-          OPPORTUNITY <span className="text-accent">X</span>
-        </span>
-        <span className="text-[9px] uppercase tracking-widest text-text-s">
-          Powered by AEON X
+      <Link to="/" className="flex items-center gap-2.5 hover:opacity-95 transition" aria-label="Opportunity X home">
+        <BrandMark size={26} className="text-accent shrink-0" />
+        <span className="flex flex-col leading-tight">
+          <span className="font-mono text-lg font-bold tracking-tighter">
+            OPPORTUNITY <span className="text-accent">X</span>
+          </span>
+          <span className="text-[9px] uppercase tracking-widest text-text-s">
+            Powered by AEON X
+          </span>
         </span>
       </Link>
       
