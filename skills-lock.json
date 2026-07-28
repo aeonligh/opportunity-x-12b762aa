@@ -157,6 +157,12 @@
       "skillPath": "plugins/customaize-agent/skills/prompt-engineering/SKILL.md",
       "computedHash": "28717ed0eafe344d25d9d76e74109c0f1db3f5ced98d67406cee55d85d48d553"
     },
+    "storm": {
+      "source": "kunjan-p/storm-skill",
+      "sourceType": "github",
+      "skillPath": "storm/SKILL.md",
+      "computedHash": "d6b4709e53bd3757f4d4c0fa7d318e96167156701a03087cc3f5b8d377372d00"
+    },
     "swiftui-graphics": {
       "source": "AThevon/creative-excellence",
       "sourceType": "github",
