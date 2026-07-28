@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { BrandMark } from "@/components/BrandMark";
 
 const OpportunityGlobe = lazy(() => import("@/components/landing/OpportunityGlobe"));
 
