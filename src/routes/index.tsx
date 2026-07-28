@@ -671,24 +671,86 @@ function SectionTransformation() {
 }
 
 function Footer() {
+  const socials = [
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/company/opportunity-x",
+      tag: "Professional network",
+      accent: "0,119,181",
+      icon: (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+          <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z" />
+        </svg>
+      ),
+    },
+    {
+      label: "Facebook",
+      href: "https://www.facebook.com/opportunityx",
+      tag: "Community & stories",
+      accent: "24,119,242",
+      icon: (
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+          <path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.7c0-.93.26-1.56 1.6-1.56h1.7V4.28c-.3-.04-1.32-.13-2.5-.13-2.48 0-4.18 1.51-4.18 4.29v2.36H7.4V14h2.72v8h3.38z" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <footer className="border-t border-border">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <BrandMark size={32} className="text-accent shrink-0" />
-          <div className="flex flex-col leading-tight">
-            <span className="font-mono text-sm font-bold tracking-tighter">
-              OPPORTUNITY <span className="text-accent">X</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-widest text-text-s">
-              Powered by AEON X
-            </span>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-14">
+        <div className="glass-panel rounded-3xl p-6 md:p-10 flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8">
+          <div className="flex items-start gap-4 max-w-md text-center lg:text-left">
+            <BrandMark size={40} className="text-accent shrink-0 hidden sm:block" />
+            <div className="flex flex-col gap-2 items-center lg:items-start">
+              <span className="font-mono text-sm font-bold tracking-tighter">
+                OPPORTUNITY <span className="text-accent">X</span>
+              </span>
+              <h3 className="text-lg md:text-xl font-semibold">Connect with Opportunity X</h3>
+              <p className="text-xs text-text-s leading-relaxed">
+                An AI-powered Opportunity Intelligence Platform — and a growing global community of students, researchers, and dreamers.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Opportunity X on ${s.label}`}
+                className="group relative flex items-center gap-3 rounded-2xl border border-border bg-surface/40 backdrop-blur px-4 py-3 min-w-[200px] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-accent/50 hover:bg-surface/70"
+                style={{ boxShadow: `0 0 0 0 rgba(${s.accent},0)` }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = `0 8px 30px rgba(${s.accent},0.25)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = `0 0 0 0 rgba(${s.accent},0)`;
+                }}
+              >
+                <span
+                  className="grid place-items-center h-9 w-9 rounded-xl transition-colors"
+                  style={{ color: `rgb(${s.accent})`, backgroundColor: `rgba(${s.accent},0.12)` }}
+                >
+                  {s.icon}
+                </span>
+                <span className="flex flex-col leading-tight text-left">
+                  <span className="text-sm font-semibold">{s.label}</span>
+                  <span className="text-[10px] text-text-s">{s.tag}</span>
+                </span>
+              </a>
+            ))}
           </div>
         </div>
-        <p className="text-[11px] text-text-s text-center md:text-right max-w-md">
-          Built for the students, researchers, and dreamers whose next opportunity is waiting somewhere on the web.
-        </p>
+
+        <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-text-s">
+          <span>© {new Date().getFullYear()} Opportunity X — Powered by AEON X</span>
+          <span>Built for those whose next opportunity is waiting somewhere on the web.</span>
+        </div>
       </div>
     </footer>
   );
 }
+
