@@ -57,8 +57,9 @@ export default defineConfig(({ command, mode }) => {
         // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
         server: { entry: "server" },
       }),
-      // Nitro (build-only) — targets Cloudflare Workers by default.
-      ...(command === "build" ? [nitro({ defaultPreset: "cloudflare-module" })] : []),
+      // Nitro (build-only) — targets Vercel serverless functions.
+      // Override with NITRO_PRESET at build time (e.g. NITRO_PRESET=cloudflare-module).
+      ...(command === "build" ? [nitro({ defaultPreset: "vercel" })] : []),
       viteReact(),
     ],
   };

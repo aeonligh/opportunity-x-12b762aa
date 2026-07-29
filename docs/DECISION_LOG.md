@@ -6,6 +6,56 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-07-29 — ARB: deployment target — Vercel
+
+**Decision.** Deploy to **Vercel**. Nitro `defaultPreset` changed
+`cloudflare-module` → `vercel` in `vite.config.ts`.
+
+**Purpose.** The app had no deployment target after leaving Lovable's hosting.
+A stable public URL is a prerequisite for three blocked items: the Google OAuth
+redirect URL (Phase 2), the discovery cron endpoint (Phase 8, deliberately
+unscheduled during the migration), and any live testing of Phases 4/5.
+
+**ARB review.**
+- *Consistent with vision?* Yes — deployment target is orthogonal to the
+  Opportunity Intelligence architecture.
+- *Duplicates existing?* No.
+- *Scales?* Yes, serverless with automatic scaling.
+- *Secure?* Equivalent to the alternative; secrets move to Vercel's encrypted
+  env store rather than living in the repo.
+- *Lock-in (per CLAUDE.md vendor rule)?* **Low, and deliberately kept low.** The
+  only coupling is one Nitro preset string. Nothing in application code is
+  Vercel-specific. `defaultPreset` (not `preset`) was used specifically so
+  `NITRO_PRESET=cloudflare-module bun run build` still works — reversing this
+  decision is an env var, not a migration. This was the explicit condition for
+  accepting the change given the cost of unwinding the previous vendor.
+
+**Alternative considered.** Cloudflare Workers — already building and verified.
+Rejected in favor of the user's preference; the low reversal cost above makes
+this a cheap decision to revisit.
+
+**Files.** `vite.config.ts` (preset), `.gitignore` (ignore `.vercel/`).
+
+**Risks.**
+- Runtime changes from V8 isolates to Node.js serverless. `node:crypto` in
+  `intelligence.functions.ts` previously relied on Cloudflare `nodeCompat`; it
+  is native on Node, so this direction is strictly safer.
+- The Vercel deployment has never actually run — this sandbox cannot reach
+  `api.vercel.com` (403 egress policy). Build output was verified locally;
+  runtime behavior on Vercel is unverified.
+- Cold starts on a 3D-heavy landing page are unmeasured.
+
+**Testing.** Repository Health Gate passed: build exit 0, TypeScript 0 errors,
+ESLint 26 (delta 0 — no new debt), `.vercel/` gitignored. Build emits a valid
+Build Output API v3 tree (`config.json` v3, `functions/__server.func`, `static/`)
+with correct SSR catch-all routing and immutable asset caching.
+
+**Future work.** Deploy from a machine with network access; set env vars in the
+Vercel dashboard; add the deployed URL as `SITE_URL`/`VITE_SITE_URL`; register
+the OAuth redirect; recreate the discovery cron against the live URL.
+
+---
+
 ## 2026-07-29 — Adopt program governance system (PMGS + ARB, QAG, FVG)
 
 **Purpose.** Prevent architectural drift by replacing continuous ad-hoc coding
