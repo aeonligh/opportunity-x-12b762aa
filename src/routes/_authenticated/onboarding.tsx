@@ -148,7 +148,10 @@ function Onboarding() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center px-6">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground"
+        >
           <ArrowLeft size={14} /> Dashboard
         </Link>
       </header>
@@ -182,29 +185,61 @@ function Onboarding() {
             {step === 0 && (
               <>
                 <Field label="Display name">
-                  <input className={inputCls} value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+                  <input
+                    className={inputCls}
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your name"
+                  />
                 </Field>
                 <Field label="Country">
-                  <input className={inputCls} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. Nigeria, India, Brazil" />
+                  <input
+                    className={inputCls}
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    placeholder="e.g. Nigeria, India, Brazil"
+                  />
                 </Field>
                 <Field label="University / Institution">
-                  <input className={inputCls} value={university} onChange={(e) => setUniversity(e.target.value)} placeholder="e.g. University of Lagos" />
+                  <input
+                    className={inputCls}
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                    placeholder="e.g. University of Lagos"
+                  />
                 </Field>
                 <Field label="Course of study">
-                  <input className={inputCls} value={course} onChange={(e) => setCourse(e.target.value)} placeholder="e.g. Computer Science" />
+                  <input
+                    className={inputCls}
+                    value={course}
+                    onChange={(e) => setCourse(e.target.value)}
+                    placeholder="e.g. Computer Science"
+                  />
                 </Field>
               </>
             )}
             {step === 1 && (
               <>
                 <Field label="Degree type">
-                  <select className={inputCls} value={degreeType} onChange={(e) => setDegreeType(e.target.value)}>
-                    {degreeTypes.map((d) => <option key={d}>{d}</option>)}
+                  <select
+                    className={inputCls}
+                    value={degreeType}
+                    onChange={(e) => setDegreeType(e.target.value)}
+                  >
+                    {degreeTypes.map((d) => (
+                      <option key={d}>{d}</option>
+                    ))}
                   </select>
                 </Field>
                 <Field label="Level of study">
-                  <select className={inputCls} value={levelOfStudy} onChange={(e) => setLevelOfStudy(e.target.value)}>
-                    {levelOptions.map((d) => <option key={d}>{d}</option>)}
+                  <select
+                    className={inputCls}
+                    value={levelOfStudy}
+                    onChange={(e) => setLevelOfStudy(e.target.value)}
+                  >
+                    {levelOptions.map((d) => (
+                      <option key={d}>{d}</option>
+                    ))}
                   </select>
                 </Field>
                 <Field label="Graduation year">
@@ -212,7 +247,9 @@ function Onboarding() {
                     type="number"
                     className={inputCls}
                     value={graduationYear}
-                    onChange={(e) => setGraduationYear(e.target.value === "" ? "" : Number(e.target.value))}
+                    onChange={(e) =>
+                      setGraduationYear(e.target.value === "" ? "" : Number(e.target.value))
+                    }
                     placeholder="2027"
                   />
                 </Field>
@@ -251,7 +288,11 @@ function Onboarding() {
                       }}
                       placeholder="Add a skill (Python, Public speaking, …) then press Enter"
                     />
-                    <button type="button" onClick={addSkill} className="px-3 py-2 rounded-xl bg-surface border border-border text-xs">
+                    <button
+                      type="button"
+                      onClick={addSkill}
+                      className="px-3 py-2 rounded-xl bg-surface border border-border text-xs"
+                    >
                       Add
                     </button>
                   </div>
@@ -270,7 +311,12 @@ function Onboarding() {
                   </div>
                 </Field>
                 <Field label="About you (optional)">
-                  <textarea className={inputCls} rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />
+                  <textarea
+                    className={inputCls}
+                    rows={3}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                  />
                 </Field>
               </>
             )}

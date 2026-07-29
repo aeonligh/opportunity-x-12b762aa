@@ -47,8 +47,8 @@ export default function EligibilityPanel({ opportunityId, aiReasoning }: Props) 
           <h3 className="text-sm font-bold">Am I eligible?</h3>
         </div>
         <p className="text-xs text-text-s mb-3">
-          Sign in to get an AI eligibility check, a personalized match score, and a
-          requirements checklist.
+          Sign in to get an AI eligibility check, a personalized match score, and a requirements
+          checklist.
         </p>
         <Link
           to="/auth"

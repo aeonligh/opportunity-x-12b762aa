@@ -5,7 +5,7 @@ import { adminListPending, setFeatured } from "@/lib/admin.functions";
 import { Star } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/_admin/featured")({
+export const Route = createFileRoute("/_authenticated/admin/featured")({
   head: () => ({ meta: [{ title: "Featured — Admin" }] }),
   component: Featured,
 });
@@ -17,7 +17,10 @@ function Featured() {
   const { data: items = [] } = useQuery({ queryKey: ["admin", "queue"], queryFn: () => listFn() });
   const feature = useMutation({
     mutationFn: (v: { id: string; featured: boolean }) => featureFn({ data: v }),
-    onSuccess: () => { toast.success("Updated"); qc.invalidateQueries({ queryKey: ["admin", "queue"] }); },
+    onSuccess: () => {
+      toast.success("Updated");
+      qc.invalidateQueries({ queryKey: ["admin", "queue"] });
+    },
   });
   const verified = items.filter((i) => i.verified);
   return (
@@ -29,7 +32,9 @@ function Featured() {
             key={o.id}
             onClick={() => feature.mutate({ id: o.id, featured: !o.featured })}
             className={`text-left p-3 rounded-xl border transition ${
-              o.featured ? "border-accent/50 bg-accent/10" : "border-border bg-surface/60 hover:border-accent/30"
+              o.featured
+                ? "border-accent/50 bg-accent/10"
+                : "border-border bg-surface/60 hover:border-accent/30"
             }`}
           >
             <div className="flex items-center gap-2">

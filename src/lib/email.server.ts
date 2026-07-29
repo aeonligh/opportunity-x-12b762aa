@@ -27,10 +27,16 @@ export async function sendDeadlineEmail({
   }
 
   const subject = `Deadline Reminder: ${opportunityTitle}`;
-  
+
   const checkListHtml = [
-    ...matchingDocs.map((d) => `<li><span style="color: #4caf50; font-size: 16px;">✓</span> <strong>${d}</strong></li>`),
-    ...missingDocs.map((d) => `<li><span style="color: #f44336; font-size: 16px;">✗</span> <strong>${d}</strong> (Missing)</li>`),
+    ...matchingDocs.map(
+      (d) =>
+        `<li><span style="color: #4caf50; font-size: 16px;">✓</span> <strong>${d}</strong></li>`,
+    ),
+    ...missingDocs.map(
+      (d) =>
+        `<li><span style="color: #f44336; font-size: 16px;">✗</span> <strong>${d}</strong> (Missing)</li>`,
+    ),
   ].join("\n");
 
   const html = `
@@ -44,12 +50,16 @@ export async function sendDeadlineEmail({
         <p style="margin: 0; color: #cbd5e1; font-size: 14px;">⏳ <strong>Deadline:</strong> ${deadlineStr}</p>
       </div>
       
-      ${checkListHtml ? `
+      ${
+        checkListHtml
+          ? `
         <h4 style="margin: 20px 0 10px 0; color: #f8fafc; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">Your Document Checklist</h4>
         <ul style="list-style-type: none; padding-left: 0; margin: 0 0 24px 0; line-height: 1.8; color: #cbd5e1; font-size: 14px;">
           ${checkListHtml}
         </ul>
-      ` : ""}
+      `
+          : ""
+      }
 
       <p style="font-size: 14px; color: #94a3b8; line-height: 1.5; margin-bottom: 28px;">
         Complete your application before the deadline. You can use our **AI Copilot** tools inside the platform to check your eligibility, generate custom essays, and optimize your CV.
@@ -68,7 +78,7 @@ export async function sendDeadlineEmail({
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

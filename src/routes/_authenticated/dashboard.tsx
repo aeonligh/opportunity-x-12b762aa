@@ -67,7 +67,7 @@ function Dashboard() {
   const triggerDeadlineCheckFn = useServerFn(triggerDeadlineCheck);
 
   const { data: admin } = useQuery({ queryKey: ["isAdmin"], queryFn: () => adminFn() });
-  
+
   const { data: metrics } = useQuery({
     queryKey: ["successMetrics"],
     queryFn: () => getMetricsFn(),
@@ -178,8 +178,7 @@ function Dashboard() {
       );
       queryClient.invalidateQueries({ queryKey: ["section"] });
     },
-    onError: (err) =>
-      toast.error(err instanceof Error ? err.message : "Discovery failed"),
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Discovery failed"),
   });
 
   // First-load: trigger discovery if recommended is empty
@@ -207,7 +206,9 @@ function Dashboard() {
         <div className="mb-10">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="text-accent" size={16} />
-            <h2 className="text-xs font-mono font-bold tracking-wider uppercase">Opportunity Success Dashboard</h2>
+            <h2 className="text-xs font-mono font-bold tracking-wider uppercase">
+              Opportunity Success Dashboard
+            </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
@@ -247,14 +248,18 @@ function Dashboard() {
                 className={`p-4 rounded-2xl border ${card.tone} flex flex-col justify-between h-28 backdrop-blur-md`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider text-text-s font-semibold leading-tight">{card.label}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-text-s font-semibold leading-tight">
+                    {card.label}
+                  </span>
                   {card.icon}
                 </div>
                 <div>
-                  <div className="text-2xl font-black font-mono tracking-tight text-foreground">{card.value}</div>
+                  <div className="text-2xl font-black font-mono tracking-tight text-foreground">
+                    {card.value}
+                  </div>
                   {card.label === "Success Rate" && (
                     <div className="w-full bg-border h-1 rounded-full overflow-hidden mt-2">
-                      <div 
+                      <div
                         className="bg-accent h-full transition-all duration-500"
                         style={{ width: `${metrics?.successRate ?? 0}%` }}
                       />
@@ -271,7 +276,8 @@ function Dashboard() {
             Welcome to the Intelligence Engine
           </h1>
           <p className="text-sm text-text-s">
-            Verified, AI-scored opportunities — built for your profile. Save what matters. Share to WhatsApp in one tap.
+            Verified, AI-scored opportunities — built for your profile. Save what matters. Share to
+            WhatsApp in one tap.
           </p>
         </div>
 
@@ -311,7 +317,9 @@ function Dashboard() {
             {searching ? (
               <p className="text-sm text-text-s">Searching…</p>
             ) : searchResults.length === 0 ? (
-              <p className="text-sm text-text-s">No matches. Try a different keyword or click Discover.</p>
+              <p className="text-sm text-text-s">
+                No matches. Try a different keyword or click Discover.
+              </p>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {searchResults.map((o) => (

@@ -11,13 +11,15 @@ export const getUserApplications = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("applications")
-      .select(`
+      .select(
+        `
         *,
         opportunity:opportunities(id, title, organization, category, categories, opportunity_type, location, deadline, description, ai_insight, apply_url, image_url, tags)
-      `)
+      `,
+      )
       .eq("user_id", userId)
       .order("updated_at", { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   });
@@ -25,11 +27,20 @@ export const getUserApplications = createServerFn({ method: "GET" })
 export const trackApplication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      opportunityId: z.string().uuid(),
-      status: z.enum(['Interested', 'Preparing', 'Submitted', 'Interview', 'Accepted', 'Rejected']),
-      notes: z.string().optional().nullable(),
-    }).parse(input)
+    z
+      .object({
+        opportunityId: z.string().uuid(),
+        status: z.enum([
+          "Interested",
+          "Preparing",
+          "Submitted",
+          "Interview",
+          "Accepted",
+          "Rejected",
+        ]),
+        notes: z.string().optional().nullable(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -53,16 +64,22 @@ export const trackApplication = createServerFn({ method: "POST" })
 
     const { data: upserted, error } = await supabase
       .from("applications")
-      .upsert({
-        user_id: userId,
-        opportunity_id: opportunityId,
-        status,
-        notes: notes || null,
-        submitted_at: status === "Submitted" && (!existing || existing.status !== "Submitted") ? new Date().toISOString() : undefined,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: "user_id,opportunity_id",
-      })
+      .upsert(
+        {
+          user_id: userId,
+          opportunity_id: opportunityId,
+          status,
+          notes: notes || null,
+          submitted_at:
+            status === "Submitted" && (!existing || existing.status !== "Submitted")
+              ? new Date().toISOString()
+              : undefined,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id,opportunity_id",
+        },
+      )
       .select()
       .single();
 
@@ -83,9 +100,11 @@ export const trackApplication = createServerFn({ method: "POST" })
 export const deleteApplication = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      opportunityId: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        opportunityId: z.string().uuid(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -94,7 +113,7 @@ export const deleteApplication = createServerFn({ method: "POST" })
       .delete()
       .eq("user_id", userId)
       .eq("opportunity_id", data.opportunityId);
-    
+
     if (error) throw error;
     return { success: true };
   });
@@ -104,9 +123,11 @@ export const deleteApplication = createServerFn({ method: "POST" })
 export const checkEligibility = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      opportunityId: z.string().uuid(),
-    }).parse(input)
+    z
+      .object({
+        opportunityId: z.string().uuid(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -158,10 +179,13 @@ Opportunity Details:
 
 Return the eligibility match score and the checklist of requirements.`;
 
-    const result = await callClaude([
-      { role: "system", content: system },
-      { role: "user", content: user }
-    ], true);
+    const result = await callClaude(
+      [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      true,
+    );
 
     const score = typeof result.score === "number" ? result.score : 50;
     const met = Array.isArray(result.requirements_met) ? result.requirements_met : [];
@@ -170,16 +194,19 @@ Return the eligibility match score and the checklist of requirements.`;
     // Store in eligibility_results
     const { data: cached, error } = await supabase
       .from("eligibility_results")
-      .upsert({
-        user_id: userId,
-        opportunity_id: opportunityId,
-        score,
-        requirements_met: met,
-        requirements_missing: missing,
-        checked_at: new Date().toISOString(),
-      }, {
-        onConflict: "user_id,opportunity_id"
-      })
+      .upsert(
+        {
+          user_id: userId,
+          opportunity_id: opportunityId,
+          score,
+          requirements_met: met,
+          requirements_missing: missing,
+          checked_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id,opportunity_id",
+        },
+      )
       .select()
       .single();
 
@@ -215,18 +242,33 @@ export const getEligibilityResult = createServerFn({ method: "GET" })
 export const generateSOP = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      opportunityId: z.string().uuid(),
-      type: z.enum(['Scholarship Essay', 'Motivation Letter', 'Personal Statement', 'Study Plan']),
-      careerGoals: z.string().min(10, "Please outline your career goals in more detail."),
-    }).parse(input)
+    z
+      .object({
+        opportunityId: z.string().uuid(),
+        type: z.enum([
+          "Scholarship Essay",
+          "Motivation Letter",
+          "Personal Statement",
+          "Study Plan",
+        ]),
+        careerGoals: z.string().min(10, "Please outline your career goals in more detail."),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { opportunityId, type, careerGoals } = data;
 
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
-    const { data: op } = await supabase.from("opportunities").select("*").eq("id", opportunityId).maybeSingle();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
+    const { data: op } = await supabase
+      .from("opportunities")
+      .select("*")
+      .eq("id", opportunityId)
+      .maybeSingle();
     if (!op) throw new Error("Opportunity not found");
 
     const system = `You are a professional academic consultant and copywriter.
@@ -255,10 +297,13 @@ Opportunity details:
 
 Generate the ${type} now.`;
 
-    const result = await callClaude([
-      { role: "system", content: system },
-      { role: "user", content: user }
-    ], true);
+    const result = await callClaude(
+      [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      true,
+    );
 
     const content = result.content || "Failed to generate SOP";
 
@@ -269,7 +314,7 @@ Generate the ${type} now.`;
         opportunity_id: opportunityId,
         type,
         content,
-        career_goals: careerGoals
+        career_goals: careerGoals,
       })
       .select()
       .single();
@@ -281,7 +326,7 @@ Generate the ${type} now.`;
       user_id: userId,
       title: `${type} Generated`,
       message: `Your custom ${type} for "${op.title}" is ready.`,
-      read: false
+      read: false,
     });
 
     return inserted;
@@ -293,13 +338,15 @@ export const getUserSOPs = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("generated_sops")
-      .select(`
+      .select(
+        `
         *,
         opportunity:opportunities(id, title, organization)
-      `)
+      `,
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   });
@@ -309,10 +356,12 @@ export const getUserSOPs = createServerFn({ method: "GET" })
 export const optimizeCV = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({
-      cvText: z.string().min(50, "Please paste at least 50 characters of your CV content."),
-      opportunityId: z.string().uuid().optional().nullable(),
-    }).parse(input)
+    z
+      .object({
+        cvText: z.string().min(50, "Please paste at least 50 characters of your CV content."),
+        opportunityId: z.string().uuid().optional().nullable(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -320,7 +369,11 @@ export const optimizeCV = createServerFn({ method: "POST" })
 
     let opDetails = "";
     if (opportunityId) {
-      const { data: op } = await supabase.from("opportunities").select("*").eq("id", opportunityId).maybeSingle();
+      const { data: op } = await supabase
+        .from("opportunities")
+        .select("*")
+        .eq("id", opportunityId)
+        .maybeSingle();
       if (op) {
         opDetails = `Tailor the suggestions for this opportunity:
 - Title: ${op.title}
@@ -334,7 +387,7 @@ Analyze the provided CV text content. Evaluate:
 1. Formatting: Readability, structure, bullet points
 2. Keywords: Presence of strong industry action verbs and relevant terms
 3. Achievements: Quantification of results, clear impact statements
-4. Relevance: Alignment with standard opportunity or scholarship requirements ${opDetails ? '(specifically the targeted opportunity)' : ''}
+4. Relevance: Alignment with standard opportunity or scholarship requirements ${opDetails ? "(specifically the targeted opportunity)" : ""}
 
 Return ONLY JSON in the following format:
 {
@@ -353,20 +406,28 @@ ${cvText}
 ---
 Please evaluate and score it.`;
 
-    const result = await callClaude([
-      { role: "system", content: system },
-      { role: "user", content: user }
-    ], true);
+    const result = await callClaude(
+      [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      true,
+    );
 
     const score = typeof result.score === "number" ? result.score : 70;
-    const suggestions = result.suggestions ?? { formatting: [], keywords: [], achievements: [], relevance: [] };
+    const suggestions = result.suggestions ?? {
+      formatting: [],
+      keywords: [],
+      achievements: [],
+      relevance: [],
+    };
 
     const { data: inserted, error } = await supabase
       .from("cv_optimizations")
       .insert({
         user_id: userId,
         score,
-        suggestions
+        suggestions,
       })
       .select()
       .single();
@@ -378,7 +439,7 @@ Please evaluate and score it.`;
       user_id: userId,
       title: "CV Optimized",
       message: `Your CV analysis is ready. Score: ${score}/100. Check the vault for details.`,
-      read: false
+      read: false,
     });
 
     return inserted;
@@ -410,7 +471,7 @@ export const getNotifications = createServerFn({ method: "GET" })
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(20);
-    
+
     if (error) throw error;
     return data || [];
   });
@@ -425,7 +486,7 @@ export const markNotificationRead = createServerFn({ method: "POST" })
       .update({ read: true })
       .eq("id", data.id)
       .eq("user_id", userId);
-    
+
     if (error) throw error;
     return { success: true };
   });
@@ -438,7 +499,7 @@ export const markAllNotificationsRead = createServerFn({ method: "POST" })
       .from("notifications")
       .update({ read: true })
       .eq("user_id", userId);
-    
+
     if (error) throw error;
     return { success: true };
   });
@@ -499,4 +560,3 @@ export const triggerDeadlineCheck = createServerFn({ method: "POST" })
     void runDeadlineIntelligenceCheck();
     return { triggered: true };
   });
-

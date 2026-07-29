@@ -1,20 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getUserApplications, trackApplication, deleteApplication } from "@/lib/execution.functions";
+import {
+  getUserApplications,
+  trackApplication,
+  deleteApplication,
+} from "@/lib/execution.functions";
 import Header from "@/components/Header";
-import { 
-  Briefcase, 
-  MapPin, 
-  Calendar, 
-  Trash2, 
-  ChevronRight, 
-  MessageSquare, 
-  Check, 
-  TrendingUp, 
+import {
+  Briefcase,
+  MapPin,
+  Calendar,
+  Trash2,
+  ChevronRight,
+  MessageSquare,
+  Check,
+  TrendingUp,
   ExternalLink,
   Loader2,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,20 +33,38 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
 const STATUS_COLUMNS = [
   { key: "Interested", label: "Interested", color: "border-text-s/30 bg-surface/40 text-text-s" },
   { key: "Preparing", label: "Preparing", color: "border-accent/40 bg-accent/5 text-accent" },
-  { key: "Submitted", label: "Submitted", color: "border-[oklch(0.85_0.20_150)]/40 bg-[oklch(0.85_0.20_150)]/5 text-[oklch(0.85_0.20_150)]" },
-  { key: "Interview", label: "Interviewing", color: "border-[oklch(0.88_0.18_95)]/40 bg-[oklch(0.88_0.18_95)]/5 text-[oklch(0.88_0.18_95)]" },
-  { key: "Accepted", label: "Accepted", color: "border-[oklch(0.72_0.17_152)]/40 bg-[oklch(0.72_0.17_152)]/5 text-[oklch(0.72_0.17_152)] font-black" },
-  { key: "Rejected", label: "Rejected", color: "border-destructive/40 bg-destructive/5 text-destructive" },
+  {
+    key: "Submitted",
+    label: "Submitted",
+    color:
+      "border-[oklch(0.85_0.20_150)]/40 bg-[oklch(0.85_0.20_150)]/5 text-[oklch(0.85_0.20_150)]",
+  },
+  {
+    key: "Interview",
+    label: "Interviewing",
+    color: "border-[oklch(0.88_0.18_95)]/40 bg-[oklch(0.88_0.18_95)]/5 text-[oklch(0.88_0.18_95)]",
+  },
+  {
+    key: "Accepted",
+    label: "Accepted",
+    color:
+      "border-[oklch(0.72_0.17_152)]/40 bg-[oklch(0.72_0.17_152)]/5 text-[oklch(0.72_0.17_152)] font-black",
+  },
+  {
+    key: "Rejected",
+    label: "Rejected",
+    color: "border-destructive/40 bg-destructive/5 text-destructive",
+  },
 ] as const;
 
-type ApplicationStatus = typeof STATUS_COLUMNS[number]["key"];
+type ApplicationStatus = (typeof STATUS_COLUMNS)[number]["key"];
 
 function ApplicationsPipeline() {
   const queryClient = useQueryClient();
   const getAppsFn = useServerFn(getUserApplications);
   const trackAppFn = useServerFn(trackApplication);
   const deleteAppFn = useServerFn(deleteApplication);
-  
+
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [notesInput, setNotesInput] = useState("");
   const [isUpdatingNotes, setIsUpdatingNotes] = useState(false);
@@ -53,8 +75,15 @@ function ApplicationsPipeline() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: ({ opportunityId, status, notes }: { opportunityId: string, status: ApplicationStatus, notes?: string }) => 
-      trackAppFn({ data: { opportunityId, status, notes } }),
+    mutationFn: ({
+      opportunityId,
+      status,
+      notes,
+    }: {
+      opportunityId: string;
+      status: ApplicationStatus;
+      notes?: string;
+    }) => trackAppFn({ data: { opportunityId, status, notes } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       queryClient.invalidateQueries({ queryKey: ["successMetrics"] });
@@ -78,12 +107,12 @@ function ApplicationsPipeline() {
     if (!selectedApp) return;
     setIsUpdatingNotes(true);
     try {
-      await trackAppFn({ 
-        data: { 
-          opportunityId: selectedApp.opportunity_id, 
-          status: selectedApp.status, 
-          notes: notesInput 
-        } 
+      await trackAppFn({
+        data: {
+          opportunityId: selectedApp.opportunity_id,
+          status: selectedApp.status,
+          notes: notesInput,
+        },
       });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       setSelectedApp((prev: any) => ({ ...prev, notes: notesInput }));
@@ -106,7 +135,7 @@ function ApplicationsPipeline() {
       "",
       "📣 Shared via Opportunity X",
       "🚀 Join AEON X Early Access Hub",
-      COMMUNITY_INVITE
+      COMMUNITY_INVITE,
     ].join("\n");
 
     const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
@@ -124,7 +153,7 @@ function ApplicationsPipeline() {
       "",
       "📣 Shared via Opportunity X",
       "🚀 Join AEON X Early Access Hub",
-      COMMUNITY_INVITE
+      COMMUNITY_INVITE,
     ].join("\n");
 
     const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
@@ -132,10 +161,13 @@ function ApplicationsPipeline() {
   };
 
   // Group applications by status
-  const groupedApps = STATUS_COLUMNS.reduce((acc, col) => {
-    acc[col.key] = applications.filter((app: any) => app.status === col.key);
-    return acc;
-  }, {} as Record<ApplicationStatus, any[]>);
+  const groupedApps = STATUS_COLUMNS.reduce(
+    (acc, col) => {
+      acc[col.key] = applications.filter((app: any) => app.status === col.key);
+      return acc;
+    },
+    {} as Record<ApplicationStatus, any[]>,
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -148,7 +180,8 @@ function ApplicationsPipeline() {
               <TrendingUp className="text-accent" size={24} /> Application Pipeline
             </h1>
             <p className="text-xs text-text-s">
-              Manage your opportunity lifecycle visually. Drag or select statuses to monitor your wins.
+              Manage your opportunity lifecycle visually. Drag or select statuses to monitor your
+              wins.
             </p>
           </div>
           <Link
@@ -182,12 +215,19 @@ function ApplicationsPipeline() {
             {STATUS_COLUMNS.map((col) => {
               const colApps = groupedApps[col.key] || [];
               return (
-                <div key={col.key} className="rounded-2xl border border-border/80 bg-surface/40 p-4 flex flex-col gap-3 min-h-[300px] lg:min-h-[500px]">
+                <div
+                  key={col.key}
+                  className="rounded-2xl border border-border/80 bg-surface/40 p-4 flex flex-col gap-3 min-h-[300px] lg:min-h-[500px]"
+                >
                   <div className="flex items-center justify-between">
-                    <span className={`px-2 py-0.5 text-[9px] font-mono font-black uppercase tracking-wider rounded-md border ${col.color}`}>
+                    <span
+                      className={`px-2 py-0.5 text-[9px] font-mono font-black uppercase tracking-wider rounded-md border ${col.color}`}
+                    >
                       {col.label}
                     </span>
-                    <span className="text-[10px] font-mono text-text-s font-bold">{colApps.length}</span>
+                    <span className="text-[10px] font-mono text-text-s font-bold">
+                      {colApps.length}
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-2.5 flex-1">
@@ -201,9 +241,13 @@ function ApplicationsPipeline() {
                         }}
                         className="p-3.5 rounded-xl border border-border bg-surface hover:border-accent/40 cursor-pointer transition flex flex-col gap-2"
                       >
-                        <h4 className="text-xs font-bold leading-snug line-clamp-2">{app.opportunity.title}</h4>
+                        <h4 className="text-xs font-bold leading-snug line-clamp-2">
+                          {app.opportunity.title}
+                        </h4>
                         <div className="flex items-center justify-between text-[10px] text-text-s">
-                          <span className="truncate max-w-[80px]">{app.opportunity.organization}</span>
+                          <span className="truncate max-w-[80px]">
+                            {app.opportunity.organization}
+                          </span>
                           {app.opportunity.deadline && (
                             <span className="flex items-center gap-1 font-mono">
                               <Calendar size={10} /> {app.opportunity.deadline}
@@ -224,7 +268,7 @@ function ApplicationsPipeline() {
       <AnimatePresence>
         {selectedApp && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
@@ -239,8 +283,10 @@ function ApplicationsPipeline() {
               className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-surface border-l border-border z-50 p-6 flex flex-col gap-6 shadow-2xl overflow-y-auto"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-text-s">Application Workspace</span>
-                <button 
+                <span className="text-[10px] font-mono uppercase tracking-wider text-text-s">
+                  Application Workspace
+                </span>
+                <button
                   onClick={() => setSelectedApp(null)}
                   className="p-1.5 rounded-lg border border-border hover:bg-background transition text-text-s"
                 >
@@ -253,7 +299,11 @@ function ApplicationsPipeline() {
                   {selectedApp.opportunity.category}
                 </span>
                 <h2 className="text-lg font-bold leading-snug mb-1">
-                  <Link to="/opportunity/$id" params={{ id: selectedApp.opportunity_id }} className="hover:text-accent transition flex items-center gap-1">
+                  <Link
+                    to="/opportunity/$id"
+                    params={{ id: selectedApp.opportunity_id }}
+                    className="hover:text-accent transition flex items-center gap-1"
+                  >
                     {selectedApp.opportunity.title} <ExternalLink size={12} />
                   </Link>
                 </h2>
@@ -262,12 +312,19 @@ function ApplicationsPipeline() {
 
               {/* Status Picker */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-text-s">Pipeline Stage</span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-text-s">
+                  Pipeline Stage
+                </span>
                 <div className="grid grid-cols-3 gap-2">
                   {STATUS_COLUMNS.map((col) => (
                     <button
                       key={col.key}
-                      onClick={() => updateStatus.mutate({ opportunityId: selectedApp.opportunity_id, status: col.key })}
+                      onClick={() =>
+                        updateStatus.mutate({
+                          opportunityId: selectedApp.opportunity_id,
+                          status: col.key,
+                        })
+                      }
                       className={`px-3 py-2 text-xs font-semibold rounded-lg border transition ${
                         selectedApp.status === col.key
                           ? "bg-accent/10 border-accent/60 text-accent"
@@ -303,7 +360,9 @@ function ApplicationsPipeline() {
 
               {/* Quick Actions */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-text-s">Share Updates</span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-text-s">
+                  Share Updates
+                </span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleShareProgress(selectedApp)}
@@ -327,7 +386,8 @@ function ApplicationsPipeline() {
                   <Sparkles size={12} /> AI Application Copilot
                 </div>
                 <p className="text-[11px] text-foreground/90 leading-relaxed">
-                  Need custom Statement of Purpose materials or an optimized CV tailored specifically for this opportunity?
+                  Need custom Statement of Purpose materials or an optimized CV tailored
+                  specifically for this opportunity?
                 </p>
                 <Link
                   to="/opportunity/$id"

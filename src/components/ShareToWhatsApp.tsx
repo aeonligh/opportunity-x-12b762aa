@@ -19,12 +19,8 @@ export interface ShareableOpportunity {
 
 const COMMUNITY_INVITE = "https://chat.whatsapp.com/JGZehs9fzCfEsLmXZYCXej";
 
-export function buildWhatsAppShareMessage(
-  op: ShareableOpportunity,
-  detailUrl: string,
-): string {
-  const category =
-    op.categories?.[0] ?? op.category ?? "Opportunity";
+export function buildWhatsAppShareMessage(op: ShareableOpportunity, detailUrl: string): string {
+  const category = op.categories?.[0] ?? op.category ?? "Opportunity";
   const lines = [
     "🎓 OPPORTUNITY ALERT",
     "",
@@ -76,9 +72,7 @@ export default function ShareToWhatsApp({
     if (typeof window !== "undefined") {
       window.open(waUrl, "_blank", "noopener,noreferrer");
     }
-    void track({ data: { opportunity_id: opportunity.id, event_type: "share" } }).catch(
-      () => {},
-    );
+    void track({ data: { opportunity_id: opportunity.id, event_type: "share" } }).catch(() => {});
   }, [opportunity, detailUrl, track]);
 
   const base =

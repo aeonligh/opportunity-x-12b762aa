@@ -36,7 +36,10 @@ export const Route = createFileRoute("/opportunity/$id")({
     const o = loaderData;
     if (!o) return { meta: [{ title: "Opportunity not found — Opportunity X" }] };
     const title = `${o.title} — ${o.organization}`;
-    const desc = (o.description ?? `${o.category} opportunity from ${o.organization}.`).slice(0, 160);
+    const desc = (o.description ?? `${o.category} opportunity from ${o.organization}.`).slice(
+      0,
+      160,
+    );
     const siteUrl = import.meta.env.VITE_SITE_URL || "https://opportunityx.app";
     const url = `${siteUrl}/opportunity/${params.id}`;
     return {
@@ -75,7 +78,9 @@ export const Route = createFileRoute("/opportunity/$id")({
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-6">
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-2">Opportunity not found</h1>
-        <Link to="/" className="text-accent text-sm underline">Back to home</Link>
+        <Link to="/" className="text-accent text-sm underline">
+          Back to home
+        </Link>
       </div>
     </div>
   ),
@@ -84,7 +89,9 @@ export const Route = createFileRoute("/opportunity/$id")({
       <div className="text-center">
         <h1 className="text-xl font-bold mb-2">Couldn't load this opportunity</h1>
         <p className="text-sm text-text-s mb-4">{error.message}</p>
-        <Link to="/" className="text-accent text-sm underline">Back to home</Link>
+        <Link to="/" className="text-accent text-sm underline">
+          Back to home
+        </Link>
       </div>
     </div>
   ),
@@ -106,7 +113,10 @@ function OpportunityDetail() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground"
+        >
           <ArrowLeft size={14} /> Opportunity X
         </Link>
         <Link
@@ -119,7 +129,11 @@ function OpportunityDetail() {
 
       {op.image_url && (
         <div className="relative h-64 md:h-80 w-full overflow-hidden bg-surface">
-          <img src={op.image_url} alt={op.title} className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src={op.image_url}
+            alt={op.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
       )}
@@ -127,7 +141,7 @@ function OpportunityDetail() {
       <main className="max-w-3xl mx-auto px-6 py-10">
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-accent/10 text-accent text-[10px] font-mono uppercase tracking-wider">
-            {(op.categories?.[0] ?? op.category)}
+            {op.categories?.[0] ?? op.category}
           </span>
           {op.opportunity_type && (
             <span className="inline-flex px-2 py-0.5 rounded-md bg-surface border border-border text-[10px] font-semibold text-text-s">
@@ -143,15 +157,29 @@ function OpportunityDetail() {
         </div>
         <div className="flex items-start justify-between gap-4 mb-3">
           <h1 className="text-3xl md:text-4xl font-black tracking-tight">{op.title}</h1>
-          {op.match_score_default != null && <MatchScoreBadge score={op.match_score_default} size={56} />}
+          {op.match_score_default != null && (
+            <MatchScoreBadge score={op.match_score_default} size={56} />
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-text-s mb-6">
-          <span className="inline-flex items-center gap-1.5"><Building2 size={14} /> {op.organization}</span>
-          {op.location && <span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {op.location}</span>}
-          {op.deadline && <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {op.deadline}</span>}
+          <span className="inline-flex items-center gap-1.5">
+            <Building2 size={14} /> {op.organization}
+          </span>
+          {op.location && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin size={14} /> {op.location}
+            </span>
+          )}
+          {op.deadline && (
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays size={14} /> {op.deadline}
+            </span>
+          )}
         </div>
 
-        {op.description && <p className="text-base leading-relaxed text-foreground/90 mb-6">{op.description}</p>}
+        {op.description && (
+          <p className="text-base leading-relaxed text-foreground/90 mb-6">{op.description}</p>
+        )}
 
         {op.ai_insight && (
           <div className="rounded-2xl border border-accent/20 bg-accent/5 p-5 mb-6">
@@ -165,7 +193,10 @@ function OpportunityDetail() {
         {op.tags && op.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {op.tags.map((t) => (
-              <span key={t} className="px-2 py-0.5 rounded-md bg-surface border border-border text-[11px] text-text-s">
+              <span
+                key={t}
+                className="px-2 py-0.5 rounded-md bg-surface border border-border text-[11px] text-text-s"
+              >
                 #{t}
               </span>
             ))}
@@ -177,7 +208,11 @@ function OpportunityDetail() {
             href={op.apply_url ?? "#"}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => void track({ data: { opportunity_id: op.id, event_type: "apply_click" } }).catch(() => {})}
+            onClick={() =>
+              void track({ data: { opportunity_id: op.id, event_type: "apply_click" } }).catch(
+                () => {},
+              )
+            }
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground font-bold hover:opacity-90 transition"
           >
             Apply Now <ExternalLink size={14} />
@@ -201,7 +236,11 @@ function OpportunityDetail() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-border text-xs text-text-s">
-          🚀 Discovered via <Link to="/" className="text-accent">Opportunity X</Link> · Powered by AEON X
+          🚀 Discovered via{" "}
+          <Link to="/" className="text-accent">
+            Opportunity X
+          </Link>{" "}
+          · Powered by AEON X
         </div>
       </main>
     </div>

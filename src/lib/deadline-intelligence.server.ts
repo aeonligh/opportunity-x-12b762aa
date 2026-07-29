@@ -11,7 +11,7 @@ export async function runDeadlineIntelligenceCheck() {
     const { data: users, error: userErr } = await supabaseAdmin
       .from("profiles")
       .select("id, display_name, email_notifications");
-    
+
     if (userErr) throw userErr;
     if (!users || users.length === 0) return;
 
@@ -29,7 +29,7 @@ export async function runDeadlineIntelligenceCheck() {
         .eq("user_id", user.id);
 
       const itemsMap = new Map<string, { opportunity: any; source: "saved" | "tracked" }>();
-      
+
       if (saved) {
         for (const s of saved) {
           if (s.opportunity) {
@@ -50,7 +50,9 @@ export async function runDeadlineIntelligenceCheck() {
 
       // Get user email from auth
       // We can query auth.users using supabaseAdmin
-      const { data: authUserData, error: authUserErr } = await supabaseAdmin.auth.admin.getUserById(user.id);
+      const { data: authUserData, error: authUserErr } = await supabaseAdmin.auth.admin.getUserById(
+        user.id,
+      );
       if (authUserErr || !authUserData?.user) {
         console.warn(`[Deadline Intelligence] Could not get auth user for ${user.id}`, authUserErr);
         continue;
@@ -63,11 +65,17 @@ export async function runDeadlineIntelligenceCheck() {
         .from("user_documents")
         .select("document_type")
         .eq("user_id", user.id);
-      
+
       const uploadedTypes = new Set((docs ?? []).map((d) => d.document_type));
 
       // Standard expected documents for checklists
-      const expectedDocs = ["CV", "Resume", "Transcript", "Statement of Purpose", "Motivation Letter"];
+      const expectedDocs = [
+        "CV",
+        "Resume",
+        "Transcript",
+        "Statement of Purpose",
+        "Motivation Letter",
+      ];
       const missingDocs: string[] = [];
       const matchingDocs: string[] = [];
 
@@ -116,7 +124,9 @@ export async function runDeadlineIntelligenceCheck() {
 
         if (sentBefore) continue; // Already sent
 
-        console.log(`[Deadline Intelligence] Alert triggered for user ${user.id} and opportunity ${opportunity.title} at ${daysLeft} days left.`);
+        console.log(
+          `[Deadline Intelligence] Alert triggered for user ${user.id} and opportunity ${opportunity.title} at ${daysLeft} days left.`,
+        );
 
         // A. Send in-app notification
         const missingText = missingDocs.length > 0 ? ` Missing: ${missingDocs.join(", ")}.` : "";

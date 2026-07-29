@@ -49,10 +49,7 @@ export const setFeatured = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin
-      .from("opportunities")
-      .update({ featured: data.featured })
-      .eq("id", data.id);
+    await supabaseAdmin.from("opportunities").update({ featured: data.featured }).eq("id", data.id);
     return { ok: true };
   });
 
@@ -89,8 +86,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
     for (const r of rows ?? []) {
       totals[r.event_type] = (totals[r.event_type] ?? 0) + 1;
       perOpp[r.opportunity_id] ??= { view: 0, save: 0, share: 0, apply_click: 0 };
-      perOpp[r.opportunity_id][r.event_type] =
-        (perOpp[r.opportunity_id][r.event_type] ?? 0) + 1;
+      perOpp[r.opportunity_id][r.event_type] = (perOpp[r.opportunity_id][r.event_type] ?? 0) + 1;
     }
     return { totals, perOpp };
   });

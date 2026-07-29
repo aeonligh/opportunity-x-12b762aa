@@ -44,8 +44,7 @@ export default function CopilotPanel({ opportunityId, opportunityTitle }: Props)
   const sopsForThis = allSops.filter((s) => s.opportunity_id === opportunityId);
 
   const generate = useMutation({
-    mutationFn: () =>
-      generateFn({ data: { opportunityId, type, careerGoals: goals.trim() } }),
+    mutationFn: () => generateFn({ data: { opportunityId, type, careerGoals: goals.trim() } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sops", userId] });
       toast.success(`${type} generated`);
@@ -139,36 +138,38 @@ export default function CopilotPanel({ opportunityId, opportunityTitle }: Props)
           <div className="text-[10px] font-mono uppercase tracking-widest text-text-s">
             Drafts for this opportunity
           </div>
-          {sopsForThis.map((s: { id: string; type: string; content: string; created_at: string }) => (
-            <details
-              key={s.id}
-              className="group rounded-xl border border-border bg-background/40 overflow-hidden"
-            >
-              <summary className="flex items-center justify-between gap-2 p-3 cursor-pointer hover:bg-background/60 transition">
-                <div className="flex items-center gap-2 text-xs">
-                  <FileText size={12} className="text-accent" />
-                  <span className="font-semibold">{s.type}</span>
-                  <span className="text-text-s text-[10px]">
-                    {new Date(s.created_at).toLocaleDateString()}
-                  </span>
+          {sopsForThis.map(
+            (s: { id: string; type: string; content: string; created_at: string }) => (
+              <details
+                key={s.id}
+                className="group rounded-xl border border-border bg-background/40 overflow-hidden"
+              >
+                <summary className="flex items-center justify-between gap-2 p-3 cursor-pointer hover:bg-background/60 transition">
+                  <div className="flex items-center gap-2 text-xs">
+                    <FileText size={12} className="text-accent" />
+                    <span className="font-semibold">{s.type}</span>
+                    <span className="text-text-s text-[10px]">
+                      {new Date(s.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      copy(s.id, s.content);
+                    }}
+                    className="inline-flex items-center gap-1 text-[10px] text-text-s hover:text-accent"
+                  >
+                    {copied === s.id ? <Check size={11} /> : <Copy size={11} />}
+                    {copied === s.id ? "Copied" : "Copy"}
+                  </button>
+                </summary>
+                <div className="px-4 pb-4 text-xs whitespace-pre-wrap leading-relaxed text-foreground/90">
+                  {s.content}
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    copy(s.id, s.content);
-                  }}
-                  className="inline-flex items-center gap-1 text-[10px] text-text-s hover:text-accent"
-                >
-                  {copied === s.id ? <Check size={11} /> : <Copy size={11} />}
-                  {copied === s.id ? "Copied" : "Copy"}
-                </button>
-              </summary>
-              <div className="px-4 pb-4 text-xs whitespace-pre-wrap leading-relaxed text-foreground/90">
-                {s.content}
-              </div>
-            </details>
-          ))}
+              </details>
+            ),
+          )}
         </div>
       )}
     </div>

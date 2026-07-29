@@ -60,7 +60,10 @@ export interface WebSearchHit {
   markdown?: string;
 }
 
-export async function searchWeb(query: string, opts?: { limit?: number; scrape?: boolean }): Promise<WebSearchHit[]> {
+export async function searchWeb(
+  query: string,
+  opts?: { limit?: number; scrape?: boolean },
+): Promise<WebSearchHit[]> {
   const j = await fcFetch<{
     data?: Array<{ url: string; title?: string; description?: string; markdown?: string }>;
     web?: Array<{ url: string; title?: string; description?: string; markdown?: string }>;
@@ -79,8 +82,16 @@ export async function searchWeb(query: string, opts?: { limit?: number; scrape?:
 }
 
 const OPPORTUNITY_KEYWORDS = [
-  "scholarship", "fellowship", "internship", "grant", "fund",
-  "apply", "application", "deadline", "eligibility", "program",
+  "scholarship",
+  "fellowship",
+  "internship",
+  "grant",
+  "fund",
+  "apply",
+  "application",
+  "deadline",
+  "eligibility",
+  "program",
 ];
 
 /**
@@ -90,13 +101,22 @@ const OPPORTUNITY_KEYWORDS = [
 export async function verifyOpportunity(
   url: string,
   expectedTitle?: string,
-): Promise<{ ok: boolean; confidence: number; method: "firecrawl" | "http" | "none"; evidence?: ScrapeResult }> {
+): Promise<{
+  ok: boolean;
+  confidence: number;
+  method: "firecrawl" | "http" | "none";
+  evidence?: ScrapeResult;
+}> {
   const scrape = await scrapePage(url);
   if (scrape.ok) {
     const blob = `${scrape.title} ${scrape.text}`.toLowerCase();
     const kwHits = OPPORTUNITY_KEYWORDS.filter((k) => blob.includes(k)).length;
     const titleHit = expectedTitle
-      ? expectedTitle.toLowerCase().split(/\s+/).filter((w) => w.length > 4).some((w) => blob.includes(w))
+      ? expectedTitle
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((w) => w.length > 4)
+          .some((w) => blob.includes(w))
       : true;
     let confidence = 0.4 + Math.min(kwHits, 4) * 0.1;
     if (titleHit) confidence += 0.2;

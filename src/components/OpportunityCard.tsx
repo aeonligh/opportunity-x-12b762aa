@@ -132,9 +132,9 @@ export default function OpportunityCard({ opportunity, initiallySaved, onUnsave 
   };
 
   const matchScore = opportunity.match_score ?? opportunity.match_score_default ?? null;
-  const cats = (opportunity.categories?.length ? opportunity.categories : [opportunity.category]).filter(
-    Boolean,
-  ) as string[];
+  const cats = (
+    opportunity.categories?.length ? opportunity.categories : [opportunity.category]
+  ).filter(Boolean) as string[];
 
   return (
     <motion.article
@@ -147,7 +147,6 @@ export default function OpportunityCard({ opportunity, initiallySaved, onUnsave 
     >
       <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-accent/30 via-accent/10 to-background">
         {opportunity.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={opportunity.image_url}
             alt={opportunity.title}
@@ -195,7 +194,10 @@ export default function OpportunityCard({ opportunity, initiallySaved, onUnsave 
             <Building2 size={12} />
             <span className="truncate">{opportunity.organization}</span>
             {opportunity.verification_score && opportunity.verification_score >= 0.8 && (
-              <span className="inline-flex items-center gap-0.5 text-[oklch(0.78_0.15_152)] ml-1" title="Verified">
+              <span
+                className="inline-flex items-center gap-0.5 text-[oklch(0.78_0.15_152)] ml-1"
+                title="Verified"
+              >
                 <ShieldCheck size={11} />
               </span>
             )}

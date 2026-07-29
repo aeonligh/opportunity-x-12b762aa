@@ -17,12 +17,12 @@ import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedDashboardDocumentsRouteImport } from './routes/_authenticated/dashboard.documents'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
-import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authenticated/_admin/queue'
-import { Route as AuthenticatedAdminFeaturedRouteImport } from './routes/_authenticated/_admin/featured'
-import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/_admin/analytics'
+import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authenticated/admin/queue'
+import { Route as AuthenticatedAdminFeaturedRouteImport } from './routes/_authenticated/admin/featured'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin/analytics'
 import { Route as ApiPublicHooksDeadlineRemindersRouteImport } from './routes/api/public/hooks/deadline-reminders'
 import { Route as ApiPublicHooksCrawlOpportunitiesRouteImport } from './routes/api/public/hooks/crawl-opportunities'
 
@@ -66,7 +66,8 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/_admin',
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardDocumentsRoute =
@@ -115,13 +116,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
-  '/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/featured': typeof AuthenticatedAdminFeaturedRoute
-  '/queue': typeof AuthenticatedAdminQueueRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/featured': typeof AuthenticatedAdminFeaturedRoute
+  '/admin/queue': typeof AuthenticatedAdminQueueRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
@@ -131,13 +133,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
-  '/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/featured': typeof AuthenticatedAdminFeaturedRoute
-  '/queue': typeof AuthenticatedAdminQueueRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/featured': typeof AuthenticatedAdminFeaturedRoute
+  '/admin/queue': typeof AuthenticatedAdminQueueRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
@@ -149,14 +152,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
-  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
-  '/_authenticated/_admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/_authenticated/_admin/featured': typeof AuthenticatedAdminFeaturedRoute
-  '/_authenticated/_admin/queue': typeof AuthenticatedAdminQueueRoute
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/_authenticated/admin/featured': typeof AuthenticatedAdminFeaturedRoute
+  '/_authenticated/admin/queue': typeof AuthenticatedAdminQueueRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
@@ -168,13 +171,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/search'
+    | '/admin'
     | '/dashboard'
     | '/onboarding'
     | '/vault'
     | '/opportunity/$id'
-    | '/analytics'
-    | '/featured'
-    | '/queue'
+    | '/admin/analytics'
+    | '/admin/featured'
+    | '/admin/queue'
     | '/dashboard/applications'
     | '/dashboard/documents'
     | '/api/public/hooks/crawl-opportunities'
@@ -184,13 +188,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/search'
+    | '/admin'
     | '/dashboard'
     | '/onboarding'
     | '/vault'
     | '/opportunity/$id'
-    | '/analytics'
-    | '/featured'
-    | '/queue'
+    | '/admin/analytics'
+    | '/admin/featured'
+    | '/admin/queue'
     | '/dashboard/applications'
     | '/dashboard/documents'
     | '/api/public/hooks/crawl-opportunities'
@@ -201,14 +206,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/search'
-    | '/_authenticated/_admin'
+    | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/vault'
     | '/opportunity/$id'
-    | '/_authenticated/_admin/analytics'
-    | '/_authenticated/_admin/featured'
-    | '/_authenticated/_admin/queue'
+    | '/_authenticated/admin/analytics'
+    | '/_authenticated/admin/featured'
+    | '/_authenticated/admin/queue'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/documents'
     | '/api/public/hooks/crawl-opportunities'
@@ -283,10 +288,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/_admin': {
-      id: '/_authenticated/_admin'
-      path: ''
-      fullPath: '/'
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
@@ -304,24 +309,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_authenticated/_admin/queue': {
-      id: '/_authenticated/_admin/queue'
+    '/_authenticated/admin/queue': {
+      id: '/_authenticated/admin/queue'
       path: '/queue'
-      fullPath: '/queue'
+      fullPath: '/admin/queue'
       preLoaderRoute: typeof AuthenticatedAdminQueueRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/_admin/featured': {
-      id: '/_authenticated/_admin/featured'
+    '/_authenticated/admin/featured': {
+      id: '/_authenticated/admin/featured'
       path: '/featured'
-      fullPath: '/featured'
+      fullPath: '/admin/featured'
       preLoaderRoute: typeof AuthenticatedAdminFeaturedRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/_admin/analytics': {
-      id: '/_authenticated/_admin/analytics'
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
       path: '/analytics'
-      fullPath: '/analytics'
+      fullPath: '/admin/analytics'
       preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }

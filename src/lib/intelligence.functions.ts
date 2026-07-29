@@ -41,8 +41,17 @@ function normalizeUrl(raw: string): string {
     u.hash = "";
     // strip common tracking params
     [
-      "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
-      "fbclid", "gclid", "mc_cid", "mc_eid", "ref", "ref_src",
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_term",
+      "utm_content",
+      "fbclid",
+      "gclid",
+      "mc_cid",
+      "mc_eid",
+      "ref",
+      "ref_src",
     ].forEach((p) => u.searchParams.delete(p));
     let pathname = u.pathname.replace(/\/+$/, "");
     if (!pathname) pathname = "/";
@@ -57,13 +66,25 @@ function urlHash(raw: string): string {
 }
 
 function urlDomain(raw: string): string | null {
-  try { return new URL(raw).host.toLowerCase().replace(/^www\./, ""); } catch { return null; }
+  try {
+    return new URL(raw).host.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
 }
 
 const PRIORITY_TLDS = [".edu", ".gov", ".ac.", ".int", ".org"];
 const PRIORITY_KEYWORDS = [
-  "scholarship", "fellowship", "internship", "grant", "research",
-  "program", "apply", "application", "admission", "fund",
+  "scholarship",
+  "fellowship",
+  "internship",
+  "grant",
+  "research",
+  "program",
+  "apply",
+  "application",
+  "admission",
+  "fund",
 ];
 
 // ───────────────────── types ─────────────────────
@@ -84,8 +105,8 @@ interface AICandidate {
 }
 
 interface VerifiedCandidate extends AICandidate {
-  verification_score: number;     // AI self-rated 0..1
-  confidence_score: number;       // combined with live URL check 0..1
+  verification_score: number; // AI self-rated 0..1
+  confidence_score: number; // combined with live URL check 0..1
   verification_method: "firecrawl" | "http_head" | "ai_only";
   ai_reasoning: string;
   match_score: number;
@@ -98,16 +119,15 @@ async function stageDiscovery(
   data: { query: string; category: string },
   source: "user" | "cron" | "live_search",
 ): Promise<AICandidate[]> {
-  const audience =
-    profile
-      ? `Student profile:
+  const audience = profile
+    ? `Student profile:
 - Country: ${profile.country ?? "Global"}
 - Course: ${profile.course_of_study ?? "n/a"}
 - Degree level: ${profile.level_of_study ?? profile.education_level ?? "n/a"}
 - Grad year: ${profile.graduation_year ?? "n/a"}
 - Interests: ${(profile.career_interests as string[] | undefined)?.join(", ") || "general"}
 - Skills: ${(profile.skill_tags as string[] | undefined)?.join(", ") || "general"}`
-      : "Global audience of ambitious undergraduate and graduate students.";
+    : "Global audience of ambitious undergraduate and graduate students.";
 
   const count = source === "cron" ? 12 : 8;
 
@@ -155,14 +175,15 @@ Return ${count} verifiable opportunities now, biased toward open/upcoming deadli
 
 // ───────── Stage 2 — Verification ─────────
 
-async function firecrawlScrape(url: string): Promise<{ ok: boolean; title?: string; text?: string }> {
+async function firecrawlScrape(
+  url: string,
+): Promise<{ ok: boolean; title?: string; text?: string }> {
   const { scrapePage, isFirecrawlConfigured } = await import("./firecrawl.server");
   if (!isFirecrawlConfigured()) return { ok: false };
   const r = await scrapePage(url);
   if (!r.ok) return { ok: false };
   return { ok: true, title: r.title, text: r.text.slice(0, 4000) };
 }
-
 
 async function httpHeadVerify(url: string): Promise<boolean> {
   try {
@@ -176,7 +197,9 @@ async function httpHeadVerify(url: string): Promise<boolean> {
     });
     clearTimeout(to);
     return res.ok;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 async function verifyCandidate(c: AICandidate): Promise<VerifiedCandidate | null> {
@@ -202,9 +225,16 @@ async function verifyCandidate(c: AICandidate): Promise<VerifiedCandidate | null
       .filter((w) => w.length > 4)
       .some((w) => blob.includes(w));
     const kwHit = PRIORITY_KEYWORDS.some((k) => blob.includes(k));
-    if (titleHit && kwHit) { verification_score = 0.95; confidence_score = isPriority ? 0.95 : 0.85; }
-    else if (titleHit || kwHit) { verification_score = 0.8; confidence_score = 0.7; }
-    else { verification_score = 0.55; confidence_score = 0.5; }
+    if (titleHit && kwHit) {
+      verification_score = 0.95;
+      confidence_score = isPriority ? 0.95 : 0.85;
+    } else if (titleHit || kwHit) {
+      verification_score = 0.8;
+      confidence_score = 0.7;
+    } else {
+      verification_score = 0.55;
+      confidence_score = 0.5;
+    }
   } else {
     // HEAD fallback
     const live = await httpHeadVerify(c.source_url);
@@ -232,7 +262,7 @@ async function verifyCandidate(c: AICandidate): Promise<VerifiedCandidate | null
 
 // ───────── Stage 3 — Pipeline core ─────────
 
-type SupabaseAdmin = typeof import("@/integrations/supabase/client.server")["supabaseAdmin"];
+type SupabaseAdmin = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
 
 async function runPipeline(opts: {
   profile: Record<string, unknown> | null;
@@ -419,7 +449,9 @@ export const runScheduledCrawl = createServerFn({ method: "POST" }).handler(asyn
       totalInserted += r.inserted;
     } catch (e) {
       await supabaseAdmin.from("discovery_runs").insert({
-        query: q, source: "cron", error: String(e).slice(0, 400),
+        query: q,
+        source: "cron",
+        error: String(e).slice(0, 400),
       });
     }
   }
@@ -455,7 +487,9 @@ export const recommendedForUser = createServerFn({ method: "GET" })
     const rows =
       (scored ?? [])
         .map((s) => s.opportunity)
-        .filter((o): o is NonNullable<typeof o> => o !== null && (o as { verified: boolean }).verified) ?? [];
+        .filter(
+          (o): o is NonNullable<typeof o> => o !== null && (o as { verified: boolean }).verified,
+        ) ?? [];
     if (rows.length > 0) return rows;
     const { data: fallback } = await supabase
       .from("opportunities")
@@ -535,8 +569,7 @@ export const searchOpportunities = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(40);
     if (data.query) q = q.ilike("title", `%${data.query}%`);
-    if (data.category && data.category !== "All")
-      q = q.contains("categories", [data.category]);
+    if (data.category && data.category !== "All") q = q.contains("categories", [data.category]);
     const { data: rows } = await q;
     return rows ?? [];
   });

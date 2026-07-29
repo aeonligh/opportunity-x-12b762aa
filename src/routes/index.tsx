@@ -54,7 +54,14 @@ const PLACEHOLDERS = [
   "AI research grants for undergrads",
 ];
 
-const AI_STEPS = ["Searching", "Discovering", "Reading", "Verifying", "Ranking", "Matching"] as const;
+const AI_STEPS = [
+  "Searching",
+  "Discovering",
+  "Reading",
+  "Verifying",
+  "Ranking",
+  "Matching",
+] as const;
 
 function Landing() {
   return (
@@ -89,10 +96,18 @@ function Nav() {
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-xs text-text-s">
-            <a href="#discovery" className="hover:text-foreground transition">Discovery</a>
-            <a href="#verification" className="hover:text-foreground transition">Verification</a>
-            <a href="#personalization" className="hover:text-foreground transition">Match</a>
-            <a href="#execution" className="hover:text-foreground transition">Execution</a>
+            <a href="#discovery" className="hover:text-foreground transition">
+              Discovery
+            </a>
+            <a href="#verification" className="hover:text-foreground transition">
+              Verification
+            </a>
+            <a href="#personalization" className="hover:text-foreground transition">
+              Match
+            </a>
+            <a href="#execution" className="hover:text-foreground transition">
+              Execution
+            </a>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -114,7 +129,6 @@ function Nav() {
     </header>
   );
 }
-
 
 function Hero() {
   const [running, setRunning] = useState(false);
@@ -144,7 +158,13 @@ function Hero() {
     }, 550);
   };
 
-  const suggestionChips = ["DAAD", "Scholarships in Germany", "Research in Canada", "Fully funded", "Fulbright"];
+  const suggestionChips = [
+    "DAAD",
+    "Scholarships in Germany",
+    "Research in Canada",
+    "Fully funded",
+    "Fulbright",
+  ];
 
   return (
     <section className="relative pt-28 pb-16 md:pt-36 md:pb-24">
@@ -169,7 +189,8 @@ function Hero() {
             transition={{ duration: 0.7, delay: 0.05 }}
             className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.02] mb-6"
           >
-            Your next <span className="text-gradient">life-changing</span> opportunity is closer than you think.
+            Your next <span className="text-gradient">life-changing</span> opportunity is closer
+            than you think.
           </motion.h1>
 
           <motion.p
@@ -178,9 +199,9 @@ function Hero() {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="text-base md:text-lg text-text-s max-w-xl mb-8 leading-relaxed"
           >
-            Opportunity X is an AI platform that discovers, verifies, and personalizes
-            scholarships, fellowships, internships, grants, and research programs from across the
-            world — then helps you actually secure them.
+            Opportunity X is an AI platform that discovers, verifies, and personalizes scholarships,
+            fellowships, internships, grants, and research programs from across the world — then
+            helps you actually secure them.
           </motion.p>
 
           <motion.div
@@ -230,7 +251,11 @@ function Hero() {
                   <span
                     key={s}
                     className={`transition ${
-                      i < step ? "text-[oklch(0.75_0.18_152)]" : i === step ? "text-foreground" : "opacity-40"
+                      i < step
+                        ? "text-[oklch(0.75_0.18_152)]"
+                        : i === step
+                          ? "text-foreground"
+                          : "opacity-40"
                     }`}
                   >
                     {s}
@@ -258,7 +283,8 @@ function Hero() {
 
           <div className="mt-8 flex items-center gap-6 text-[11px] text-text-s flex-wrap">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck size={12} className="text-[oklch(0.75_0.18_152)]" /> Every opportunity verified
+              <ShieldCheck size={12} className="text-[oklch(0.75_0.18_152)]" /> Every opportunity
+              verified
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Target size={12} className="text-accent" /> Personalized to your profile
@@ -281,7 +307,6 @@ function Hero() {
     </section>
   );
 }
-
 
 function GlobeFallback() {
   return (
@@ -332,7 +357,11 @@ function SectionWorld() {
   return (
     <SectionShell
       eyebrow="The World"
-      title={<>The world's opportunities <span className="text-gradient">already exist.</span></>}
+      title={
+        <>
+          The world's opportunities <span className="text-gradient">already exist.</span>
+        </>
+      }
       subtitle="Across 190+ countries, thousands of universities, foundations, and governments publish scholarships, fellowships, grants, and research programs every single week. Most people never see them."
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -372,7 +401,11 @@ function SectionDiscovery() {
     <SectionShell
       id="discovery"
       eyebrow="Discovery"
-      title={<>An AI that <span className="text-gradient">reads the entire web</span> for you.</>}
+      title={
+        <>
+          An AI that <span className="text-gradient">reads the entire web</span> for you.
+        </>
+      }
       subtitle="Opportunity X continuously scans official sources — universities, ministries, foundations, research labs — surfacing what matters, in real time."
     >
       <div ref={ref} className="grid lg:grid-cols-2 gap-6 md:gap-8">
@@ -408,14 +441,16 @@ function SectionDiscovery() {
                   </span>
                   <span
                     className={`text-sm font-semibold ${
-                      done ? "text-[oklch(0.78_0.15_152)]" : current ? "text-foreground" : "text-text-s"
+                      done
+                        ? "text-[oklch(0.78_0.15_152)]"
+                        : current
+                          ? "text-foreground"
+                          : "text-text-s"
                     }`}
                   >
                     {s}…
                   </span>
-                  {current && (
-                    <Loader2 size={12} className="ml-auto animate-spin text-accent" />
-                  )}
+                  {current && <Loader2 size={12} className="ml-auto animate-spin text-accent" />}
                 </li>
               );
             })}
@@ -429,7 +464,11 @@ function SectionDiscovery() {
           <div className="space-y-3">
             {[
               { org: "DAAD", country: "Germany", title: "EPOS Development-Related Postgrad" },
-              { org: "Chevening", country: "United Kingdom", title: "Chevening Master's Scholarships" },
+              {
+                org: "Chevening",
+                country: "United Kingdom",
+                title: "Chevening Master's Scholarships",
+              },
               { org: "MEXT", country: "Japan", title: "MEXT Research Student Program" },
               { org: "Fulbright", country: "United States", title: "Foreign Student Program" },
             ].map((r, i) => (
@@ -446,7 +485,9 @@ function SectionDiscovery() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold truncate">{r.title}</div>
-                  <div className="text-[11px] text-text-s">{r.org} · {r.country}</div>
+                  <div className="text-[11px] text-text-s">
+                    {r.org} · {r.country}
+                  </div>
                 </div>
                 <ShieldCheck size={14} className="text-[oklch(0.78_0.15_152)] shrink-0" />
               </motion.div>
@@ -460,16 +501,36 @@ function SectionDiscovery() {
 
 function SectionVerification() {
   const items = [
-    { icon: ShieldCheck, title: "Official sources only", body: "Every opportunity is traced back to an authoritative provider before it reaches you." },
-    { icon: Check, title: "Deadline validated", body: "AI cross-checks deadlines against source pages so you never chase expired listings." },
-    { icon: Sparkles, title: "Duplicates removed", body: "URL hashing and semantic dedup keep your feed clean and signal-rich." },
-    { icon: AlertTriangle, title: "AI verified", body: "Confidence scoring on every listing. Anything below 0.6 never gets published." },
+    {
+      icon: ShieldCheck,
+      title: "Official sources only",
+      body: "Every opportunity is traced back to an authoritative provider before it reaches you.",
+    },
+    {
+      icon: Check,
+      title: "Deadline validated",
+      body: "AI cross-checks deadlines against source pages so you never chase expired listings.",
+    },
+    {
+      icon: Sparkles,
+      title: "Duplicates removed",
+      body: "URL hashing and semantic dedup keep your feed clean and signal-rich.",
+    },
+    {
+      icon: AlertTriangle,
+      title: "AI verified",
+      body: "Confidence scoring on every listing. Anything below 0.6 never gets published.",
+    },
   ];
   return (
     <SectionShell
       id="verification"
       eyebrow="Verification"
-      title={<>Trust is not optional. <span className="text-gradient">It's the product.</span></>}
+      title={
+        <>
+          Trust is not optional. <span className="text-gradient">It's the product.</span>
+        </>
+      }
       subtitle="Opportunity X is built on a verification-first pipeline. If we can't confirm it, we don't publish it."
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -499,7 +560,11 @@ function SectionPersonalization() {
     <SectionShell
       id="personalization"
       eyebrow="Personalization"
-      title={<>Matched to <span className="text-gradient">who you actually are.</span></>}
+      title={
+        <>
+          Matched to <span className="text-gradient">who you actually are.</span>
+        </>
+      }
       subtitle="Your degree, field, country, funding needs and goals shape every recommendation — with reasoning you can see."
     >
       <div className="grid lg:grid-cols-[1.1fr_1fr] gap-6 md:gap-8 items-start">
@@ -516,7 +581,9 @@ function SectionPersonalization() {
             </div>
             <div className="text-right shrink-0">
               <div className="text-3xl font-black text-gradient leading-none">94%</div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mt-1">Match</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mt-1">
+                Match
+              </div>
             </div>
           </div>
           <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mt-4 mb-2">
@@ -547,9 +614,7 @@ function SectionPersonalization() {
             <button className="px-4 py-2 rounded-xl bg-accent text-accent-foreground text-xs font-bold">
               Apply now
             </button>
-            <button className="px-4 py-2 rounded-xl glass-panel text-xs font-semibold">
-              Save
-            </button>
+            <button className="px-4 py-2 rounded-xl glass-panel text-xs font-semibold">Save</button>
             <button className="px-4 py-2 rounded-xl glass-panel text-xs font-semibold">
               Share on WhatsApp
             </button>
@@ -586,18 +651,47 @@ function SectionPersonalization() {
 
 function SectionExecution() {
   const items = [
-    { icon: FileText, title: "AI SOP & Motivation Letters", body: "Generate tailored statements grounded in your profile and the opportunity." },
-    { icon: BriefcaseBusiness, title: "CV Optimization", body: "Actionable improvements matched to what each program looks for." },
-    { icon: ListChecks, title: "Application Tracker", body: "Kanban-style pipeline from Interested to Submitted to Outcome." },
-    { icon: Bell, title: "Deadline Reminders", body: "Smart nudges at 30, 14, 7, 3 and 1 day before you miss the window." },
-    { icon: FolderLock, title: "Document Vault", body: "Private, encrypted storage for CVs, passports, transcripts and SOPs." },
-    { icon: ShieldCheck, title: "Eligibility Engine", body: "Instant match check against every requirement — before you spend hours applying." },
+    {
+      icon: FileText,
+      title: "AI SOP & Motivation Letters",
+      body: "Generate tailored statements grounded in your profile and the opportunity.",
+    },
+    {
+      icon: BriefcaseBusiness,
+      title: "CV Optimization",
+      body: "Actionable improvements matched to what each program looks for.",
+    },
+    {
+      icon: ListChecks,
+      title: "Application Tracker",
+      body: "Kanban-style pipeline from Interested to Submitted to Outcome.",
+    },
+    {
+      icon: Bell,
+      title: "Deadline Reminders",
+      body: "Smart nudges at 30, 14, 7, 3 and 1 day before you miss the window.",
+    },
+    {
+      icon: FolderLock,
+      title: "Document Vault",
+      body: "Private, encrypted storage for CVs, passports, transcripts and SOPs.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Eligibility Engine",
+      body: "Instant match check against every requirement — before you spend hours applying.",
+    },
   ];
   return (
     <SectionShell
       id="execution"
       eyebrow="Execution"
-      title={<>Discovery is step one. <span className="text-gradient">We take you the rest of the way.</span></>}
+      title={
+        <>
+          Discovery is step one.{" "}
+          <span className="text-gradient">We take you the rest of the way.</span>
+        </>
+      }
       subtitle="Opportunity X doesn't stop at finding the opportunity. It helps you actually secure it."
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -634,7 +728,8 @@ function SectionTransformation() {
           transition={{ duration: 0.7 }}
           className="text-4xl md:text-6xl font-black tracking-tight leading-[1.05] mb-6"
         >
-          The opportunity to <span className="text-gradient">change your life</span> is already out there.
+          The opportunity to <span className="text-gradient">change your life</span> is already out
+          there.
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -708,7 +803,8 @@ function Footer() {
               </span>
               <h3 className="text-lg md:text-xl font-semibold">Connect with Opportunity X</h3>
               <p className="text-xs text-text-s leading-relaxed">
-                An AI-powered Opportunity Intelligence Platform — and a growing global community of students, researchers, and dreamers.
+                An AI-powered Opportunity Intelligence Platform — and a growing global community of
+                students, researchers, and dreamers.
               </p>
             </div>
           </div>
@@ -753,4 +849,3 @@ function Footer() {
     </footer>
   );
 }
-

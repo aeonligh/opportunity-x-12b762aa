@@ -10,7 +10,7 @@ import {
 import { toast } from "sonner";
 import { CheckCircle2, Trash2, Star } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/_admin/queue")({
+export const Route = createFileRoute("/_authenticated/admin/queue")({
   head: () => ({ meta: [{ title: "Admin Queue — Opportunity X" }] }),
   component: Queue,
 });
@@ -31,17 +31,26 @@ function Queue() {
 
   const approve = useMutation({
     mutationFn: (id: string) => approveFn({ data: { id } }),
-    onSuccess: () => { toast.success("Approved"); invalidate(); },
+    onSuccess: () => {
+      toast.success("Approved");
+      invalidate();
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
   });
   const del = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
-    onSuccess: () => { toast.success("Deleted"); invalidate(); },
+    onSuccess: () => {
+      toast.success("Deleted");
+      invalidate();
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
   });
   const feature = useMutation({
     mutationFn: (v: { id: string; featured: boolean }) => featureFn({ data: v }),
-    onSuccess: () => { toast.success("Updated"); invalidate(); },
+    onSuccess: () => {
+      toast.success("Updated");
+      invalidate();
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
   });
 
@@ -52,7 +61,10 @@ function Queue() {
       <h1 className="text-2xl font-black mb-6">Opportunity Queue</h1>
       <div className="space-y-2">
         {items.map((o) => (
-          <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface/60">
+          <div
+            key={o.id}
+            className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface/60"
+          >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-sm truncate">{o.title}</h3>
@@ -71,18 +83,32 @@ function Queue() {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-text-s truncate">{o.organization} · score {o.verification_score ?? 0}</p>
+              <p className="text-xs text-text-s truncate">
+                {o.organization} · score {o.verification_score ?? 0}
+              </p>
             </div>
             <div className="flex items-center gap-1">
               {!o.verified && (
-                <button onClick={() => approve.mutate(o.id)} className="p-2 rounded-lg hover:bg-accent/10 text-accent" title="Approve">
+                <button
+                  onClick={() => approve.mutate(o.id)}
+                  className="p-2 rounded-lg hover:bg-accent/10 text-accent"
+                  title="Approve"
+                >
                   <CheckCircle2 size={16} />
                 </button>
               )}
-              <button onClick={() => feature.mutate({ id: o.id, featured: !o.featured })} className="p-2 rounded-lg hover:bg-accent/10 text-text-s" title="Toggle featured">
+              <button
+                onClick={() => feature.mutate({ id: o.id, featured: !o.featured })}
+                className="p-2 rounded-lg hover:bg-accent/10 text-text-s"
+                title="Toggle featured"
+              >
                 <Star size={16} />
               </button>
-              <button onClick={() => del.mutate(o.id)} className="p-2 rounded-lg hover:bg-[oklch(0.55_0.2_25)]/10 text-[oklch(0.78_0.18_25)]" title="Delete">
+              <button
+                onClick={() => del.mutate(o.id)}
+                className="p-2 rounded-lg hover:bg-[oklch(0.55_0.2_25)]/10 text-[oklch(0.78_0.18_25)]"
+                title="Delete"
+              >
                 <Trash2 size={16} />
               </button>
             </div>

@@ -15,10 +15,10 @@ export const Route = createFileRoute("/api/public/hooks/crawl-opportunities")({
             headers: { "Content-Type": "application/json" },
           });
         } catch (e) {
-          return new Response(
-            JSON.stringify({ ok: false, error: String(e).slice(0, 400) }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ ok: false, error: String(e).slice(0, 400) }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
     },

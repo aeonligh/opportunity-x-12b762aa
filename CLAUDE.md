@@ -84,6 +84,31 @@ A phase may not be marked complete until all hold:
 Status). Until they pass, no phase can be honestly closed. Report gate status
 truthfully — a failing gate reported as passing is worse than the failure.
 
+## Repository Health Gate (RHG)
+
+Run at the end of **every** feature, before reporting it done. Not a
+phase-close ceremony — a per-change check, so debt is caught at the commit that
+introduced it rather than at milestone review.
+
+Answer all six, with commands actually run:
+
+1. Does the project build? (`bun run build`)
+2. Any TypeScript errors? (`bunx tsc --noEmit -p .` — target: 0)
+3. How many ESLint errors exist, and **how many did this change introduce?**
+   Compare against the count before the change; a net increase must be
+   justified or fixed.
+4. Did this change increase or decrease technical debt? State which, and why.
+5. Are there tests covering the modified functionality?
+6. Is the change still aligned with the Opportunity X architecture (see ARB/FVG)?
+
+If any answer fails the milestone's exit criteria: **stop, report, recommend a
+fix before implementing anything further.** Do not carry a known regression
+into the next task.
+
+Report honestly. "No tests exist for this" is a valid answer and far more
+useful than silence — an accurate red gate is worth more than a green one that
+was assumed rather than measured.
+
 ## Architecture Review Board (ARB)
 
 Before any significant technical decision, answer:

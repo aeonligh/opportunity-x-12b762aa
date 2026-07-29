@@ -43,7 +43,10 @@ function LiveSearch() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground"
+        >
           <ArrowLeft size={14} /> Opportunity X
         </Link>
         <Link
@@ -63,8 +66,8 @@ function LiveSearch() {
             Ask anything. <span className="text-accent">Find anything.</span>
           </h1>
           <p className="text-sm text-text-s max-w-xl mx-auto">
-            Opportunity X reads the live web — universities, foundations, governments —
-            and returns verified opportunities matching your query.
+            Opportunity X reads the live web — universities, foundations, governments — and returns
+            verified opportunities matching your query.
           </p>
         </div>
 
@@ -90,7 +93,11 @@ function LiveSearch() {
             disabled={run.isPending || q.trim().length < 2}
             className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-accent-foreground text-xs font-bold disabled:opacity-60"
           >
-            {run.isPending ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+            {run.isPending ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <Sparkles size={12} />
+            )}
             Search the web
           </button>
         </form>
@@ -135,8 +142,7 @@ function LiveSearch() {
           <section>
             {stats && (
               <div className="text-[11px] text-text-s mb-4 font-mono">
-                Discovered {stats.candidates} · Verified {stats.verified} · Showing{" "}
-                {results.length}
+                Discovered {stats.candidates} · Verified {stats.verified} · Showing {results.length}
               </div>
             )}
             {results.length === 0 ? (

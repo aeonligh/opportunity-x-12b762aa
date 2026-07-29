@@ -13,16 +13,15 @@ export const Route = createFileRoute("/api/public/hooks/deadline-reminders")({
       POST: async () => {
         try {
           await runDeadlineIntelligenceCheck();
-          return new Response(
-            JSON.stringify({ success: true, ranAt: new Date().toISOString() }),
-            { headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ success: true, ranAt: new Date().toISOString() }), {
+            headers: { "Content-Type": "application/json" },
+          });
         } catch (err) {
           console.error("[deadline-reminders] failed", err);
-          return new Response(
-            JSON.stringify({ success: false, error: String(err) }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ success: false, error: String(err) }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
     },

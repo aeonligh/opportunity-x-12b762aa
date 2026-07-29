@@ -29,7 +29,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined" && (localStorage.getItem(STORAGE_KEY) as Theme | null)) || "dark";
+    const stored =
+      (typeof window !== "undefined" && (localStorage.getItem(STORAGE_KEY) as Theme | null)) ||
+      "dark";
     setThemeState(stored);
     applyTheme(stored);
   }, []);
@@ -50,7 +52,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const resolved: "dark" | "light" = theme === "system" ? getSystem() : theme;
 
-  return <ThemeContext.Provider value={{ theme, resolved, setTheme }}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={{ theme, resolved, setTheme }}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

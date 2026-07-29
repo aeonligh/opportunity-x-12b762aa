@@ -46,7 +46,10 @@ function Vault() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/70 backdrop-blur-xl flex items-center justify-between px-6">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-sm text-text-s hover:text-foreground"
+        >
           <ArrowLeft size={14} /> Dashboard
         </Link>
         <span className="font-mono text-lg font-bold tracking-tighter">
@@ -62,7 +65,9 @@ function Vault() {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight">Your vault</h1>
-            <p className="text-xs text-text-s">Saved opportunities — search, filter, share, or apply anytime.</p>
+            <p className="text-xs text-text-s">
+              Saved opportunities — search, filter, share, or apply anytime.
+            </p>
           </div>
         </div>
 
@@ -99,7 +104,10 @@ function Vault() {
             {saved.length === 0 ? (
               <>
                 Your vault is empty. Save opportunities from the{" "}
-                <Link to="/dashboard" className="text-accent underline">dashboard</Link>.
+                <Link to="/dashboard" className="text-accent underline">
+                  dashboard
+                </Link>
+                .
               </>
             ) : (
               "No matches for your filters."

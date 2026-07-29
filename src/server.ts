@@ -44,9 +44,12 @@ if (typeof process !== "undefined" && process.env.NODE_ENV !== "test") {
       // Run once on startup
       void m.runDeadlineIntelligenceCheck();
       // Schedule hourly runs
-      setInterval(() => {
-        void m.runDeadlineIntelligenceCheck();
-      }, 60 * 60 * 1000);
+      setInterval(
+        () => {
+          void m.runDeadlineIntelligenceCheck();
+        },
+        60 * 60 * 1000,
+      );
     })
     .catch((err) => {
       console.error("[Server Startup] Failed to load deadline intelligence:", err);
@@ -68,4 +71,3 @@ export default {
     }
   },
 };
-

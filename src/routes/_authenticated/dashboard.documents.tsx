@@ -3,17 +3,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import { 
-  FileText, 
-  Upload, 
-  Trash2, 
-  Download, 
-  Sparkles, 
-  Loader2, 
-  Gauge, 
-  BookOpen, 
+import {
+  FileText,
+  Upload,
+  Trash2,
+  Download,
+  Sparkles,
+  Loader2,
+  Gauge,
+  BookOpen,
   HelpCircle,
-  FileCheck
+  FileCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ const DOCUMENT_TYPES = [
   "Motivation Letter",
 ] as const;
 
-type DocumentType = typeof DOCUMENT_TYPES[number];
+type DocumentType = (typeof DOCUMENT_TYPES)[number];
 
 function DocumentVault() {
   const queryClient = useQueryClient();
@@ -94,13 +94,11 @@ function DocumentVault() {
       if (uploadError) throw uploadError;
 
       // 2. Insert record into user_documents table
-      const { error: dbError } = await supabase
-        .from("user_documents")
-        .insert({
-          user_id: userId,
-          document_type: docType,
-          file_url: filePath,
-        });
+      const { error: dbError } = await supabase.from("user_documents").insert({
+        user_id: userId,
+        document_type: docType,
+        file_url: filePath,
+      });
 
       if (dbError) throw dbError;
 
@@ -117,16 +115,11 @@ function DocumentVault() {
   const deleteDoc = useMutation({
     mutationFn: async (doc: any) => {
       // 1. Delete from storage
-      const { error: storageErr } = await supabase.storage
-        .from("documents")
-        .remove([doc.file_url]);
+      const { error: storageErr } = await supabase.storage.from("documents").remove([doc.file_url]);
       if (storageErr) throw storageErr;
 
       // 2. Delete from db
-      const { error: dbErr } = await supabase
-        .from("user_documents")
-        .delete()
-        .eq("id", doc.id);
+      const { error: dbErr } = await supabase.from("user_documents").delete().eq("id", doc.id);
       if (dbErr) throw dbErr;
     },
     onSuccess: () => {
@@ -178,7 +171,6 @@ function DocumentVault() {
       <Header />
 
       <main className="flex-1 max-w-6xl mx-auto px-6 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         {/* Left Side: Vault Documents */}
         <div className="lg:col-span-7 space-y-6">
           <div>
@@ -186,23 +178,30 @@ function DocumentVault() {
               <FileCheck className="text-accent" size={24} /> Document Vault
             </h1>
             <p className="text-xs text-text-s">
-              Store CVs, academic transcripts, passports, and SOPs securely. Recycled directly for your applications.
+              Store CVs, academic transcripts, passports, and SOPs securely. Recycled directly for
+              your applications.
             </p>
           </div>
 
           {/* Upload card */}
           <div className="p-5 rounded-2xl border border-border bg-surface/40 backdrop-blur-md space-y-4">
-            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-foreground">Upload Document</h3>
+            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-foreground">
+              Upload Document
+            </h3>
             <div className="flex flex-col md:flex-row gap-4 items-end">
               <div className="w-full md:w-1/2 space-y-1">
-                <label className="text-[10px] font-mono text-text-s uppercase">Document Category</label>
-                <select 
-                  value={docType} 
+                <label className="text-[10px] font-mono text-text-s uppercase">
+                  Document Category
+                </label>
+                <select
+                  value={docType}
                   onChange={(e) => setDocType(e.target.value as DocumentType)}
                   className="w-full px-3 py-2 rounded-xl bg-background border border-border outline-none text-xs text-foreground focus:border-accent"
                 >
                   {DOCUMENT_TYPES.map((type) => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -215,11 +214,11 @@ function DocumentVault() {
                     <Upload size={14} className="text-text-s" />
                   )}
                   <span>{uploading ? "Uploading..." : "Select & Upload file"}</span>
-                  <input 
-                    type="file" 
-                    onChange={uploadFile} 
-                    disabled={uploading} 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    onChange={uploadFile}
+                    disabled={uploading}
+                    className="hidden"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                   />
                 </label>
@@ -229,10 +228,14 @@ function DocumentVault() {
 
           {/* Documents List */}
           <div className="space-y-3">
-            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-text-s">Vault Contents</h3>
-            
+            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-text-s">
+              Vault Contents
+            </h3>
+
             {docsLoading ? (
-              <div className="p-8 text-center"><Loader2 size={24} className="animate-spin text-accent mx-auto" /></div>
+              <div className="p-8 text-center">
+                <Loader2 size={24} className="animate-spin text-accent mx-auto" />
+              </div>
             ) : documents.length === 0 ? (
               <div className="p-12 text-center rounded-2xl border border-dashed border-border bg-surface/10 text-text-s">
                 <FileText className="mx-auto mb-3 opacity-30" size={36} />
@@ -241,7 +244,10 @@ function DocumentVault() {
             ) : (
               <div className="space-y-2.5">
                 {documents.map((doc: any) => (
-                  <div key={doc.id} className="p-4 rounded-xl border border-border bg-surface flex items-center justify-between hover:border-accent/20 transition">
+                  <div
+                    key={doc.id}
+                    className="p-4 rounded-xl border border-border bg-surface flex items-center justify-between hover:border-accent/20 transition"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-accent/5 border border-accent/20 text-accent">
                         <FileText size={16} />
@@ -289,13 +295,19 @@ function DocumentVault() {
               <Sparkles className="text-accent" size={24} /> AI CV Optimizer
             </h2>
             <p className="text-xs text-text-s">
-              Paste your CV content below. The intelligence engine rates it and checks for missing keywords or weak impact sections.
+              Paste your CV content below. The intelligence engine rates it and checks for missing
+              keywords or weak impact sections.
             </p>
           </div>
 
           {/* Analysis Form */}
-          <form onSubmit={handleOptimizeCV} className="p-5 rounded-2xl border border-border bg-surface/40 backdrop-blur-md space-y-4">
-            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-foreground">Paste CV Text</h3>
+          <form
+            onSubmit={handleOptimizeCV}
+            className="p-5 rounded-2xl border border-border bg-surface/40 backdrop-blur-md space-y-4"
+          >
+            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-foreground">
+              Paste CV Text
+            </h3>
             <textarea
               value={cvText}
               onChange={(e) => setCvText(e.target.value)}
@@ -324,10 +336,14 @@ function DocumentVault() {
 
           {/* Results Output */}
           <div className="space-y-3">
-            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-text-s">Latest Optimization Score</h3>
-            
+            <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-text-s">
+              Latest Optimization Score
+            </h3>
+
             {cvLoading ? (
-              <div className="p-8 text-center"><Loader2 size={24} className="animate-spin text-accent mx-auto" /></div>
+              <div className="p-8 text-center">
+                <Loader2 size={24} className="animate-spin text-accent mx-auto" />
+              </div>
             ) : !latestCV ? (
               <div className="p-8 text-center rounded-2xl border border-border bg-surface/10 text-text-s">
                 <Gauge className="mx-auto mb-2 opacity-30" size={28} />
@@ -342,7 +358,9 @@ function DocumentVault() {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold">Optimization Score</h4>
-                      <p className="text-[10px] text-text-s">Generated on {new Date(latestCV.created_at).toLocaleDateString()}</p>
+                      <p className="text-[10px] text-text-s">
+                        Generated on {new Date(latestCV.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -359,33 +377,49 @@ function DocumentVault() {
                       <>
                         {s.formatting && s.formatting.length > 0 && (
                           <div className="space-y-1">
-                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Formatting & Structure</h5>
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">
+                              Formatting & Structure
+                            </h5>
                             <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                              {s.formatting.map((t, idx) => (<li key={idx}>{t}</li>))}
+                              {s.formatting.map((t, idx) => (
+                                <li key={idx}>{t}</li>
+                              ))}
                             </ul>
                           </div>
                         )}
                         {s.keywords && s.keywords.length > 0 && (
                           <div className="space-y-1">
-                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Target Keywords</h5>
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">
+                              Target Keywords
+                            </h5>
                             <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                              {s.keywords.map((t, idx) => (<li key={idx}>{t}</li>))}
+                              {s.keywords.map((t, idx) => (
+                                <li key={idx}>{t}</li>
+                              ))}
                             </ul>
                           </div>
                         )}
                         {s.achievements && s.achievements.length > 0 && (
                           <div className="space-y-1">
-                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Achievements & Quantification</h5>
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">
+                              Achievements & Quantification
+                            </h5>
                             <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                              {s.achievements.map((t, idx) => (<li key={idx}>{t}</li>))}
+                              {s.achievements.map((t, idx) => (
+                                <li key={idx}>{t}</li>
+                              ))}
                             </ul>
                           </div>
                         )}
                         {s.relevance && s.relevance.length > 0 && (
                           <div className="space-y-1">
-                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">Scholarship Relevance</h5>
+                            <h5 className="font-bold text-accent text-[10px] uppercase font-mono">
+                              Scholarship Relevance
+                            </h5>
                             <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-foreground/90">
-                              {s.relevance.map((t, idx) => (<li key={idx}>{t}</li>))}
+                              {s.relevance.map((t, idx) => (
+                                <li key={idx}>{t}</li>
+                              ))}
                             </ul>
                           </div>
                         )}
@@ -393,7 +427,6 @@ function DocumentVault() {
                     );
                   })()}
                 </div>
-
               </div>
             )}
           </div>

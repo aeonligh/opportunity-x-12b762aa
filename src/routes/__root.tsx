@@ -87,8 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Opportunity X — AI Opportunity Intelligence" },
       {
         property: "og:description",
-        content:
-          "Discover, verify, and secure life-changing opportunities from across the world.",
+        content: "Discover, verify, and secure life-changing opportunities from across the world.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -137,11 +136,7 @@ function RootComponent() {
     let unsub: (() => void) | undefined;
     void import("@/integrations/supabase/client").then(({ supabase }) => {
       const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-        if (
-          event !== "SIGNED_IN" &&
-          event !== "SIGNED_OUT" &&
-          event !== "USER_UPDATED"
-        ) {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") {
           return;
         }
         router.invalidate();
