@@ -54,6 +54,14 @@ Trend: **28,540 → 26**. The bulk of the original count came from vendored skil
 scripts under `.agents/` and `agent/`, now excluded. The 17 remaining errors are
 real and live in files this branch modified, so they are owned, not inherited.
 
+**One regression found and fixed while producing this report.** `eslint.config.js`
+ignored `dist`, `.output`, and `.vinxi`, but this branch retargeted the build from
+Cloudflare (`.output`) to Vercel (`.vercel/output`) without updating that list. The
+consequence: after any `bun run build`, ESLint linted its own emitted bundles and
+the report ballooned with findings in generated code — making the gate result
+depend on whether a build had been run. `.vercel` is now in `ignores`, and the
+26-problem count is reproducible with build output present.
+
 ---
 
 ## 3. Repository Health Gate
