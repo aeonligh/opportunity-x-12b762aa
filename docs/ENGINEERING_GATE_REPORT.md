@@ -143,7 +143,7 @@ That does not require the 3 commits still stranded locally.
 | Auth redirect URLs | ❌ not done | same |
 | `api_keys` table + RLS | ⛔ **stopped deliberately** | see below |
 | Email confirmation E2E | ❌ not done | no route to project or prod origin |
-| Password reset E2E | ❌ not done | same |
+| Password reset E2E | ⛔ **not applicable** | **feature does not exist** — see below |
 | API Keys functionality | ⛔ not applicable | feature does not exist |
 | Remove placeholders | ✅ nothing to remove | only match is a real landing-page feature |
 
@@ -152,6 +152,16 @@ Blocked hosts, measured: `api.supabase.com` 403; `anfiojmbgonrtympzjch.supabase.
 IPv6 in sandbox, so the IPv6-only direct Postgres host is unreachable too — and a
 personal access token is not a database password regardless. `git push` → 403.
 Only `api.anthropic.com` and the GitHub MCP read path are reachable.
+
+### Why password reset could not be verified
+
+**It is not implemented.** Measured: zero matches across `src/` for
+`resetPasswordForEmail`, `updateUser`, `forgot`, `reset password`, or `recovery`.
+
+`src/routes/auth.tsx` implements sign-up (`emailRedirectTo`) and OAuth
+(`redirectTo`) only. There is no forgot-password entry point, no recovery
+handler, and no password-update form. This is a **missing Phase 2 deliverable**,
+not a configuration gap — no amount of dashboard setup will make it testable.
 
 ### Why `api_keys` was not created
 
@@ -199,7 +209,12 @@ Complete set the code actually consumes: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_K
    auth. Conflict-free.
 3. Retrieve the 3 stranded commits from the git bundle (governance docs + the
    ESLint remediation). Not required for step 2.
-4. Configure Supabase Site URL and redirect URLs (values in the handover notes).
+4. Configure Supabase Site URL and redirect URLs. The code redirects to
+   `window.location.origin` (sign-up confirmation) and `${origin}/auth` (OAuth),
+   so the allowlist needs exactly:
+   `https://aeon-x-technologies-9kzz.vercel.app`,
+   `https://aeon-x-technologies-9kzz.vercel.app/auth`,
+   `http://localhost:5173`, `http://localhost:5173/auth`.
 5. Configure the Google OAuth provider — redirect URI is the **Supabase callback**,
    `https://anfiojmbgonrtympzjch.supabase.co/auth/v1/callback`, not the app URL.
 6. Then, and only then, run the Phase 2 → 3 → 4 end-to-end verifications.
