@@ -137,3 +137,59 @@ Deleted: `src/integrations/lovable/`, `src/lib/lovable-error-reporting.ts`,
 Auth gate confirmed: `/dashboard` redirects to `/auth` when unauthenticated.
 Not tested: anything requiring live Supabase or Anthropic network access — the
 dev sandbox blocked both.
+
+---
+
+## 2026-07-30 — Phase 3/4 Engineering Gate Report + `api_keys` migration
+
+**Feature.** Measured Engineering Gate Report for Phases 3 and 4
+(`docs/ENGINEERING_GATE_REPORT.md`), plus an unapplied `api_keys` migration.
+
+**Purpose.** Close out the infrastructure request with honestly measured gate
+results rather than assumed ones, and record why the remaining items could not
+be executed.
+
+**Files changed.** `docs/ENGINEERING_GATE_REPORT.md` (new),
+`supabase/migrations/20260730120000_api_keys.sql` (new), this log.
+
+**Measured gates.** TypeScript 0 errors. `bun run build` passes in 29.5s and
+emits `.vercel/output`. ESLint 26 problems / 17 errors, all
+`@typescript-eslint/no-explicit-any`, down from 28,540. Zero automated tests
+exist anywhere in the repo.
+
+**Decisions.**
+- **Both phases held open.** Code is complete and type-clean; verification is
+  impossible from this environment. Phase 4's discovery pipeline has still never
+  executed once. Closing on unmeasured gates was rejected.
+- **Password reset reclassified.** Verified absent, not merely unverified — zero
+  matches for `resetPasswordForEmail`, `updateUser`, `forgot`, or `recovery` in
+  `src/`. It is a missing Phase 2 deliverable, not a config gap.
+- **`api_keys` authored but not applied.** No consumer exists in the codebase, so
+  this was raised as an ARB stop condition first. Proceeding under stated
+  assumptions: user-owned keys for our own API, SHA-256 hash only with plaintext
+  shown once, owner-only RLS matching the `applications` pattern, and column-level
+  REVOKE on `key_hash`/`user_id` so a browser client cannot tamper with secret
+  material. Documented in-file as deletable if the feature is not going ahead.
+
+**Dependencies.** Reuses `public.set_updated_at()`. Assumes `auth.users` and the
+existing RLS conventions.
+
+**Risks.**
+- The `api_keys` table would be created with nothing reading it. If the feature
+  changes shape, it needs a second migration.
+- Pre-existing and still unfixed: `20260614054040_*.sql` duplicates tables from
+  the migration before it, so applying the directory in filename order fails on a
+  fresh database. Any new migration inherits that broken ordering.
+- Egress policy blocked every verification target this session:
+  `api.supabase.com` 403, the Supabase project origin, the Vercel production
+  origin, and `api.firecrawl.dev` all unreachable; `git push` 403.
+- The Supabase personal access token was transmitted in plaintext and must be
+  treated as compromised.
+
+**Testing.** `bunx tsc --noEmit -p .`, `bun run lint`, and `bun run build` all
+run. The migration is **unexecuted** — no database was reachable, so it is
+syntactically reviewed only, not validated against Postgres.
+
+**Future work.** Merge `48d501f` to fix production auth. Rotate the access token.
+Implement password reset. Build or drop the API Keys feature. Fix the duplicate
+migration. Add a test harness — the zero-coverage finding is the largest gap.
