@@ -162,6 +162,83 @@ searching cannot. Not to be invented.
 
 ---
 
+## Opportunity Ontology (ratified, Phase 14)
+
+### Definition
+
+> **An opportunity is a real, actionable possibility available to a person that
+> can expand, change, or advance what becomes possible for them, subject to
+> conditions they can potentially meet or pursue.**
+
+### The boundary
+
+> **Opportunity X is concerned with opportunities people can act on, not merely
+> things that might be interesting or beneficial.**
+
+The nearest thing that is *not* an opportunity: **information about a possibility
+that cannot presently be acted upon.** A stale scholarship advert is the clearest
+case — it still contains information *about* an opportunity, but it is no longer
+itself an actionable one.
+
+### One kind, many forms
+
+Scholarship · internship · job · fellowship · grant · competition · programme ·
+webinar · workshop · conference · training · volunteering · accelerator are
+**forms** of opportunity, not definitions of it. They share one underlying
+property: they create an actionable possibility that did not previously exist for
+the person.
+
+**Categories are manifestations of the underlying thing, never separate
+definitions of it.**
+
+### Not definitional
+
+Scarcity, competition, an application process, and a deadline are **properties
+some opportunities have** — not part of what makes something an opportunity. A
+webinar or a volunteering placement qualifies if it creates a genuine, actionable
+possibility.
+
+### Open
+
+Whether all forms can share identical verification and ranking logic is **not
+settled**. They share the ontology; they may differ substantially in properties,
+stakes, conditions, and verification requirements. See CR-29.
+
+---
+
+## CR-35 — Discovery finds claims, not opportunities *(ratified Phase 14)*
+
+The engine may not reason *"I found a listing."* It must reason:
+
+> **"I found a claim that this possibility exists."**
+
+**A claim is not an opportunity.** A PDF, a web page, a duplicate URL, a revised
+filename, a Telegram message, and an aggregator listing may all be **claims about
+a single underlying opportunity.**
+
+Verification then determines whether the claimed possibility is **real, current,
+and actionable**.
+
+**Grounded in observed evidence, not theory.** R-01 found the same Federal
+Scholarship Board advert served at three addresses on the official domain — two
+WordPress installations and an HTML wrapper — and found adverts from 2019 through
+2025 all still live with no expiry marking. Under a listing model those are nine
+opportunities, several of them false. Under a claim model they are a handful of
+opportunities described by many claims, most of which verification will retire.
+
+**This is why CR-21 forbids collapsing discovery into verification.** Discovery
+can legitimately find the 2020 BEA advert — it is a real claim, correctly
+observed. Verification is what establishes that the possibility it describes is
+no longer actionable. Both operations succeeded; only together do they produce
+the truth.
+
+**Consequence — entity resolution becomes first-class.** If claims map to
+opportunities many-to-one, the engine must decide when two claims describe the
+same opportunity. That is a hard problem, it cannot be solved by URL identity, and
+it now sits on the critical path. See R-11.
+
+---
+
 ## Origin (ratified finding — Phase 1 CLOSED)
 
 The origin is **structural in pattern, instantiated in one specific loss**. The
@@ -883,6 +960,7 @@ or conversion is constitutionally void.
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
 | **R-10** | For each rule exposed to compliance-shaped failure, what guard makes the violation visible when it occurs? Written prohibition is insufficient by construction — the rule is being obeyed on its face while being emptied. |
+| **R-11** | **Entity resolution.** How does the engine determine that two claims describe the same underlying opportunity? URL identity fails — R-01 observed one advert at three addresses with differing capitalisation, plus `-FINAL` and `-corrected` revisions with nothing linking them to what they supersede. Required by CR-35. |
 | **R-09** | Where exactly does legitimate contextual inference end and prohibited predictive judgment begin? CR-32 sets the principle; the founder declined to fix a list of permitted and prohibited attributes without evidence. Includes how to present true landscape statements without their functioning as personal verdicts. |
 | **R-08** | How broadly must the system explore beyond known interests; what evidence establishes that an unfamiliar opportunity deserves consideration; how often should this occur; and does it belong in ranking, in awareness, or on a separate surface? CR-31 sets the obligation without specifying its execution. |
 | **R-07** | What is the **exact relationship** between risk and the downstream judgments? Does person-specific risk move the recommendation threshold, the ranking position, the presentation and warnings, or all three — and by how much? Founder deliberately left this undecided. |
