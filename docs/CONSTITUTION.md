@@ -182,6 +182,40 @@ If none, it should not exist.
 Accessibility is non-negotiable. Beauty is non-negotiable. The task is not to
 choose between them but to engineer beauty that scales.
 
+### CR-18 — Awareness is not endorsement *(founder decision; wording pending ratification)*
+The credibility threshold governs whether Opportunity X may **recommend** an
+opportunity. It never governs whether the user may **know it exists**.
+
+- At or above threshold: may be treated as sufficiently credible for
+  recommendation and action, on the evidence supporting that assessment.
+- Below threshold: **still surfaces**, and must clearly communicate what is
+  known, what has been verified, what remains unverified, and why confidence
+  falls short — rather than presenting uncertainty as fact.
+
+> **Unknown does not mean false. Unverified does not mean nonexistent.**
+
+Opportunity X may never silently withhold a known opportunity solely because
+its verification confidence is below threshold. Doing so would reproduce the
+founding failure — a real opportunity existed, the system knew, the person
+never found out, the window closed — with the system occupying the position
+that caused the original loss.
+
+---
+
+## Founder Product Requirements
+
+**FPR-01 — Credibility threshold: 88%.** An opportunity must reach ≥88%
+evidence-based credibility before Opportunity X may treat it as sufficiently
+credible for recommendation or action. Validation addresses at minimum:
+existence · source legitimacy · currently open · deadline and requirements
+real · application route leads to the legitimate provider · important claims
+corroborated where appropriate.
+
+*Founder-set product threshold. Not a claim that 88% of opportunities are real,
+and not a statistically validated probability. The system must earn the score
+from evidence.* Interacts with CR-18: this is a **recommendation/action**
+threshold, never an **existence** threshold.
+
 ---
 
 ## Boundaries and clarifications
@@ -204,12 +238,20 @@ or conversion is constitutionally void.
 |---|---|---|
 | **C-08** | Premium visual identity vs. inverse-access priority | **Dissolved by founder.** Not a conflict but a design constraint → **CR-17**. |
 | **C-09** | Search-centric surface vs. delivery-centric constitution | **Dissolved by founder.** Rests on a false premise that one interaction must be primary → **CR-07**. |
+| **C-10** | **The suppression boundary.** Does low verification confidence justify withholding a known opportunity? | **Resolved by founder → CR-18.** In favour of transparent uncertainty over silent withholding. The threshold separates recommendation from awareness; it never gates existence. |
 
 ## Open constitutional questions
 
 | ID | Question |
 |---|---|
-| **C-10** | **The suppression boundary.** CR-14 says quality dominates quantity; CR-08 says known-and-undelivered is failure. If the system withholds a real but mediocre opportunity the user would have wanted, is that a CR-14 success or a CR-08 failure? Unresolved. Governs the delivery threshold. |
+| **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. |
+
+## Open research requirements
+
+| ID | Question |
+|---|---|
+| **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
+| **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
 
 ---
 
