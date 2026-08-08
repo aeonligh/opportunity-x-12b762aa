@@ -48,6 +48,29 @@ Everything else in this document may evolve. This may not.
 > needed to pursue it, **without having to already know that possibility
 > exists**, and without depending on another person to reveal it in time.
 
+### The two gaps
+
+The essence addresses two distinct failures, established by two distinct
+first-hand episodes. Both must be bridged; solving either alone leaves the
+person where they started.
+
+| Gap | Failure | Established by |
+|---|---|---|
+| **Awareness** | Never knew the possibility existed | The founding scholarship — learned of it after the window closed |
+| **Attention** | Knew of many, could not tell which mattered | Hours of searching across categories, ending in noise or nothing |
+
+Together these falsify *"search harder"* as a remedy. The founder searched
+extensively, used filters, and still failed. **User effort is not a viable
+substitute for the product.**
+
+The question Opportunity X ultimately answers:
+
+> *"Given everything available and everything I know about you, what is worth
+> your attention right now — and why?"*
+
+The **"and why"** is not decoration. An answer without its reasoning fails
+CR-12 and fails the product's own test.
+
 ### The clarification that must stay attached
 
 The essence is **not** built on an assumption that people are malicious or that
@@ -294,6 +317,35 @@ Note the standard is **dependency**, not malice. The rule holds even where every
 participant is acting in perfect good faith, because ordinary human timing is
 sufficient to cause the failure.
 
+### CR-20 — The system must be able to return nothing
+*(promoted from candidate CP-D, ratified Phase 5)*
+
+**"There is nothing worth your attention right now"** is a legitimate,
+first-class output — not an empty state to be avoided or filled.
+
+Grounded in observed experience: hours of searching that ended with nothing
+worth acting on. That is an *expected-value* failure, not an
+information-quality one, and no amount of better filtering fixes it.
+
+> If Opportunity X becomes successful by showing more opportunities rather than
+> helping a person make better decisions about fewer, it has reproduced the
+> exact problem it exists to escape.
+
+A product that always has something to show has reproduced the noise.
+
+### CR-21 — Mechanisms remain separable
+The five mechanisms — discovery, verification, ranking, recommendation,
+action/preparation — are distinct operations and may not be collapsed into a
+single opaque score.
+
+Curating a person's attention does not license merging judgments that answer
+different questions. "Is this real?" and "does this deserve your attention?"
+and "are we willing to suggest it?" have different evidence, different failure
+modes, and different remedies. A composite number hides all three.
+
+Reinforces CR-12 (the reasoning must be inspectable) and CR-18 (recommendation
+is a narrower act than awareness).
+
 ---
 
 ## Founder Product Requirements
@@ -339,6 +391,8 @@ or conversion is constitutionally void.
 | ID | Question |
 |---|---|
 | **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
+| **C-14** | **Personalisation depth vs. onboarding cost.** Constructed relevance needs a rich model of the person; building it costs time, attention and data — the three things CR-10's priority user has least of. The people who most need curation are least able to pay for it. A long onboarding excludes exactly who the product is for; a short one starves the mechanism. |
+| **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
 | **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
 
 ## Open research requirements
@@ -347,6 +401,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-03** | Do existing opportunity platforms fail to personalise because they *cannot* (technical), because they *will not* (incentive/business model), or both? Founder has used them and observed the result, but has not investigated their systems or economics. Determines whether the moat is engineering or constitution — and therefore how defensible the product is. |
 
 ---
 
