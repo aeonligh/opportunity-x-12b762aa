@@ -532,6 +532,47 @@ revenue model that punishes silence will eventually bend the intelligence that
 produces it — not through a bad decision, but through a reasonable-sounding one
 made under financial pressure.
 
+### CR-29 — Verification proportionate to consequence *(addresses C-13)*
+
+> **The higher the cost of being wrong, the stronger the evidence Opportunity X
+> must require before treating an opportunity as sufficiently credible for
+> recommendation or action.**
+
+One identical standard across all categories is wrong at both ends. An hour lost
+to a cancelled webinar is an annoyance. Weeks of preparation, sensitive
+documents, or money given to something illegitimate is a different kind of harm.
+
+Same principle as CR-26, pointed at opportunities rather than at people: the
+evidence burden is proportionate to the harm an incorrect judgment could cause.
+
+**Cost is not only money.** It includes time to prepare · sensitive documents or
+personal information requested · financial outlay · effort · opportunity cost ·
+how irreversible the preparation is · how much trust must be placed in the
+provider · the emotional cost of investing heavily in something false.
+
+**Cost is person-specific.** What is trivial for one person may be a major
+burden for another.
+
+**Low risk is not a licence for weak truthfulness.** The rule is *not* "low-risk
+opportunities don't need verification." A webinar need not face a scholarship's
+depth, but Opportunity X must still represent accurately what it knows and what
+it does not. Proportionate depth, constant honesty.
+
+### Three questions that must not be collapsed *(extends CR-21)*
+
+| Question | Asks | Property of |
+|---|---|---|
+| **Verification** | How well-supported is this opportunity? | The opportunity |
+| **Risk** | What happens to *this person* if that assessment is wrong? | The person-opportunity pair |
+| **Ranking** | Does this deserve *this person's* attention? | The person-opportunity pair |
+
+They interact. They are not the same judgment, and no single score may stand in
+for all three.
+
+*Proposed amendment, pending ratification:* **Risk** joins the mechanism table
+as a distinct judgment alongside discovery, verification, ranking,
+recommendation, and action/preparation.
+
 ---
 
 ## Founder Product Requirements
@@ -554,6 +595,11 @@ credible for recommendation or action. Validation addresses at minimum:
 existence · source legitimacy · currently open · deadline and requirements
 real · application route leads to the legitimate provider · important claims
 corroborated where appropriate.
+
+**Interaction with CR-29 is undetermined.** 88% remains the founder-set
+credibility threshold, but how it varies with opportunity risk and category is
+not yet decided. It must not be read as a single universal number until R-06 is
+answered.
 
 *Founder-set product threshold. Not a claim that 88% of opportunities are real,
 and not a statistically validated probability. The system must earn the score
@@ -597,6 +643,7 @@ or conversion is constitutionally void.
 |---|---|
 | **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
 | **C-16** | **Even clean revenue pressures silence.** CR-28 requires that "nothing right now" be economically survivable. But a user-paid subscription — the model with the cleanest incentives — still creates pressure to *appear* valuable, and therefore to show something rather than nothing, or churn. The conflict is weaker than advertising but not absent. Any candidate model must be tested against a month in which the honest answer is repeatedly "nothing." |
+| **C-17** | **Is "verified" a property of the opportunity or of the pairing?** CR-29 makes required verification depth depend on person-specific cost. But verification answers questions about the opportunity itself — is it real, is the deadline accurate, does the link reach the real provider. If depth is driven by who is looking, then either the system verifies to the strictest standard any user would demand (wasteful but coherent), or the same opportunity carries different verification states for different people (efficient, but "verified" stops being a fact). Unresolved, and it shapes the information model. |
 | **C-14** | **Cold start.** Constructed relevance needs a rich model of the person, but the person will give little before seeing value, and may not know what they want at all. **Reframed by founder, not solved:** this is not a choice between short onboarding and rich profile. The question is how the system becomes increasingly personal *without making the person do the work of becoming understood first*. CR-22 and CR-23 constrain the answer; they do not supply it. |
 | **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
 | **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
@@ -607,6 +654,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-06** | **How is the consequence of being wrong determined**, before deciding what verification depth is appropriate? Requires assessing cost across time, documents, money, effort, irreversibility, trust, and emotional investment — per person. No model exists and none may be invented. Blocks operationalising CR-29 and fixing FPR-01's tiers. |
 | **R-05** | **Who pays?** OPEN, deliberately undecided. User-pays aligns incentives but conflicts with CR-10, since the priority user is least able to pay. Institutional, governmental, or foundation subsidy solves affordability but raises the question of whose interest prevails when payer and person diverge. No evidence yet supports choosing. |
 | **R-04** | For negative judgments: what evidence threshold is required, how much uncertainty must be exposed, and how should the override behave? CR-26 establishes that the bar is *higher*; it does not say how much higher. OPEN. |
 | **R-03** | Do existing opportunity platforms fail to personalise because they *cannot* (technical), because they *will not* (incentive/business model), or both? Founder has used them and observed the result, but has not investigated their systems or economics. Determines whether the moat is engineering or constitution — and therefore how defensible the product is. |
