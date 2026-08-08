@@ -239,6 +239,86 @@ it now sits on the critical path. See R-11.
 
 ---
 
+## CR-36 — Observation, Entity, Judgment are three layers *(ratified Phase 14)*
+
+CR-35 is only real if these are kept apart:
+
+| Layer | States | Nature |
+|---|---|---|
+| **Observation** | *This claim was encountered here, at this time, saying these things.* | Append-only. Immutable (CR-37). |
+| **Entity** | *These claims appear to describe the same underlying possibility.* | Revisable as resolution improves. |
+| **Judgment** | *Given the evidence now, this possibility is real / current / actionable to this degree.* | Recomputed; time-varying (CR-11). |
+
+**The six mechanisms map onto the layers:**
+
+- **Discovery** produces Observations
+- **Entity resolution** produces Entities *(see R-11)*
+- **Verification** is a judgment about the **Entity** — never person-relative (CR-30)
+- **Risk, Ranking, Recommendation, Action** are judgments about the **pairing**
+
+**What was observed and what Opportunity X concluded are different things.** If a
+source says a scholarship is open until a given date, that statement *is the
+claim*. If the system later determines it is closed, that is a **later judgment**,
+not a correction to the observation.
+
+**Duplicate observations are not discarded.** Where three URLs resolve to one
+opportunity, all three observations are retained. The fact that three
+representations existed is itself evidence — for entity resolution, and for
+provenance.
+
+## CR-37 — Observations are immutable *(ratified Phase 14)*
+
+An observation is never rewritten to reflect what was later learned. Re-encounter
+produces a **new** observation, never an update to the old one.
+
+If the engine saw the 2020 BEA advert while it was publicly available, the record
+that **the claim existed and was observable at that time** survives — even after
+verification establishes the underlying opportunity is long dead.
+
+## The preservation principle
+
+> **Preserve enough of every observation that Opportunity X can later reconstruct
+> what it knew, why it believed it, what changed, and why its judgment changed.
+> Discard what cannot contribute to that chain.**
+
+**Preserved at first observation, at minimum:**
+
+- What was observed — the claim itself
+- Where — source and location
+- When — **discovery time**, distinct from any date stated inside the opportunity
+- What the source actually said — enough of the original representation to compare against later
+- The source's identity and context — *who* is making the claim, not merely a URL
+- The apparent details at that moment — dates, eligibility, requirements, access route, costs, location, conditions
+- The representation's identity — URL, document, page, filename
+- Relationships to other observations — revision, duplicate, correction, alternate publication
+
+**Discardable:** anything that cannot contribute to verification, entity
+resolution, provenance, re-checking, explanation, or correction.
+
+**Raw evidence is not discardable merely because structured fields were extracted
+from it.** An extraction can be wrong, and later verification may need what was
+actually observed.
+
+**"Preserve everything forever" is rejected.** That makes the engine an archive
+rather than an intelligence system. The rule is future epistemic usefulness, not
+completeness for its own sake. The exact retention boundary is **R-12**, to be
+established against real sources and real verification cases — not invented in
+advance.
+
+## Compliance-shaped failure — CR-36 and CR-37
+
+Audited at ratification, per the governance requirement.
+
+| Rule | Nominal compliance | Substantive death | Observable test |
+|---|---|---|---|
+| **CR-36** | Three layers exist in the model | The pipeline overwrites observations with extracted fields, or writes judgment back onto the entity | **For any live judgment, can the specific observations it rests on be retrieved?** And: **do any stored observations contradict the current judgment?** If none ever do, observations are being rewritten. |
+| **CR-37** | "Observations are immutable" | Re-crawling updates in place instead of appending | **Count observations whose modification time exceeds their creation time. Must be zero.** Also: an opportunity seen across three cycles should hold three observations, not one. |
+
+The CR-36 test has the same shape as CR-11's: **a store where nothing ever
+contradicts the present is a store that has been quietly rewritten.**
+
+---
+
 ## Origin (ratified finding — Phase 1 CLOSED)
 
 The origin is **structural in pattern, instantiated in one specific loss**. The
@@ -960,6 +1040,7 @@ or conversion is constitutionally void.
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
 | **R-10** | For each rule exposed to compliance-shaped failure, what guard makes the violation visible when it occurs? Written prohibition is insufficient by construction — the rule is being obeyed on its face while being emptied. |
+| **R-12** | **The retention boundary.** How much of each observation must be preserved, and for how long, to support verification, entity resolution, provenance, re-checking, explanation and correction — without becoming an archive? To be established against real sources and real verification cases, not invented. |
 | **R-11** | **Entity resolution.** How does the engine determine that two claims describe the same underlying opportunity? URL identity fails — R-01 observed one advert at three addresses with differing capitalisation, plus `-FINAL` and `-corrected` revisions with nothing linking them to what they supersede. Required by CR-35. |
 | **R-09** | Where exactly does legitimate contextual inference end and prohibited predictive judgment begin? CR-32 sets the principle; the founder declined to fix a list of permitted and prohibited attributes without evidence. Includes how to present true landscape statements without their functioning as personal verdicts. |
 | **R-08** | How broadly must the system explore beyond known interests; what evidence establishes that an unfamiliar opportunity deserves consideration; how often should this occur; and does it belong in ranking, in awareness, or on a separate surface? CR-31 sets the obligation without specifying its execution. |
