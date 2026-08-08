@@ -324,7 +324,7 @@ If none, it should not exist.
 Accessibility is non-negotiable. Beauty is non-negotiable. The task is not to
 choose between them but to engineer beauty that scales.
 
-### CR-18 — Awareness is not endorsement *(founder decision; wording pending ratification)*
+### CR-18 — Awareness is not endorsement *(ratified Phase 13)*
 The credibility threshold governs whether Opportunity X may **recommend** an
 opportunity. It never governs whether the user may **know it exists**.
 
@@ -401,6 +401,12 @@ Two conditions attach:
   doing.
 - **Every request is justified at the point of asking.** The person is told why
   a field is needed, when it is asked for — not in a policy document.
+- **The pre-value field cap may not be expanded by ordinary product iteration**
+  *(ratified Phase 13)*. FPR-02 defines the set. If the product needs more
+  information before demonstrating value, that is a **constitutional change** and
+  must pass through amendment. Otherwise C-14 wins by attrition — one defensible
+  field, then another, until the product has rebuilt the onboarding burden it
+  explicitly rejected.
 
 Observed basis: the founder, in the period concerned, would have abandoned a
 high-friction onboarding before demonstrated value, while being willing to give
@@ -737,16 +743,39 @@ explanations.
 - **why** the opportunity was surfaced
 - **why** it was ranked where it was
 
-**Candidate structural guard, pending ratification.** A written rule against
-hollowing out a written rule is still only writing. The guard that would make
-this structural rather than aspirational:
+**The structural guard, ratified Phase 13.** A written rule against hollowing out
+a written rule is still only writing. This is law, not aspiration:
 
-> **The reasoning is the primary artifact. Any summary is a projection of it.**
+> **Reasoning is the primary artifact. Summaries are projections of it, never
+> substitutes for it.**
+
+This is stronger than *"the interface should explain things."* It means the
+underlying judgment **remains inspectable even when the presentation becomes
+shorter, faster, or more beautiful.** Presentation may compress. The judgment
+beneath it may not.
 
 If a summary can exist without the reasoning behind it, the reasoning is
 optional and will atrophy. If the summary is *derived* from stored reasoning,
 then a judgment cannot be displayed without the reasoning having been done and
 retained — and completeness becomes measurable rather than a matter of taste.
+
+### CR-34 — Protected behaviours must actually occur *(ratified Phase 13)*
+
+> **A behaviour protected by the Constitution is not compliant merely because the
+> code can perform it.**
+
+Where the Constitution protects a behaviour that should occur *sometimes* —
+de-verification (CR-11), the empty result (CR-20), sub-threshold surfacing
+(CR-18), unfamiliar opportunities (CR-31) — capability is not compliance.
+
+**If a protected behaviour disappears, its declining rate is an incident
+requiring investigation.**
+
+This exists because of the audit's central finding: constitutional drift
+presents as **absence, not error**. Nothing throws an exception when something
+stops happening. A rate falling silently to zero is the ordinary way these rules
+die, and it is indistinguishable from correct operation unless absence is
+monitored deliberately.
 
 ---
 
