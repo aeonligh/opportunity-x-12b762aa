@@ -35,6 +35,70 @@ Everything else in this document may evolve. This may not.
 
 ---
 
+## Product Essence (ratified, Phase 4)
+
+> **Opportunity X bridges the information gap between where a person is and
+> where they want to be — making relevant possibilities, and the information
+> needed to pursue them, accessible without that access depending on another
+> person's timely intervention.**
+
+### The human transformation
+
+> The person can now know what is possible for them and access the information
+> needed to pursue it, **without having to already know that possibility
+> exists**, and without depending on another person to reveal it in time.
+
+### The clarification that must stay attached
+
+The essence is **not** built on an assumption that people are malicious or that
+peers deliberately hide opportunities. Whether the friend in the founding
+episode withheld anything remains **UNKNOWN and must stay UNKNOWN**.
+
+The problem is the **dependency itself**:
+
+> A person's access to an opportunity must not depend on whether another person
+> happens to know about it, chooses to share it, remembers to share it, or
+> reaches them in time.
+
+Eliminating that dependency — not defeating bad actors — is what Opportunity X
+exists to do.
+
+### Mechanisms, not definitions
+
+These are expressions of the transformation. None of them *is* the essence, and
+none competes with it as a definition of the product:
+
+| Mechanism | What it does |
+|---|---|
+| **Discovery** | Makes opportunities known |
+| **Verification** | Establishes how well-supported they are |
+| **Ranking** | Determines what deserves this person's attention first |
+| **Recommendation** | Decides what Opportunity X is willing to actively suggest |
+| **Action / Preparation** | Helps the person realistically pursue it |
+
+Ranking and Recommendation are distinct acts. Ranking orders attention;
+recommendation extends endorsement. CR-18 governs the boundary between them.
+
+### What Opportunity X is NOT
+
+- **Not a listing site or job board** — those supply listings to people who
+  already know to look.
+- **Not a search engine** — search requires knowing what to search for; the
+  essence explicitly covers not knowing.
+- **Not a referral or social network** — any mechanism making access contingent
+  on social-graph participation reintroduces the exact dependency the essence
+  exists to remove.
+- **Not an endorsement engine** — per CR-18, recommending is a narrower act than
+  making known.
+
+### Unique Mechanism
+
+**UNDETERMINED.** Nothing established in discovery yet explains why Opportunity X
+can deliver this when ordinary search, existing platforms, or self-directed
+searching cannot. Not to be invented.
+
+---
+
 ## Origin (ratified finding — Phase 1 CLOSED)
 
 The origin is **structural in pattern, instantiated in one specific loss**. The
@@ -215,6 +279,21 @@ founding failure — a real opportunity existed, the system knew, the person
 never found out, the window closed — with the system occupying the position
 that caused the original loss.
 
+### CR-19 — Access must not depend on another person's timely intervention
+*(promoted from candidate principle CP-A, ratified Phase 4)*
+
+A person's access to opportunity information may not be contingent on whether
+another person happens to know about it, chooses to share it, remembers to share
+it, or reaches them in time.
+
+This is constitutive, not behavioural — it is part of what Opportunity X **is**,
+per the Product Essence. Any mechanism that reintroduces that dependency
+contradicts the essence itself, regardless of how well it performs.
+
+Note the standard is **dependency**, not malice. The rule holds even where every
+participant is acting in perfect good faith, because ordinary human timing is
+sufficient to cause the failure.
+
 ---
 
 ## Founder Product Requirements
@@ -259,7 +338,8 @@ or conversion is constitutionally void.
 
 | ID | Question |
 |---|---|
-| **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. |
+| **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
+| **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
 
 ## Open research requirements
 
