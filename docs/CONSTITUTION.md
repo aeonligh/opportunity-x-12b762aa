@@ -346,9 +346,53 @@ modes, and different remedies. A composite number hides all three.
 Reinforces CR-12 (the reasoning must be inspectable) and CR-18 (recommendation
 is a narrower act than awareness).
 
+### CR-22 — Earn personalisation, never demand it
+*(founder-stated, Phase 6)*
+
+The person starts by giving very little, receives genuinely useful intelligence,
+and becomes willing to give more as the system demonstrates it understands them.
+Depth of personalisation is a **reward the product earns**, not a toll it
+collects at the entrance.
+
+Two conditions attach:
+
+- **Value precedes extraction.** Nothing that feels like work may be required
+  before the product has demonstrated it reduces the work the person is already
+  doing.
+- **Every request is justified at the point of asking.** The person is told why
+  a field is needed, when it is asked for — not in a policy document.
+
+Observed basis: the founder, in the period concerned, would have abandoned a
+high-friction onboarding before demonstrated value, while being willing to give
+substantially more after curation proved useful.
+
+### CR-23 — The system may not require self-knowledge it exists to provide
+*(founder-stated, Phase 6)*
+
+Opportunity X may not condition its usefulness on the person already
+understanding themselves, their ambitions, or the space of what is available.
+
+> Asking someone to define precisely what they want, before showing them what is
+> possible, reproduces the information gap in another form.
+
+A person who knew exactly what to ask for would have less need of this product.
+Designing for that person excludes the one the Constitution is written for.
+
 ---
 
 ## Founder Product Requirements
+
+**FPR-02 — Cold-start minimum.** The information the founder would have given
+before seeing any value: country/location · current educational level or course ·
+university or school · graduation stage/year · broad areas of interest · basic
+constraints that obviously affect eligibility.
+
+Explicitly refused before demonstrated value: long questionnaires · CV upload ·
+financial or family questions · precise ambition definition · extensive account
+verification.
+
+This is a founder-reported willingness threshold, not a measured abandonment
+rate. No abandonment time is claimed — the founder declined to invent one.
 
 **FPR-01 — Credibility threshold: 88%.** An opportunity must reach ≥88%
 evidence-based credibility before Opportunity X may treat it as sufficiently
@@ -391,7 +435,7 @@ or conversion is constitutionally void.
 | ID | Question |
 |---|---|
 | **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
-| **C-14** | **Personalisation depth vs. onboarding cost.** Constructed relevance needs a rich model of the person; building it costs time, attention and data — the three things CR-10's priority user has least of. The people who most need curation are least able to pay for it. A long onboarding excludes exactly who the product is for; a short one starves the mechanism. |
+| **C-14** | **Cold start.** Constructed relevance needs a rich model of the person, but the person will give little before seeing value, and may not know what they want at all. **Reframed by founder, not solved:** this is not a choice between short onboarding and rich profile. The question is how the system becomes increasingly personal *without making the person do the work of becoming understood first*. CR-22 and CR-23 constrain the answer; they do not supply it. |
 | **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
 | **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
 
