@@ -429,6 +429,61 @@ and six inferences must not read like one built on established fact.
 Follows from CR-12 (reducing uncertainty) and CR-15 (trust is asymmetrical),
 applied to the *user model* rather than to opportunities.
 
+### CR-25 — Curation without ownership *(resolves C-15)*
+
+> **Opportunity X can rank a person's attention. It cannot own their
+> possibility.**
+
+The system's job is to ensure the person does not miss the chance to compete.
+It is not to decide which competitions they are allowed to enter.
+
+**The hierarchy:**
+
+> Awareness → Ranking → Explanation → Recommendation → **Decision by the person**
+
+Ranking may say *"pay attention to this first."* Recommendation may say *"we
+think this is worth pursuing."* Neither may silently become *"you should not
+pursue this."*
+
+**Forbidden outputs** — too strong a judgment for a system that cannot know the
+person's eventual outcome:
+
+- *"Don't apply."*
+- *"This isn't worth your effort."*
+
+**Permitted outputs** — expose the reasoning without claiming to know the future:
+
+- *"This is likely to require significant effort."*
+- *"You appear eligible, but you have limited runway."*
+- *"Your fit appears weaker than these other opportunities."*
+- *"The evidence supporting this opportunity is incomplete."*
+- *"Based on what I currently know about you, this appears lower priority."*
+
+**Language weakens with knowledge.** Where the system knows little about a
+person, it may not make strong personalised negative judgments about them
+(CR-24).
+
+**The override is a right, not a feature.** *"Show me anyway"* must be prominent
+rather than buried, immediate, and **never punished**: choosing it may not hide
+the opportunity, may not be treated as a negative signal, and may not be used to
+further restrict what the person subsequently sees.
+
+Ranking is not weakened by this. It is legitimised — opinionated, transparent,
+reversible, and proportionate to what is actually known.
+
+### CR-26 — Discouragement requires a higher evidence bar than recommendation
+
+The harms are asymmetric, so the standards must be:
+
+| | If wrong | Discoverable? |
+|---|---|---|
+| **Recommendation** | The person loses some time | Yes — they see the outcome |
+| **Discouragement** | The person loses a possibility | **Never.** They do not apply, so they never learn the system was wrong |
+
+A wrong discouragement is invisible and unrecoverable, and it sits dangerously
+close to the founding injustice. Negative judgments therefore carry a strictly
+higher burden of evidence than positive ones.
+
 ---
 
 ## Founder Product Requirements
@@ -467,6 +522,12 @@ outcomes. These coexist: the system estimates and discloses likelihood; it is
 never accountable for the result. A future engineer must not read CR-09 as
 forbidding probability display.
 
+**An empty recommendation is never an empty world.** CR-20 permits *"I don't
+currently know of anything worth your attention."* CR-25 forbids that from
+meaning *"there is nothing."* The recommendation surface may be empty; the path
+to what exists may not be closed. Both rules hold only if those are kept
+distinct in the interface as well as in the reasoning.
+
 **Measurement follows CR-04 and CR-09.** Metrics attach to reach, timeliness,
 comprehension, and trust. Any metric rewarding time-on-site, application count,
 or conversion is constitutionally void.
@@ -479,6 +540,7 @@ or conversion is constitutionally void.
 |---|---|---|
 | **C-08** | Premium visual identity vs. inverse-access priority | **Dissolved by founder.** Not a conflict but a design constraint → **CR-17**. |
 | **C-09** | Search-centric surface vs. delivery-centric constitution | **Dissolved by founder.** Rests on a false premise that one interaction must be primary → **CR-07**. |
+| **C-15** | **Discouragement as soft suppression.** Would a "not worth your effort" verdict reproduce the founding injustice with better manners? | **Resolved by founder → CR-25, CR-26.** Curation without ownership: the system ranks attention and never owns possibility. Negative judgments carry a higher evidence bar because their harm is invisible and unrecoverable. |
 | **C-10** | **The suppression boundary.** Does low verification confidence justify withholding a known opportunity? | **Resolved by founder → CR-18.** In favour of transparent uncertainty over silent withholding. The threshold separates recommendation from awareness; it never gates existence. |
 
 ## Open constitutional questions
@@ -486,7 +548,6 @@ or conversion is constitutionally void.
 | ID | Question |
 |---|---|
 | **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
-| **C-15** | **Discouragement as soft suppression.** CR-18 guarantees the person learns an opportunity exists. It does not protect them from the product's own discouragement. *"You qualify, but the effort isn't worth it for you"* is not neutral — it will deter people, including some who would have won. The founding injustice was another party's judgment keeping the founder out of a competition he never entered. A discouraging verdict is structurally similar from the user's side, delivered with better manners. Unresolved. |
 | **C-14** | **Cold start.** Constructed relevance needs a rich model of the person, but the person will give little before seeing value, and may not know what they want at all. **Reframed by founder, not solved:** this is not a choice between short onboarding and rich profile. The question is how the system becomes increasingly personal *without making the person do the work of becoming understood first*. CR-22 and CR-23 constrain the answer; they do not supply it. |
 | **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
 | **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
@@ -497,6 +558,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-04** | For negative judgments: what evidence threshold is required, how much uncertainty must be exposed, and how should the override behave? CR-26 establishes that the bar is *higher*; it does not say how much higher. OPEN. |
 | **R-03** | Do existing opportunity platforms fail to personalise because they *cannot* (technical), because they *will not* (incentive/business model), or both? Founder has used them and observed the result, but has not investigated their systems or economics. Determines whether the moat is engineering or constitution — and therefore how defensible the product is. |
 
 ---
