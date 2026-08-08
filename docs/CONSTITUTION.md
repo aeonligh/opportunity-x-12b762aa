@@ -714,6 +714,64 @@ joins CR-31: a person's lack of history with a category, institution,
 opportunity type, or subject is not by itself evidence that they are
 uninterested, unsuitable, or unlikely to succeed.
 
+### CR-33 — Understanding may not be replaced by summary
+
+> **An explanation is not present merely because explanatory text exists.**
+
+Identified by the founder as the rule most likely to fail first — not by
+deletion, but by hollowing out while claiming compliance. *"You qualify."*
+*"Deadline soon."* *"Matches your profile."* *"High confidence."* Explanations
+would still exist; the reasoning would be gone.
+
+The failure is dangerous because **it presents as improvement**: faster screens,
+less text, more opportunities consumed, better engagement. A reasonable team
+concludes users don't want explanations, when what they don't want is *bad*
+explanations.
+
+**A judgment must expose:**
+
+- what is **known**
+- what is **inferred**
+- what **evidence** supports the assessment
+- what remains **uncertain**
+- **why** the opportunity was surfaced
+- **why** it was ranked where it was
+
+**Candidate structural guard, pending ratification.** A written rule against
+hollowing out a written rule is still only writing. The guard that would make
+this structural rather than aspirational:
+
+> **The reasoning is the primary artifact. Any summary is a projection of it.**
+
+If a summary can exist without the reasoning behind it, the reasoning is
+optional and will atrophy. If the summary is *derived* from stored reasoning,
+then a judgment cannot be displayed without the reasoning having been done and
+retained — and completeness becomes measurable rather than a matter of taste.
+
+---
+
+## Compliance-shaped failure — a threat class
+
+CR-33 revealed a failure mode distinct from abandonment: a rule **nominally
+satisfied while substantively void.** It is more dangerous than violation
+because no one has to decide anything, and every step looks like progress.
+
+Other rules exposed to the same drift, and how each would die while passing
+inspection:
+
+| Rule | Nominal compliance | Substantive death |
+|---|---|---|
+| **CR-12 / CR-33** | Explanatory text present | Reduced to labels |
+| **CR-18** | Sub-threshold opportunities technically shown | Visually buried where nobody finds them |
+| **CR-24** | Inference "labelled" | One generic disclaimer covering everything |
+| **CR-25** | Override exists | Three taps deep, unstyled, undiscoverable |
+| **CR-31** | System "explores beyond known interests" | A token slot filled with near-matches |
+| **CR-20** | Empty result supported | Bar quietly lowered so it never triggers |
+
+Each of these needs a guard that makes violation **visible when it happens**,
+not merely forbidden in advance. Auditing all thirty-three rules against this
+threat class is outstanding work.
+
 ---
 
 ## Founder Product Requirements
@@ -795,6 +853,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-10** | For each rule exposed to compliance-shaped failure, what guard makes the violation visible when it occurs? Written prohibition is insufficient by construction — the rule is being obeyed on its face while being emptied. |
 | **R-09** | Where exactly does legitimate contextual inference end and prohibited predictive judgment begin? CR-32 sets the principle; the founder declined to fix a list of permitted and prohibited attributes without evidence. Includes how to present true landscape statements without their functioning as personal verdicts. |
 | **R-08** | How broadly must the system explore beyond known interests; what evidence establishes that an unfamiliar opportunity deserves consideration; how often should this occur; and does it belong in ranking, in awareness, or on a separate surface? CR-31 sets the obligation without specifying its execution. |
 | **R-07** | What is the **exact relationship** between risk and the downstream judgments? Does person-specific risk move the recommendation threshold, the ranking position, the presentation and warnings, or all three — and by how much? Founder deliberately left this undecided. |
