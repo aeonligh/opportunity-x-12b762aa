@@ -71,6 +71,43 @@ The question Opportunity X ultimately answers:
 The **"and why"** is not decoration. An answer without its reasoning fails
 CR-12 and fails the product's own test.
 
+### The required judgment
+
+A filtered list asks: *"Which opportunities match the information you gave us?"*
+
+Opportunity X answers: *"Given what I know about you and what I know about the
+opportunities available, what deserves your attention right now — and why?"*
+
+That is a different job, not a better version of the same one. Both operate on
+identical inputs; the difference is that one returns matches and the other
+returns **judgment**.
+
+**Opportunity X must make judgments the person would otherwise have to make
+themselves.** The system must be capable of saying, and distinguishing between:
+
+- *"This is worth your attention."*
+- *"This one is real, but don't spend your time on it."*
+- *"This one looks promising, but you don't have enough runway."*
+- *"You qualify for this, but the effort required doesn't make it a good
+  opportunity for you right now."*
+- *"You didn't search for this, but here's why I think it belongs in your
+  consideration."*
+- *"I don't currently know of anything worth your attention."* (CR-20)
+
+Required properties of that judgment — it must be **explainable**,
+**evidence-based**, **time-aware**, and **honest about uncertainty**.
+
+Two consequences follow that are not otherwise obvious:
+
+- **Runway affects presentation, not only inclusion.** Something closing soon
+  without realistic time to prepare a good application must be presented
+  differently from something with room. Something excellent but better suited to
+  a later stage must say so. (Operationalises CP-C.)
+- **Effort is modelled.** *"The effort required doesn't make it a good
+  opportunity for you right now"* requires estimating what pursuit costs this
+  person and weighing it against value. Attention scarcity (CR-13) makes that
+  weighing necessary; C-15 governs its danger.
+
 ### The clarification that must stay attached
 
 The essence is **not** built on an assumption that people are malicious or that
@@ -378,6 +415,20 @@ understanding themselves, their ambitions, or the space of what is available.
 A person who knew exactly what to ask for would have less need of this product.
 Designing for that person excludes the one the Constitution is written for.
 
+### CR-24 — The person-model must be inspectable, and inference must be labelled
+*(founder-stated, Phase 6)*
+
+The person must be able to distinguish **what Opportunity X knows about them**
+from **what it is inferring about them**.
+
+If the system barely knows someone, it may not present itself as though it does.
+Confidence about a person is subject to the same honesty requirement as
+confidence about an opportunity — a fluent recommendation built on three fields
+and six inferences must not read like one built on established fact.
+
+Follows from CR-12 (reducing uncertainty) and CR-15 (trust is asymmetrical),
+applied to the *user model* rather than to opportunities.
+
 ---
 
 ## Founder Product Requirements
@@ -435,6 +486,7 @@ or conversion is constitutionally void.
 | ID | Question |
 |---|---|
 | **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
+| **C-15** | **Discouragement as soft suppression.** CR-18 guarantees the person learns an opportunity exists. It does not protect them from the product's own discouragement. *"You qualify, but the effort isn't worth it for you"* is not neutral — it will deter people, including some who would have won. The founding injustice was another party's judgment keeping the founder out of a competition he never entered. A discouraging verdict is structurally similar from the user's side, delivered with better manners. Unresolved. |
 | **C-14** | **Cold start.** Constructed relevance needs a rich model of the person, but the person will give little before seeing value, and may not know what they want at all. **Reframed by founder, not solved:** this is not a choice between short onboarding and rich profile. The question is how the system becomes increasingly personal *without making the person do the work of becoming understood first*. CR-22 and CR-23 constrain the answer; they do not supply it. |
 | **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
 | **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
