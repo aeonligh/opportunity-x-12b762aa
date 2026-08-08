@@ -169,3 +169,124 @@ established.
 - [Scholarship Region Telegram](https://t.me/s/scholarshipregion) · [Nigeria Scholarship Updates Telegram](https://telegram.me/NigeriaScholarships)
 - [FG Denies Suspending Scholarship Programmes, Disowns Viral Notice](https://www.nigerianeye.com/2026/05/fg-denies-suspending-scholarship.html)
 - [Scholarship Boards in Nigeria](https://www.studyandscholarships.com/2009/07/scholarship-boards-in-nigeria.html?m=1) · [Niger State Scholarship Board](https://nssb.org.ng/) · [Lagos State Scholarship Board](https://en.wikipedia.org/wiki/Lagos_State_Scholarship_Board)
+
+---
+
+# Second pass — domain-filtered search
+
+**Why a second pass.** The founder asked for a specialised research connector.
+**Tavily and Nimble are unavailable** — both MCP servers disconnected earlier in
+the session and `select:` on their tool names returns nothing. However,
+`WebSearch` supports domain filtering, which interrogates a site's *indexed*
+content without fetching it. Egress remains blocked for every direct fetch
+tried, including `en.wikipedia.org`, so search is the only web channel.
+
+**New grade — B+:** URL paths and titles directly observed in the search
+engine's index of the official domain. Stronger than a summary, weaker than a
+fetched page.
+
+## F-8 — Duplication originates at the official source · **B+**
+
+The same advert is served simultaneously at multiple addresses on
+`education.gov.ng`:
+
+```
+/wp-content/uploads/2021/12/2022-2023-BEA-ADVERT-FINAL.pdf
+/fsb/wp-content/uploads/2021/12/2022-2023-BEA-Advert-Final.pdf
+/2022-2023-bea-advert-final-2/
+```
+
+Three URLs, one document. Two separate WordPress installations — the ministry
+site and an `/fsb/` sub-install — plus an HTML wrapper page. Capitalisation
+differs between the two PDF paths.
+
+**The `-2` suffix on the HTML slug is WordPress's automatic duplicate-slug
+handling**, which means that page was published at least twice.
+
+This matters because duplication has been treated as something aggregators do to
+clean source data. **It is present in the source.** Any dedup strategy keyed on
+URL will treat these as three opportunities.
+
+## F-9 — The source never retires expired adverts · **B+**
+
+Adverts spanning **2019 through 2025** are all still served and indexed:
+
+| Path | Cycle |
+|---|---|
+| `/fsb/wp-content/uploads/2019/10/FEDERAL-SCHOLARSHIP-BOARD-ADVERT-2020-2021-BEA-NA.pdf` | 2020/21 |
+| `/wp-content/uploads/2020/12/2021-COMMONWEALTH-...-CSFP-ADVERT.pdf` | 2021 |
+| `/wp-content/uploads/2021/12/2022-2023-BEA-ADVERT-FINAL.pdf` | 2022/23 |
+| `/fsb/wp-content/uploads/2023/09/2024-2025-commonwealth-advert.pdf` | 2024/25 |
+| `/fsb/wp-content/uploads/2023/11/2024-2025-BEA-ADVERT.pdf` | 2024/25 |
+| `/wp-content/uploads/2025/08/2025-.2026-commonwealth-advert.pdf` | 2025/26 |
+
+**None carries an expiry marker.** A closed 2020 advert and an open one are
+served identically.
+
+**This is the most consequential finding in the research**, because it locates
+the founder's own experience — *"some opportunities were already closed but were
+still being shared as if they were open"* — at its origin. Aggregators and
+WhatsApp groups are not corrupting the data. They are faithfully propagating a
+source that **never marks anything closed.**
+
+Consequences:
+
+- A crawler ingesting today finds **seven cycles presented identically**. Recency
+  cannot be inferred from the document.
+- **CR-05 gains a concrete mechanism.** Deadline state cannot be read from the
+  advert. It must be derived from the calendar and cross-checked against the live
+  portal.
+- **CR-11's decay requirement is not optional.** Verified-once would mean a 2020
+  advert stays verified forever, because nothing about it ever changes.
+
+## F-10 — Filenames carry revision markers · **B+**
+
+`...-BEA-ADVERT-FINAL.pdf` · `Mauritius-2024-Advert-corrected.pdf` ·
+`2025-.2026-commonwealth-advert.pdf` (stray period) ·
+`FEDERAL-SCHOLARSHIP-BOARD-ADVERT-2020-2021-BEA-NA.pdf`
+
+`FINAL` and `corrected` indicate adverts are **revised and re-uploaded under new
+filenames**. The superseded version is not necessarily removed — so a wrong
+version and a corrected version can be live at once, with nothing linking them.
+
+Casing, ordering, and separators are inconsistent across years. Filename
+pattern-matching is not a viable discovery strategy.
+
+## F-11 — A concrete deadline window · **B**
+
+2026/2027 CSFP: applications **opened 2 September 2025, closed 14 October 2025.**
+
+A **six-week window**, opening roughly thirteen months before the award year.
+First real datum for CP-C's runway question — though it describes the
+application window, not the preparation runway, which is what CP-C actually
+concerns.
+
+## F-12 — The application route is a navigation path, not a URL · **B**
+
+Guidance directs candidates to *"visit www.education.gov.ng, click the Federal
+Scholarship Board icon on the home page, read the guidelines, and complete the
+application form online."*
+
+FPR-01 requires verifying that *the application route leads to the legitimate
+provider*. Where the route is a described navigation sequence rather than a
+stable link, that check requires following the path, not resolving a URL.
+
+## Revised assessment after the second pass
+
+**R-01's strong form is further weakened.** Federal opportunities are
+comprehensively published on the open web — seven years of adverts are sitting
+there right now.
+
+**The real problem is not access. It is that the public record is
+undifferentiated.** Everything is present, nothing is marked current, the same
+document appears at several addresses, revisions are untracked, and the format
+resists parsing.
+
+That reframes the discovery engine's central difficulty. It is not *finding*
+opportunities. It is **establishing which of the things it found are real right
+now** — which is verification, not discovery, and is exactly what CR-05, CR-11
+and CR-29 were written for.
+
+**Still UNKNOWN:** state-level coverage · whether any opportunity never acquires
+an open-web source · social-circulation latency · whether aggregators source
+officially or from each other.
