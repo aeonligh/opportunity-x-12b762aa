@@ -35,12 +35,27 @@ Everything else in this document may evolve. This may not.
 
 ---
 
-## Origin (ratified finding)
+## Origin (ratified finding — Phase 1 CLOSED)
 
-The origin is **structural, not biographical**. It is not one lost scholarship;
-it is a condition — opportunity information is fragmented, unverifiable,
+The origin is **structural in pattern, instantiated in one specific loss**. The
+condition is general — opportunity information is fragmented, unverifiable,
 unexplained, and time-gated, and it fails hardest for those with the least access
-to reliable channels.
+to reliable channels. It became real through one scholarship, missed.
+
+**Final established state:**
+
+- **Founding failure mechanism:** timing of information arrival. The founder
+  learned of a scholarship offering travel outside the country only after its
+  application window had closed. The information arrived through a friend.
+- **Emotional reality:** helplessness, then anger — anchored in the distinction
+  between rejection and never receiving the chance to compete.
+- **Verification motive:** first-hand and real. The founder personally
+  encountered an opportunity presented as a Nigerian government student
+  programme. **The specific verification failure is UNKNOWN.**
+- **Permanently UNKNOWN, not to be inferred:** dates, names, latency, channel
+  rankings, investments, aftermath, recurrence, eligibility.
+
+No product requirement may be derived from these unknowns.
 
 The founding distinction, which governs the product's moral scope:
 
