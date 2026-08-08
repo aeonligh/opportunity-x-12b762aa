@@ -266,14 +266,40 @@ opportunity, all three observations are retained. The fact that three
 representations existed is itself evidence — for entity resolution, and for
 provenance.
 
-## CR-37 — Observations are immutable *(ratified Phase 14)*
+## CR-37 — Observations are immutable *(ratified Phase 14; deletion clause added Phase 14)*
+
+> **An observation, once recorded, may not be modified or deleted.**
 
 An observation is never rewritten to reflect what was later learned. Re-encounter
 produces a **new** observation, never an update to the old one.
 
+**Deletion is covered explicitly, because the modification test alone does not
+reach it.** Erased evidence cannot contradict anything, so an engine that deleted
+inconvenient observations would satisfy an immutability rule phrased only against
+rewriting. The rule is therefore stated as both.
+
+> **The observation set is monotonic: it may grow, it may never shrink.**
+
+*The rule is the prohibition. Its enforcement mechanism — a monotonicity check on
+observation counts — is a structural guard and belongs to architecture, not to
+this rule. See the guard table.*
+
 If the engine saw the 2020 BEA advert while it was publicly available, the record
 that **the claim existed and was observable at that time** survives — even after
 verification establishes the underlying opportunity is long dead.
+
+## The retention principle *(ratified Phase 14)*
+
+> **What we told someone is evidence. What we merely computed is recomputable.**
+
+An explanation **displayed to a person** belongs to the historical delivery
+record — they may have acted on it, and the system is accountable for what it
+said. A projection **computed and never displayed** may be recomputed, *provided
+the logic version required to reproduce it is retained.*
+
+That proviso is load-bearing. Recomputing with later logic recovers what would be
+believed now given past evidence — not what was believed then. Without version
+retention, every judgment becomes permanent evidence by default.
 
 ## The preservation principle
 
