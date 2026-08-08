@@ -1,7 +1,7 @@
 # The Opportunity X Constitution
 
 **Status:** Phase 1 ratified by the founder. Law.
-**Ratified:** 2026-08-02
+**Ratified:** 2026-08-08
 **Scope:** AEON X and Opportunity X, its first product.
 
 ---
