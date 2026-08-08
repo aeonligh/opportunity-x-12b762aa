@@ -128,13 +128,16 @@ exists to do.
 These are expressions of the transformation. None of them *is* the essence, and
 none competes with it as a definition of the product:
 
-| Mechanism | What it does |
-|---|---|
-| **Discovery** | Makes opportunities known |
-| **Verification** | Establishes how well-supported they are |
-| **Ranking** | Determines what deserves this person's attention first |
-| **Recommendation** | Decides what Opportunity X is willing to actively suggest |
-| **Action / Preparation** | Helps the person realistically pursue it |
+| Mechanism | What it does | Property of |
+|---|---|---|
+| **Discovery** | Establishes that the opportunity exists | — |
+| **Verification** | Establishes how well-supported it is | The opportunity |
+| **Risk** | Establishes what this person stands to lose if the judgment is wrong | The pairing |
+| **Ranking** | Determines what deserves this person's attention first | The pairing |
+| **Recommendation** | Decides how strongly Opportunity X is willing to suggest pursuing it | The pairing |
+| **Action / Preparation** | Establishes what this person can realistically do next | The pairing |
+
+*Risk ratified as a distinct sixth judgment, Phase 10.*
 
 Ranking and Recommendation are distinct acts. Ranking orders attention;
 recommendation extends endorsement. CR-18 governs the boundary between them.
@@ -573,6 +576,36 @@ for all three.
 as a distinct judgment alongside discovery, verification, ranking,
 recommendation, and action/preparation.
 
+### CR-30 — Opportunity truth is not person-relative; risk is *(resolves C-17)*
+
+> **An opportunity is verified. It is not verified *for someone*.**
+
+If Opportunity X has established that an opportunity is legitimate, open, that
+its requirements are real, that its route reaches the legitimate provider, and
+that its important claims are supported — that truth does not change because a
+different person is looking at it. Verification establishes what is *actually
+true about the opportunity*. Making it subjective would defeat its purpose.
+
+**Two scalings, attached to different things:**
+
+| What scales | With | Property of |
+|---|---|---|
+| **Verification depth** | The opportunity's inherent stakes | The opportunity |
+| **Recommendation threshold, ranking, presentation, warnings** | This person's cost of being wrong | The pairing |
+
+**Risk may raise the bar. It may never lower it.** A high-risk opportunity does
+not become "verified enough" because the system judges the person can afford the
+consequences. The truth standard remains the truth standard.
+
+**Different recommendations do not mean different truths.** When two people see
+the same opportunity treated differently, Opportunity X does not hold two
+versions of the truth. It holds one, and understands that consequences and
+circumstances differ between the two people.
+
+A strongly verified opportunity requiring six weeks of preparation is not *less
+verified* for someone with three weeks of runway. It is **less actionable for
+them right now.** Those are different statements and must remain so.
+
 ---
 
 ## Founder Product Requirements
@@ -634,6 +667,7 @@ or conversion is constitutionally void.
 |---|---|---|
 | **C-08** | Premium visual identity vs. inverse-access priority | **Dissolved by founder.** Not a conflict but a design constraint → **CR-17**. |
 | **C-09** | Search-centric surface vs. delivery-centric constitution | **Dissolved by founder.** Rests on a false premise that one interaction must be primary → **CR-07**. |
+| **C-17** | Is "verified" a property of the opportunity or of the person-opportunity pairing? | **Resolved by founder → CR-30.** Verification belongs to the opportunity; risk belongs to the pairing. Verification depth scales with the opportunity's inherent stakes; the recommendation threshold scales with the person's cost of being wrong. |
 | **C-15** | **Discouragement as soft suppression.** Would a "not worth your effort" verdict reproduce the founding injustice with better manners? | **Resolved by founder → CR-25, CR-26.** Curation without ownership: the system ranks attention and never owns possibility. Negative judgments carry a higher evidence bar because their harm is invisible and unrecoverable. |
 | **C-10** | **The suppression boundary.** Does low verification confidence justify withholding a known opportunity? | **Resolved by founder → CR-18.** In favour of transparent uncertainty over silent withholding. The threshold separates recommendation from awareness; it never gates existence. |
 
@@ -643,7 +677,6 @@ or conversion is constitutionally void.
 |---|---|
 | **C-11** | **Peer distribution inherits the founding failure.** The founding opportunity arrived through a person, too late. Any mechanism depending on humans telling each other in time inherits that latency — malice not required. Governs how far the product may rely on user-to-user sharing. Now largely constrained by CR-19. |
 | **C-16** | **Even clean revenue pressures silence.** CR-28 requires that "nothing right now" be economically survivable. But a user-paid subscription — the model with the cleanest incentives — still creates pressure to *appear* valuable, and therefore to show something rather than nothing, or churn. The conflict is weaker than advertising but not absent. Any candidate model must be tested against a month in which the honest answer is repeatedly "nothing." |
-| **C-17** | **Is "verified" a property of the opportunity or of the pairing?** CR-29 makes required verification depth depend on person-specific cost. But verification answers questions about the opportunity itself — is it real, is the deadline accurate, does the link reach the real provider. If depth is driven by who is looking, then either the system verifies to the strictest standard any user would demand (wasteful but coherent), or the same opportunity carries different verification states for different people (efficient, but "verified" stops being a fact). Unresolved, and it shapes the information model. |
 | **C-14** | **Cold start.** Constructed relevance needs a rich model of the person, but the person will give little before seeing value, and may not know what they want at all. **Reframed by founder, not solved:** this is not a choice between short onboarding and rich profile. The question is how the system becomes increasingly personal *without making the person do the work of becoming understood first*. CR-22 and CR-23 constrain the answer; they do not supply it. |
 | **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
 | **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
@@ -654,6 +687,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-07** | What is the **exact relationship** between risk and the downstream judgments? Does person-specific risk move the recommendation threshold, the ranking position, the presentation and warnings, or all three — and by how much? Founder deliberately left this undecided. |
 | **R-06** | **How is the consequence of being wrong determined**, before deciding what verification depth is appropriate? Requires assessing cost across time, documents, money, effort, irreversibility, trust, and emotional investment — per person. No model exists and none may be invented. Blocks operationalising CR-29 and fixing FPR-01's tiers. |
 | **R-05** | **Who pays?** OPEN, deliberately undecided. User-pays aligns incentives but conflicts with CR-10, since the priority user is least able to pay. Institutional, governmental, or foundation subsidy solves affordability but raises the question of whose interest prevails when payer and person diverge. No evidence yet supports choosing. |
 | **R-04** | For negative judgments: what evidence threshold is required, how much uncertainty must be exposed, and how should the override behave? CR-26 establishes that the bar is *higher*; it does not say how much higher. OPEN. |
