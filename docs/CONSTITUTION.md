@@ -656,6 +656,64 @@ together:
 Any system that learns from behaviour will violate this by default. It must be
 designed against.
 
+### CR-32 — Infer context, never destiny *(addresses C-14)*
+
+> **Context may inform what Opportunity X considers. It must not determine what
+> Opportunity X believes a person can become.**
+
+At cold start the system knows very little, so it must reason from what a
+person's circumstances imply. That is legitimate and necessary. The purpose of
+cohort inference is **to overcome knowing little — not to pretend to know the
+person.**
+
+**Permitted — inference about circumstance, factually related to an opportunity:**
+country or location · education level · field of study · graduation stage and
+timing · institutional or programme requirements · publicly stated eligibility
+conditions · timing relationships between the person's situation and the
+opportunity.
+
+**Forbidden — inference about capability.** Cohort membership may never become a
+prediction of what this individual can achieve. Specifically forbidden as
+proxies for potential: historical participation · institutional prestige ·
+geography · demographics · engagement patterns · cohort success rates.
+
+The reasoning that must never occur:
+
+> *"People like you usually don't get this, therefore you probably shouldn't
+> pursue it."*
+
+**The distinction:**
+
+| Statement | Object | Status |
+|---|---|---|
+| *"This opportunity has historically received few applicants from your type of institution."* | The landscape | Potentially legitimate information |
+| *"You are unlikely to succeed because you come from that institution."* | The person | **Forbidden** |
+
+*Caution: the distinction is sound in logic and leaky in delivery. A true
+statement about the landscape is read by a person as a verdict about themselves.
+CR-26's higher bar for discouragement governs the presentation, not only the
+content.*
+
+> **Inference may expand discovery. It must not become a hidden eligibility rule
+> or a hidden ceiling on possibility.**
+
+Where an opportunity states explicit eligibility requirements, the system may
+verify them and determine whether the person appears eligible. That is checkable
+fact, not prophecy.
+
+### Three states of knowledge *(extends CR-24)*
+
+| State | Meaning |
+|---|---|
+| **Known** | What the evidence establishes |
+| **Inferred** | What the system reasonably derives from that evidence |
+| **Unknown** | What it cannot establish |
+
+An inference may never be silently converted into a fact about the person. This
+joins CR-31: a person's lack of history with a category, institution,
+opportunity type, or subject is not by itself evidence that they are
+uninterested, unsuitable, or unlikely to succeed.
+
 ---
 
 ## Founder Product Requirements
@@ -737,6 +795,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-09** | Where exactly does legitimate contextual inference end and prohibited predictive judgment begin? CR-32 sets the principle; the founder declined to fix a list of permitted and prohibited attributes without evidence. Includes how to present true landscape statements without their functioning as personal verdicts. |
 | **R-08** | How broadly must the system explore beyond known interests; what evidence establishes that an unfamiliar opportunity deserves consideration; how often should this occur; and does it belong in ranking, in awareness, or on a separate surface? CR-31 sets the obligation without specifying its execution. |
 | **R-07** | What is the **exact relationship** between risk and the downstream judgments? Does person-specific risk move the recommendation threshold, the ranking position, the presentation and warnings, or all three — and by how much? Founder deliberately left this undecided. |
 | **R-06** | **How is the consequence of being wrong determined**, before deciding what verification depth is appropriate? Requires assessing cost across time, documents, money, effort, irreversibility, trust, and emotional investment — per person. No model exists and none may be invented. Blocks operationalising CR-29 and fixing FPR-01's tiers. |
