@@ -606,6 +606,56 @@ A strongly verified opportunity requiring six weeks of preparation is not *less
 verified* for someone with three weeks of runway. It is **less actionable for
 them right now.** Those are different statements and must remain so.
 
+### CR-31 — Personalisation must expand the possibility space *(resolves C-12)*
+
+> **Opportunity X must deliberately reason beyond what it already knows the
+> person wants.**
+
+Personalisation that only narrows produces a sealed room: a system that learns
+existing interests well enough to exclude everything the person has not already
+encountered. That defeats the essence, which requires the person to learn of
+possibilities **without having to already know they exist**.
+
+**No quota.** There is no fixed share of unfamiliar results. A percentage would
+be an arbitrary scoring rule dressed as a principle, and it would force output
+where none is warranted.
+
+**A structural obligation instead.** The system must remain continually capable
+of discovering and considering possibilities outside the person's expressed
+interests, history, and existing knowledge — and must not let personalisation
+close that door.
+
+**The unknown still needs a reason.** This is not randomness. When something
+unfamiliar genuinely deserves consideration it is surfaced with its reasoning:
+
+> *"You didn't search for this, and you haven't expressed an interest in it, but
+> I think it belongs in your consideration because of what I know about you and
+> what I know about this opportunity."*
+
+**Nothing is a valid week.** If nothing outside the person's known interests
+clears the bar, the system shows nothing (CR-20). The obligation is to *look*,
+not to *produce*.
+
+### Unknown is not irrelevant
+
+Something can be absent from a person's history **precisely because they never
+had the information required to form an interest in it.** Absence of signal is
+not evidence of disinterest.
+
+This is the third rule guarding the same failure, and they should be read
+together:
+
+| Rule | Forbids |
+|---|---|
+| **CR-24** | Presenting inference as knowledge |
+| **CR-25** | Treating an override as a negative signal |
+| **CR-31** | Treating absence as disinterest |
+
+> **Silence about something is not evidence against it.**
+
+Any system that learns from behaviour will violate this by default. It must be
+designed against.
+
 ---
 
 ## Founder Product Requirements
@@ -668,6 +718,7 @@ or conversion is constitutionally void.
 | **C-08** | Premium visual identity vs. inverse-access priority | **Dissolved by founder.** Not a conflict but a design constraint → **CR-17**. |
 | **C-09** | Search-centric surface vs. delivery-centric constitution | **Dissolved by founder.** Rests on a false premise that one interaction must be primary → **CR-07**. |
 | **C-17** | Is "verified" a property of the opportunity or of the person-opportunity pairing? | **Resolved by founder → CR-30.** Verification belongs to the opportunity; risk belongs to the pairing. Verification depth scales with the opportunity's inherent stakes; the recommendation threshold scales with the person's cost of being wrong. |
+| **C-12** | **Breadth vs. personalisation.** Does a well-tuned matching engine structurally exclude what the essence exists to reveal? | **Resolved by founder → CR-31.** A structural obligation to reason beyond known wants, with no quota. Personalisation must expand the possibility space, not merely narrow it. |
 | **C-15** | **Discouragement as soft suppression.** Would a "not worth your effort" verdict reproduce the founding injustice with better manners? | **Resolved by founder → CR-25, CR-26.** Curation without ownership: the system ranks attention and never owns possibility. Negative judgments carry a higher evidence bar because their harm is invisible and unrecoverable. |
 | **C-10** | **The suppression boundary.** Does low verification confidence justify withholding a known opportunity? | **Resolved by founder → CR-18.** In favour of transparent uncertainty over silent withholding. The threshold separates recommendation from awareness; it never gates existence. |
 
@@ -679,7 +730,6 @@ or conversion is constitutionally void.
 | **C-16** | **Even clean revenue pressures silence.** CR-28 requires that "nothing right now" be economically survivable. But a user-paid subscription — the model with the cleanest incentives — still creates pressure to *appear* valuable, and therefore to show something rather than nothing, or churn. The conflict is weaker than advertising but not absent. Any candidate model must be tested against a month in which the honest answer is repeatedly "nothing." |
 | **C-14** | **Cold start.** Constructed relevance needs a rich model of the person, but the person will give little before seeing value, and may not know what they want at all. **Reframed by founder, not solved:** this is not a choice between short onboarding and rich profile. The question is how the system becomes increasingly personal *without making the person do the work of becoming understood first*. CR-22 and CR-23 constrain the answer; they do not supply it. |
 | **C-13** | **Verification standards do not survive category breadth.** FPR-01's six checks are built for formal, competitive, high-stakes programmes. Several do not apply to a webinar, workshop, or volunteering slot — no application route, no eligibility, no meaningful deadline. One uniform 88% threshold is a category error in both directions. |
-| **C-12** | **Breadth vs. personalisation.** The essence requires the person to learn of possibilities they did not know existed. A well-tuned matching engine, by construction, never surfaces what the user did not know to want — the better the personalisation, the more reliably it hides the thing the essence exists to reveal. CR-18's awareness/endorsement split absorbs most of this, but a residue remains: something still decides what enters the awareness surface at all, and that decision is not neutral. |
 
 ## Open research requirements
 
@@ -687,6 +737,7 @@ or conversion is constitutionally void.
 |---|---|
 | **R-01** | Do important opportunities routinely originate or circulate in closed channels an open-web discovery system cannot observe? If yes, discovery must expand beyond public-web crawling. If no, retire. |
 | **R-02** | What is the credibility score a probability *of*, and how is it calibrated? Until answered, FPR-01's 88% is an ordinal expressed as a cardinal. |
+| **R-08** | How broadly must the system explore beyond known interests; what evidence establishes that an unfamiliar opportunity deserves consideration; how often should this occur; and does it belong in ranking, in awareness, or on a separate surface? CR-31 sets the obligation without specifying its execution. |
 | **R-07** | What is the **exact relationship** between risk and the downstream judgments? Does person-specific risk move the recommendation threshold, the ranking position, the presentation and warnings, or all three — and by how much? Founder deliberately left this undecided. |
 | **R-06** | **How is the consequence of being wrong determined**, before deciding what verification depth is appropriate? Requires assessing cost across time, documents, money, effort, irreversibility, trust, and emotional investment — per person. No model exists and none may be invented. Blocks operationalising CR-29 and fixing FPR-01's tiers. |
 | **R-05** | **Who pays?** OPEN, deliberately undecided. User-pays aligns incentives but conflicts with CR-10, since the priority user is least able to pay. Institutional, governmental, or foundation subsidy solves affordability but raises the question of whose interest prevails when payer and person diverge. No evidence yet supports choosing. |
