@@ -39,6 +39,7 @@ import { runDiscovery } from "../src/lib/opportunity/discovery/run.ts";
 import { changeDetection } from "../src/lib/opportunity/discovery/mechanisms/change-detection.ts";
 import { institutionalChannels } from "../src/lib/opportunity/discovery/mechanisms/institutional-channels.ts";
 import { firecrawlTransport } from "../src/lib/opportunity/discovery/transports/firecrawl.ts";
+import { openWebSearch } from "../src/lib/opportunity/discovery/mechanisms/open-web-search.ts";
 
 async function main(): Promise<void> {
   const url = process.env.SUPABASE_URL;
@@ -74,7 +75,14 @@ async function main(): Promise<void> {
   const report = await runDiscovery({
     store: new SupabaseObservationStore(db),
     verification: new SupabaseVerificationLog(db),
-    mechanisms: [institutionalChannels({ announcers }), changeDetection()],
+    /*
+      Announcers first, then the pages they no longer link to, then the residue
+      neither can reach — an organiser that is not an institution and routes
+      through none. Search runs last because its results are candidates to
+      retrieve, and the visited set means it will not re-fetch anything the
+      first two mechanisms already read.
+    */
+    mechanisms: [institutionalChannels({ announcers }), changeDetection(), openWebSearch()],
     transport,
   });
 
