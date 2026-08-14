@@ -13,7 +13,7 @@ import { judgeAll } from "../judgment/service";
 import { InMemoryPursuitLog } from "../pursuit/log";
 import { declaration, type PursuitResolution, type PursuitState } from "../pursuit/types";
 import { recommendNextStep } from "../recommendation/service";
-import type { StepResolution } from "@/lib/core/step/types";
+import type { StepResolution } from "@/lib/opportunity/foundation/next-action";
 import { projectCard, type OpportunityCard } from "./card";
 import { projectInspection, type OpportunityInspection } from "./inspection";
 

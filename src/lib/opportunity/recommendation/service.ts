@@ -1,7 +1,7 @@
-import type { ProfileFact } from "@/lib/core/profile/types";
-import { evidenceFromDeclaration, evidenceFromFact } from "@/lib/core/tier0/evidence";
-import type { BaseRate, Claim, ClaimInput, SourceRef } from "@/lib/core/tier0/types";
-import type { NextStep, StepResolution } from "@/lib/core/step/types";
+import type { ProfileFact } from "@/lib/opportunity/foundation/person";
+import { evidenceFromDeclaration, evidenceFromFact } from "@/lib/opportunity/foundation/evidence";
+import type { BaseRate, Claim, ClaimInput, SourceRef } from "@/lib/opportunity/foundation/claim";
+import type { NextStep, StepResolution } from "@/lib/opportunity/foundation/next-action";
 import { agreedValue, type OpportunityEntity } from "../entity/types";
 import type { ObservationStore } from "../observation/types";
 import type { VerificationRecord } from "../verification/types";

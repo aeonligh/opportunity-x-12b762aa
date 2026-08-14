@@ -60,7 +60,7 @@ function AuthPage() {
       const { data } = await supabase.auth.getUser();
       if (!cancelled && data.user) {
         setHandingOff(true);
-        await navigate({ to: safeRedirectPath(new URLSearchParams(window.location.search).get("next")) });
+        await navigate({ to: "/dashboard" });
       }
       initialCheckDone.current = true;
     })();
@@ -74,7 +74,7 @@ function AuthPage() {
       const ok = await waitForSession(4000);
       if (cancelled || !ok) return;
       setHandingOff(true);
-      await navigate({ to: safeRedirectPath(new URLSearchParams(window.location.search).get("next")) });
+      await navigate({ to: "/dashboard" });
     });
 
     return () => {
@@ -104,7 +104,7 @@ function AuthPage() {
       const ok = await waitForSession(6000);
       if (!ok) throw new Error("Session did not become available");
       setHandingOff(true);
-      await navigate({ to: safeRedirectPath(new URLSearchParams(window.location.search).get("next")) });
+      await navigate({ to: "/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
       setLoading(false);

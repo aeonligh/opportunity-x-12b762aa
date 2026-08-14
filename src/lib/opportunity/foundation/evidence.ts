@@ -2,8 +2,8 @@ import type {
   DecayClass,
   ProductScope,
   ProfileFact,
-} from "@/lib/core/profile/types";
-import type { Evidence, SourceRef, UncheckedEvidence } from "./types";
+} from "@/lib/opportunity/foundation/person";
+import type { Evidence, SourceRef, UncheckedEvidence } from "./claim";
 
 /**
  * Building Evidence from the Profile fact it rests on.

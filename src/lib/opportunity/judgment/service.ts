@@ -1,4 +1,4 @@
-import type { ProfileFact } from "@/lib/core/profile/types";
+import type { ProfileFact } from "@/lib/opportunity/foundation/person";
 import { agreedValue, type OpportunityEntity } from "../entity/types";
 import { deriveOpenState, resolveVerification } from "../verification/service";
 import type { VerificationRecord } from "../verification/types";

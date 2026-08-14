@@ -1,4 +1,4 @@
-import type { ProfileFact } from "@/lib/core/profile/types";
+import type { ProfileFact } from "@/lib/opportunity/foundation/person";
 import type { CompletedExchange } from "@/lib/opportunity/observation/record";
 import { witness } from "@/lib/opportunity/observation/record";
 import { defaultExtractor } from "@/lib/opportunity/observation/extractors/composite";

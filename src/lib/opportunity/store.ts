@@ -1,5 +1,5 @@
 import "@/lib/server-only";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { SupabaseObservationStore } from "./observation/supabase-store";
 import type { ObservationStore } from "./observation/types";
 import { SupabaseVerificationLog, type VerificationLog } from "./verification/log";
@@ -24,7 +24,7 @@ import { SupabaseVerificationLog, type VerificationLog } from "./verification/lo
  *
  * ── Why null is a real answer ─────────────────────────────────────────────
  *
- * `createAdminClient()` returns null when `SUPABASE_SERVICE_ROLE_KEY` is unset,
+ * `supabaseAdmin` returns null when `SUPABASE_SERVICE_ROLE_KEY` is unset,
  * and this returns null in turn rather than substituting an in-memory store.
  * An ephemeral store in a request handler would report "no observations" on
  * every invocation while *looking* configured to anyone reading the code, and a
@@ -41,7 +41,7 @@ export interface OpportunityRecord {
 }
 
 export function opportunityRecord(): OpportunityRecord | null {
-  const db = createAdminClient();
+  const db = supabaseAdmin;
   if (db === null) return null;
 
   return {

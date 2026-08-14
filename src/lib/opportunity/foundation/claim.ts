@@ -1,4 +1,4 @@
-import type { DecayClass, Observation, ProductScope } from "@/lib/core/profile/types";
+import type { DecayClass, Observation, ProductScope } from "@/lib/opportunity/foundation/person";
 import type { ProvenanceTier } from "@/components/ui/ProvenanceChip";
 
 /**

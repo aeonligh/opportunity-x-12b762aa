@@ -6,7 +6,7 @@ import { resolveEntity } from "@/lib/opportunity/entity/resolve";
 import { establishVerification } from "@/lib/opportunity/verification/service";
 import type { VerificationRecord } from "@/lib/opportunity/verification/types";
 import { recommendNextStep } from "@/lib/opportunity/recommendation/service";
-import { resolveNextBestStep } from "@/lib/core/step/service";
+import { resolveNextBestStep } from "@/lib/opportunity/foundation/next-action";
 import { observationStore } from "@/lib/opportunity/store";
 import type { OpportunityEntity } from "@/lib/opportunity/entity/types";
 import { confirmedFact, fixedAssessor, observe, page, T0, T1, T2, membersOf } from "./fixtures.ts";

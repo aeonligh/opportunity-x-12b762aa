@@ -1,4 +1,4 @@
-import type { Claim, ClaimOrigin } from "@/lib/core/tier0/types";
+import type { Claim, ClaimOrigin } from "@/lib/opportunity/foundation/claim";
 
 /**
  * Your Next Best Step — the contract for the Workspace's primary surface.
