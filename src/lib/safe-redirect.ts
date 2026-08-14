@@ -11,14 +11,22 @@
  * failing to look wrong is not the same as matching.
  */
 
-/** The canonical Opportunity X tree. Everything else falls back. */
-const CAPTURABLE = ["/workspace"] as const;
+/**
+ * The canonical Opportunity X tree. Everything else falls back.
+ *
+ * These are the surfaces a person can be legitimately mid-journey on when they
+ * are asked to sign in: a listing, a specific opportunity, and what they have
+ * said they are interested in. Sending them back to where they were is the
+ * whole point of capturing a destination — landing everyone on the home page
+ * loses the opportunity they were actually reading.
+ */
+const CAPTURABLE = ["/opportunities", "/saved"] as const;
 
-export const AUTH_LANDING_PATH = "/workspace";
+export const AUTH_LANDING_PATH = "/opportunities";
 
 export function safeRedirectPath(
   path: string | null | undefined,
-  fallback: string = AUTH_LANDING_PATH
+  fallback: string = AUTH_LANDING_PATH,
 ): string {
   if (!path) return fallback;
 
@@ -37,7 +45,7 @@ export function safeRedirectPath(
   const pathname = path.split("?")[0].split("#")[0];
 
   const allowed = CAPTURABLE.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
   return allowed ? path : fallback;

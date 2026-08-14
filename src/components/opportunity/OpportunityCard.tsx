@@ -28,7 +28,7 @@ import type { OpportunityCard as Card } from "@/lib/opportunity/surface/card";
  *   3. What I think      — pairing inference, in the system's own voice.
  *
  * Facts before opinion, and the opinion visibly separated. Reverse the order
- * and the reader meets AEON X's view of them before they meet the thing itself,
+ * and the reader meets Opportunity X's view of them before they meet the thing itself,
  * which is how a recommendation engine teaches people to stop checking.
  *
  * The person's own declaration comes last, because it is the only thing on the
@@ -102,7 +102,7 @@ export function OpportunityCard({
       {/* ── 2 · Whether it is real ─────────────────────────────────────── */}
       <VerificationSeal resolution={card.verification} />
 
-      {/* ── 3 · What AEON X thinks it means for this person ────────────── */}
+      {/* ── 3 · What Opportunity X thinks it means for this person ────────────── */}
       <PairingInference pairing={card.pairing} whySurfaced={card.shown.whySurfaced} />
 
       {/*
@@ -148,7 +148,7 @@ export function OpportunityCard({
           </p>
 
           {/*
-            What AEON X does not know, when the person has declared interest and
+            What Opportunity X does not know, when the person has declared interest and
             something stands in the way. Not a preparation checklist — the corpus
             defines no preparation model, and inventing "gather your transcripts"
             would present a requirement nobody derived with the same authority as

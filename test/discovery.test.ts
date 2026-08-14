@@ -133,13 +133,13 @@ test("Disallow is honoured, and Allow overrides it at greater specificity", () =
   assert.equal(policy.allows("/private/public-notice"), true);
 });
 
-test("a group naming AeonXBot takes precedence over the wildcard", () => {
+test("a group naming OpportunityXBot takes precedence over the wildcard", () => {
   const policy = parseRobots(
     [
       "User-agent: *",
       "Disallow: /",
       "",
-      "User-agent: AeonXBot",
+      "User-agent: OpportunityXBot",
       "Disallow: /admin",
       "Crawl-delay: 3",
     ].join("\n")
@@ -241,7 +241,7 @@ test("a discovery run records every request as an observation, successes and fai
   assert.equal(report.unreachable, 1);
   assert.equal(await store.count(), 3);
 
-  /* A 404 on a page AEON X was watching is frequently the earliest signal that
+  /* A 404 on a page Opportunity X was watching is frequently the earliest signal that
      an opportunity closed. Discarding it would make "the page came down" and
      "nobody looked" indistinguishable. */
   const dead = await store.readByUrl("https://unn.edu.ng/dead");

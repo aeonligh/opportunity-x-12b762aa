@@ -6,7 +6,6 @@ import { resolveEntity } from "@/lib/opportunity/entity/resolve";
 import { establishVerification } from "@/lib/opportunity/verification/service";
 import type { VerificationRecord } from "@/lib/opportunity/verification/types";
 import { recommendNextStep } from "@/lib/opportunity/recommendation/service";
-import { resolveNextBestStep } from "@/lib/opportunity/foundation/next-action";
 import { observationStore } from "@/lib/opportunity/store";
 import type { OpportunityEntity } from "@/lib/opportunity/entity/types";
 import { confirmedFact, fixedAssessor, observe, page, T0, T1, T2, membersOf } from "./fixtures.ts";
@@ -261,12 +260,26 @@ test("an expired verification withholds the step", async () => {
   assert.equal(resolution.state, "absent");
 });
 
-test("the Step surface resolves unknown on this deployment, and says why", async () => {
-  /* No durable observation store is configured, so the surface cannot see. This
-     asserts the honest state rather than a desired one — it will need changing
-     the day a store is wired, which is the point. */
-  assert.equal(observationStore(), null);
+test("with no store configured, the reader says it cannot see rather than that nothing exists", async () => {
+  /*
+    The invariant this protects is Opportunity X's, and it is the one the whole
+    absence model exists for: a deployment with nowhere to read from has not
+    searched and found nothing — it has not searched. Those are different facts
+    and a person is entitled to know which they are being told.
 
-  const resolution = await resolveNextBestStep("p1");
-  assert.equal(resolution.state, "unknown");
+    It asserted Opportunity X's Step service before, which no longer exists here. The
+    claim is the same; the surface it is made against is now this product's.
+  */
+  /*
+    Deliberately not asserting whether a store happens to be configured in this
+    environment — that is a fact about a developer's `.env`, not about the
+    product, and pinning it makes the suite pass or fail on who ran it. What is
+    asserted is the behaviour: whatever the reader cannot reach, it says so.
+  */
+  const { resolveCards } = await import("@/lib/opportunity/surface/service");
+  const resolution = await resolveCards("p1", null);
+
+  assert.equal(resolution.state, "unknown", "never `cards`, and never an empty list");
+  if (resolution.state !== "unknown") return;
+  assert.ok(resolution.gap.length > 0, "and it says why it cannot see");
 });

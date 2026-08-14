@@ -40,7 +40,7 @@ export function buildWhatsAppShareMessage(op: ShareableOpportunity, detailUrl: s
     "",
     "📣 Shared via Opportunity X",
     "",
-    "🚀 Join AEON X Early Access Hub",
+    "🚀 Join Opportunity X Early Access Hub",
     COMMUNITY_INVITE,
   ].filter((l): l is string => l !== null);
   return lines.join("\n");

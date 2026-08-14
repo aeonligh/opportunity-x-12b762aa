@@ -77,17 +77,16 @@ function build(observations: SourceObservation[], now = T2) {
 }
 
 function verifiedBea(now = T2) {
-  return build([
-    observe(FMOE, bea(), T0),
-    observe(UNN, bea(), T1),
-    observe(UNILAG, bea(), T1),
-  ], now);
+  return build(
+    [observe(FMOE, bea(), T0), observe(UNN, bea(), T1), observe(UNILAG, bea(), T1)],
+    now,
+  );
 }
 
 function judgedCard(
   built: ReturnType<typeof build>,
   pursuit: PursuitResolution = UNDECLARED,
-  now = T2
+  now = T2,
 ) {
   const judgments = judge({
     personId: "p1",
@@ -134,7 +133,7 @@ test("the card holds no data of its own — every value traces to a layer", () =
     card.title.state === "agreed" ? card.title.value : null,
     viewOf(built.entity, "title").state === "agreed"
       ? (viewOf(built.entity, "title") as { value: string }).value
-      : null
+      : null,
   );
 });
 
@@ -222,7 +221,7 @@ test("a pairing verdict never appears among the entity fields", () => {
     assert.equal(
       entityRegion.includes(`"${verdict}"`),
       false,
-      `a pairing verdict "${verdict}" leaked into the entity region`
+      `a pairing verdict "${verdict}" leaked into the entity region`,
     );
   }
 });
@@ -294,8 +293,12 @@ test("undeclared is a real state, never rendered as a decision", async () => {
 
 test("changing your mind appends; the history stays legible to you", async () => {
   const log = new InMemoryPursuitLog();
-  await log.declare(declaration({ personId: "p1", entityId: "e1", state: "interested", declaredAt: T0 }));
-  await log.declare(declaration({ personId: "p1", entityId: "e1", state: "not-interested", declaredAt: T2 }));
+  await log.declare(
+    declaration({ personId: "p1", entityId: "e1", state: "interested", declaredAt: T0 }),
+  );
+  await log.declare(
+    declaration({ personId: "p1", entityId: "e1", state: "not-interested", declaredAt: T2 }),
+  );
 
   const resolution = await log.read("p1", "e1");
   assert.equal(resolution.state, "declared");
@@ -308,7 +311,9 @@ test("changing your mind appends; the history stays legible to you", async () =>
 
 test("a person can remove their declaration entirely, leaving no tombstone", async () => {
   const log = new InMemoryPursuitLog();
-  await log.declare(declaration({ personId: "p1", entityId: "e1", state: "interested", declaredAt: T0 }));
+  await log.declare(
+    declaration({ personId: "p1", entityId: "e1", state: "interested", declaredAt: T0 }),
+  );
   await log.withdraw("p1", "e1");
 
   /* Not "declined" — the removal of a position, not a position. The only
@@ -321,7 +326,7 @@ test("a declaration reaches the card, and reaches nothing else", async () => {
   const log = new InMemoryPursuitLog();
   const built = verifiedBea();
   await log.declare(
-    declaration({ personId: "p1", entityId: built.entity.id, state: "interested", declaredAt: T2 })
+    declaration({ personId: "p1", entityId: built.entity.id, state: "interested", declaredAt: T2 }),
   );
 
   const pursuit = await log.read("p1", built.entity.id);
@@ -340,7 +345,7 @@ test("a declaration reaches the card, and reaches nothing else", async () => {
   });
   assert.equal(
     judgments.ranking.inputs.some((i) => JSON.stringify(i).includes("interested")),
-    false
+    false,
   );
 });
 
@@ -413,7 +418,11 @@ test("a retrieval that answered nothing readable is still listed as a source", (
   ];
   const built = build(observations);
 
-  const unread = observe("https://www.unn.edu.ng/news/", prosePage("News", "Nothing structured"), T1);
+  const unread = observe(
+    "https://www.unn.edu.ng/news/",
+    prosePage("News", "Nothing structured"),
+    T1,
+  );
   const inspection = projectInspection({
     ...built,
     judgments: null,
@@ -527,8 +536,8 @@ test("an entity with no verification record says so rather than implying one", (
   });
 
   assert.equal(card.verification, null);
-  assert.match(card.shown.verification, /has not established whether this is real/);
-  assert.match(card.shown.whySurfaced, /has not assessed this/);
+  assert.match(card.shown.verification, /have not established whether this is real/);
+  assert.match(card.shown.whySurfaced, /have not assessed this/);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -657,7 +666,7 @@ test("record → card → inspection → interested → recommendation → step"
 
   // 4 · The person declares interest.
   await pursuits.declare(
-    declaration({ personId: "p1", entityId: built.entity.id, state: "interested", declaredAt: T2 })
+    declaration({ personId: "p1", entityId: built.entity.id, state: "interested", declaredAt: T2 }),
   );
   const after = projectCard({
     entity: built.entity,
@@ -684,12 +693,9 @@ test("record → card → inspection → interested → recommendation → step"
 const CARD_SOURCE = readFileSync("src/components/opportunity/OpportunityCard.tsx", "utf8");
 const INSPECTION_SOURCE = readFileSync(
   "src/components/opportunity/OpportunityInspection.tsx",
-  "utf8"
+  "utf8",
 );
-const CONTROL_SOURCE = readFileSync(
-  "src/components/opportunity/InterestedControl.tsx",
-  "utf8"
-);
+const CONTROL_SOURCE = readFileSync("src/components/opportunity/InterestedControl.tsx", "utf8");
 
 /** Comments discuss why the word is avoided; only what renders is under test. */
 function withoutComments(source: string): string {
@@ -714,18 +720,24 @@ test("the only verbs a surface can render come from the declared-type mapping", 
     assert.equal(
       new RegExp(`>\\s*${verb}\\s*<`).test(rendered),
       false,
-      `"${verb}" is hardcoded in a surface; the verb must come from card.action`
+      `"${verb}" is hardcoded in a surface; the verb must come from card.action`,
     );
   }
   assert.ok(rendered.includes("card.action.verb"));
 });
 
 test("the Interested control records nothing on render, hover or scroll", () => {
-  for (const forbidden of ["useEffect", "onMouseEnter", "onMouseOver", "IntersectionObserver", "onScroll"]) {
+  for (const forbidden of [
+    "useEffect",
+    "onMouseEnter",
+    "onMouseOver",
+    "IntersectionObserver",
+    "onScroll",
+  ]) {
     assert.equal(
       CONTROL_SOURCE.includes(forbidden),
       false,
-      `the control must not use ${forbidden} — interest is declared, never observed`
+      `the control must not use ${forbidden} — interest is declared, never observed`,
     );
   }
 });
@@ -743,55 +755,10 @@ test("the card renders the projection's sentences rather than composing its own"
    11 · The journey has no dead ends
    ══════════════════════════════════════════════════════════════════════════ */
 
-const WORKSPACE_PAGE = readFileSync("src/routes/_authenticated/workspace.tsx", "utf8");
-const PREVIEW_PAGE = readFileSync("src/routes/_authenticated/workspace.preview.tsx", "utf8");
 const PURSUIT_SQL = readFileSync(
   "supabase/migrations/20260810160000_opportunity_pursuit_and_delivery.sql",
-  "utf8"
+  "utf8",
 );
-
-test("a preview card inspects into the preview, not into the live record", () => {
-  /*
-    The card hardcoded `/opportunity/[id]`, and the live route reads the record
-    — which holds no fixture id, so it resolved `unknown`. Every "What this
-    involves" on the preview page was a dead end, and no projection test could
-    see it because the defect was a href.
-  */
-  /* The route prefix, not the loop variable's name. Asserting on the binding
-     made this fail when the preview grew from `card` to `scenario.card`, which
-     is a rename and not a regression. */
-  assert.match(
-    PREVIEW_PAGE,
-    /inspectHref=\{`\/opportunity\/preview\/\$\{[\w.]+\.entityId\}`\}/,
-    "the preview must link into its own inspection route"
-  );
-  assert.ok(CARD_SOURCE.includes("inspectHref"));
-  assert.equal(
-    CARD_SOURCE.includes("href={`/opportunity/${card.entityId}`}"),
-    false,
-    "the card must not hardcode the live inspection route"
-  );
-});
-
-test("the fixture preview is reachable from the workspace", () => {
-  /* A route that exists and cannot be reached is not a surface. */
-  assert.ok(WORKSPACE_PAGE.includes("/opportunity/preview"));
-});
-
-test("the workspace never renders an opportunity absence as silence", () => {
-  /*
-    This rendered `null` on `unknown` in the first version — the person saw the
-    Step say "I can't see" and then nothing, with no way to tell whether the
-    product was broken, empty, or had never looked. Silence is not one of the
-    three absence states and it is the one that reads as a bug.
-  */
-  assert.ok(WORKSPACE_PAGE.includes("UnknownState"));
-  assert.equal(
-    /cards\.state === "cards" \? \([\s\S]{0,400}\) : null/.test(WORKSPACE_PAGE),
-    false,
-    "the unknown branch must render something"
-  );
-});
 
 test("the Interested control states its limit before it is pressed", () => {
   /* A control that looks live and fails on press is a refusal disguised as an
@@ -827,7 +794,7 @@ test("the pursuit schema has nowhere to record a view, a click or a dwell", () =
     assert.equal(
       new RegExp(`\\b${forbidden}\\b`).test(schema),
       false,
-      `the schema must not carry ${forbidden}`
+      `the schema must not carry ${forbidden}`,
     );
   }
 });

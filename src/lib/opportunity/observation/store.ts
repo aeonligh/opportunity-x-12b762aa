@@ -55,7 +55,7 @@ export class InMemoryObservationStore implements ObservationStore {
 
     /*
       Monotonic. A retrieval that arrives out of order must not move the
-      watermark backwards, or "when did AEON X last see anything" becomes a
+      watermark backwards, or "when did Opportunity X last see anything" becomes a
       function of arrival order rather than of what happened.
     */
     if (this.#lastRetrievalAt === null || observation.retrievedAt > this.#lastRetrievalAt) {

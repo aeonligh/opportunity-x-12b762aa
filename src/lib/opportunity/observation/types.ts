@@ -8,7 +8,7 @@
  * The engine holds three layers and never collapses them:
  *
  *   Observation — what was seen, when, where. Append-only. Immutable.
- *   Entity      — what AEON X believes the opportunity *is*. Revisable.
+ *   Entity      — what Opportunity X believes the opportunity *is*. Revisable.
  *   Judgment    — what it means for one person. Recomputed; time-varying.
  *
  * A row that carries all three at once cannot answer "what did you actually
@@ -30,7 +30,7 @@
  *     Entity layer is where it is reconciled — never here.
  *
  * O3  The retrieval timestamp is distinct from any date stated inside the
- *     opportunity. `retrievedAt` is when AEON X looked; a deadline written on
+ *     opportunity. `retrievedAt` is when Opportunity X looked; a deadline written on
  *     the page is an `ObservedClaim` like any other.
  *
  * O4  The parser version is recorded per observation **and per claim**. A page
@@ -231,7 +231,7 @@ export interface ObservedSource {
  * Why a retrieved page yielded no items.
  *
  * Required whenever `items` is empty, so the two cases can never be confused:
- * a page AEON X cannot read, and a page it read that described nothing. Both
+ * a page Opportunity X cannot read, and a page it read that described nothing. Both
  * stay under monitoring; only one of them is a coverage gap, and a system that
  * writes both as zero rows can never tell which it has.
  */
@@ -254,7 +254,7 @@ declare const RETRIEVAL_WITNESSED: unique symbol;
 
 interface SourceObservationBase {
   id: string;
-  /** O3 — when AEON X looked. Never a date read off the page. */
+  /** O3 — when Opportunity X looked. Never a date read off the page. */
   retrievedAt: string;
   url: string;
   source: ObservedSource;

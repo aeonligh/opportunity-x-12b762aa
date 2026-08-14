@@ -842,7 +842,7 @@ function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-text-s">
-          <span>© {new Date().getFullYear()} Opportunity X — Powered by AEON X</span>
+          <span>© {new Date().getFullYear()} Opportunity X</span>
           <span>Built for those whose next opportunity is waiting somewhere on the web.</span>
         </div>
       </div>

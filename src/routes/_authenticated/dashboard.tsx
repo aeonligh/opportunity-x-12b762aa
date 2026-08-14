@@ -43,7 +43,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Opportunity X" },
-      { name: "description", content: "Your personalized opportunity feed, powered by AEON X." },
+      { name: "description", content: "Your personalized opportunity feed on Opportunity X." },
     ],
   }),
   component: Dashboard,
@@ -91,7 +91,7 @@ function Dashboard() {
       key: "recommended",
       title: "Recommended For You",
       icon: <Sparkles size={16} className="text-accent" />,
-      subtitle: "Hand-picked by AEON X intelligence",
+      subtitle: "Hand-picked by Opportunity X intelligence",
       fn: () => recommendedFn() as Promise<Opportunity[]>,
     },
     {

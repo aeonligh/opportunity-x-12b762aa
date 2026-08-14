@@ -56,7 +56,7 @@ export function changeDetection(options: ChangeDetectionOptions = {}) {
 
       /*
         Oldest first. When the budget runs out, it should run out on the pages
-        AEON X has looked at most recently — never on the ones it has been
+        Opportunity X has looked at most recently — never on the ones it has been
         ignoring longest, which are the ones whose freshness claim is weakest.
       */
       const stale = observed

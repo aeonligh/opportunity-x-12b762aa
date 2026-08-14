@@ -1,7 +1,7 @@
 import type { OpportunityCard } from "@/lib/opportunity/surface/card";
 
 /**
- * What AEON X thinks this means for one person — labelled as an opinion.
+ * What Opportunity X thinks this means for one person — labelled as an opinion.
  *
  * ══════════════════════════════════════════════════════════════════════════
  * WHY THIS IS A SEPARATE REGION AND NOT MORE ROWS
@@ -9,7 +9,7 @@ import type { OpportunityCard } from "@/lib/opportunity/surface/card";
  *
  * "Closes on 30 September" and "this looks like a fit for you" are claims of
  * completely different kinds. The first is checkable against a source that
- * exists. The second is AEON X's inference about a person, made from a Profile
+ * exists. The second is Opportunity X's inference about a person, made from a Profile
  * that may be wrong and a model that is certainly incomplete.
  *
  * A card that lists them together has told the reader they are the same sort of
@@ -36,22 +36,22 @@ import type { OpportunityCard } from "@/lib/opportunity/surface/card";
  */
 
 const ELIGIBILITY: Record<NonNullable<OpportunityCard["pairing"]>["eligibility"], string> = {
-  eligible: "Everything AEON X could check, you meet.",
-  ineligible: "You told AEON X something that rules this out.",
-  undetermined: "AEON X has not read this opportunity's requirements against what it knows about you.",
+  eligible: "Everything I could check, you meet.",
+  ineligible: "You told me something that rules this out.",
+  undetermined: "I have not read this opportunity's requirements against what I know about you.",
 };
 
 const FIT: Record<NonNullable<OpportunityCard["pairing"]>["fit"], string> = {
   fits: "This matches what you said you want.",
-  "does-not-fit": "You told AEON X something this does not match.",
-  undetermined: "AEON X has not assessed this against what you said you want.",
+  "does-not-fit": "You told me something this does not match.",
+  undetermined: "I have not assessed this against what you said you want.",
 };
 
 const RISK: Record<NonNullable<OpportunityCard["pairing"]>["risk"], string> = {
   low: "Being wrong about this would cost you little.",
   material: "Being wrong about this would cost you something real.",
   high: "Being wrong about this would cost you a great deal.",
-  undetermined: "AEON X has not established what pursuing this would cost you.",
+  undetermined: "I have not established what pursuing this would cost you.",
 };
 
 export function PairingInference({
@@ -66,7 +66,7 @@ export function PairingInference({
 }) {
   return (
     <section
-      aria-label="What AEON X infers about this for you"
+      aria-label="What Opportunity X infers about this for you"
       className={`flex flex-col gap-3 border-l-2 border-border pl-4 ${className}`}
     >
       {/*

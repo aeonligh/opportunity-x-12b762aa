@@ -1,5 +1,5 @@
 /**
- * Freshness stamp — how long ago AEON X last had reason to believe something.
+ * Freshness stamp — how long ago Opportunity X last had reason to believe something.
  *
  * Constitutional authority:
  *   Brand Bible §07  — freshness is encoded in weight and opacity, never in hue,

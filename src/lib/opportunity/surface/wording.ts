@@ -97,7 +97,7 @@ export function sourceKind(sourceClass: SourceClass): string {
     case "aggregator":
       return "a site that collects opportunities";
     case "unknown-domain":
-      return "a site AEON X does not recognise";
+      return "a site I do not recognise";
   }
 }
 
@@ -115,13 +115,13 @@ export function transitionWords(from: StoredVerdict | null, to: StoredVerdict): 
 
   switch (to) {
     case "verified":
-      return "Enough independent sources lined up, so AEON X started calling this real.";
+      return "Enough independent sources lined up, so I started calling this real.";
     case "contradicted":
-      return "Sources started disagreeing about something decisive, so AEON X stopped calling this real.";
+      return "Sources started disagreeing about something decisive, so I stopped calling this real.";
     case "withdrawn":
-      return "The sources AEON X was watching stopped answering.";
+      return "The sources I was watching stopped answering.";
     case "unverified":
-      return "AEON X no longer holds enough corroboration to call this real.";
+      return "I no longer hold enough corroboration to call this real.";
   }
 }
 

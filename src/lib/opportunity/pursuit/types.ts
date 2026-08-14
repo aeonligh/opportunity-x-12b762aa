@@ -5,7 +5,7 @@
  * A DECLARATION IS NOT A JUDGMENT, AND NOT AN EVENT
  * ══════════════════════════════════════════════════════════════════════════
  *
- * Layer 3 already holds six judgments: what AEON X infers about a
+ * Layer 3 already holds six judgments: what Opportunity X infers about a
  * person–opportunity pairing. This is the other half of that layer, and it is a
  * different kind of thing entirely.
  *
@@ -102,7 +102,7 @@ export interface PursuitLog {
    * Remove every declaration for one pairing, at the person's instruction.
    *
    * Not "set to not-interested" — that is a position, and this is the removal
-   * of a position. A person who wants AEON X to forget they ever considered
+   * of a position. A person who wants Opportunity X to forget they ever considered
    * something is entitled to that, and leaving a tombstone that says "declined"
    * would be keeping the record they asked to be rid of.
    */

@@ -48,7 +48,7 @@ export interface FieldRow {
  * One thing one page said, in the words it used.
  *
  * `asStated` is the page's own text and is never cleaned up. `readAs` appears
- * only where AEON X turned those words into something else — a published
+ * only where Opportunity X turned those words into something else — a published
  * "2026-09-30" read as a closing day — so the reader can check the reading
  * against the words rather than taking the reading on trust.
  */
@@ -100,7 +100,7 @@ export interface Contradiction {
     asStated: string[];
     said: { label: string; kind: string; observedAt: string }[];
   }[];
-  /** What AEON X concludes from the disagreement, and what it will not. */
+  /** What Opportunity X concludes from the disagreement, and what it will not. */
   consequence: string;
 }
 
@@ -118,7 +118,7 @@ export interface OpportunityInspection {
    *
    * Stated because it is derived, not read. No source expresses its own
    * closure reliably — programme pages stay up for years after the intake they
-   * describe — so "closes on the 30th" is AEON X's inference from an observed
+   * describe — so "closes on the 30th" is Opportunity X's inference from an observed
    * date and the clock, and a person deciding whether to trust it deserves to
    * know which.
    */
@@ -303,15 +303,15 @@ const DATE_LIKE = new Set<ObservedField>(["deadline", "opens"]);
 function consequenceOf(field: ObservedField, sides: number): string {
   switch (field) {
     case "deadline":
-      return `Because ${sides} sources give different closing dates, AEON X treats the timing as unknown. It will not choose the later one for you, and it will not tell you there is time.`;
+      return `Because ${sides} sources give different closing dates, I treat the timing as unknown. I will not choose the later one for you, and I will not tell you there is time.`;
     case "how-to-apply":
-      return "Because sources point somewhere different, AEON X offers no single place to go. Choosing one would send you where another source disputes.";
+      return "Because sources point somewhere different, I offer no single place to go. Choosing one would send you where another source disputes.";
     case "title":
-      return "Because sources name this differently, AEON X may be holding two things as one, or one thing under two names. It is shown as unsettled rather than resolved.";
+      return "Because sources name this differently, I may be holding two things as one, or one thing under two names. It is shown as unsettled rather than resolved.";
     case "organiser":
-      return "Because sources disagree about who is behind this, AEON X cannot say whose announcement carries the most weight — which is what its verification normally rests on.";
+      return "Because sources disagree about who is behind this, I cannot say whose announcement carries the most weight — which is what my verification normally rests on.";
     default:
-      return `Because ${sides} sources say different things here, AEON X holds both rather than picking one. Nothing about this field is treated as settled.`;
+      return `Because ${sides} sources say different things here, I hold both rather than picking one. Nothing about this field is treated as settled.`;
   }
 }
 
@@ -319,13 +319,13 @@ function deadlineReasoning(entity: OpportunityEntity, card: OpportunityCard): st
   const held = entity.fields.find((f) => f.field === "deadline");
 
   if (!held) {
-    return "No source stated a deadline, so AEON X cannot say whether this is still open. It will not assume that it is.";
+    return "No source stated a deadline, so I cannot say whether this is still open. I will not assume that it is.";
   }
 
   if (!agrees(held)) {
     return `Sources give ${held.readings.length} different deadlines — ${held.readings
       .map((r) => readingDate(r))
-      .join(" and ")}. A contested deadline is not a deadline, so AEON X treats the timing as unknown rather than choosing the later one.`;
+      .join(" and ")}. A contested deadline is not a deadline, so I treat the timing as unknown rather than choosing the later one.`;
   }
 
   const reading = held.readings[0];
@@ -353,12 +353,12 @@ function whatHappensNext(card: OpportunityCard): string[] {
   if (card.action) {
     steps.push(
       card.action.verb === "Open the announcement"
-        ? "Opening the announcement takes you to the source. AEON X does not know what the process is called, so it will not describe one."
-        : `${card.action.verb} takes you to ${new URL(card.action.href).hostname}. That leaves AEON X entirely.`
+        ? "Opening the announcement takes you to the source. I do not know what the process is called, so I will not describe one."
+        : `${card.action.verb} takes you to ${new URL(card.action.href).hostname}. That leaves Opportunity X entirely.`
     );
   } else {
     steps.push(
-      "AEON X has no single place to send you: sources disagree about where to go, and both are listed above."
+      "I have no single place to send you: sources disagree about where to go, and both are listed above."
     );
   }
 
@@ -367,7 +367,7 @@ function whatHappensNext(card: OpportunityCard): string[] {
     commitment from a click. Following a link means someone went to look.
   */
   steps.push(
-    "Following that link is not recorded as an application. If you apply, tell AEON X and it goes in your Ledger — nothing is concluded from the fact that you clicked."
+    "Following that link is not recorded as an application. Nothing is concluded from the fact that you clicked, and I do not track whether you applied."
   );
 
   if (card.pursuit.state === "undeclared") {

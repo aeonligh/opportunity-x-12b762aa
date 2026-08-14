@@ -193,7 +193,7 @@ function specimens(now: string): Specimen[] {
       id: "sources-disagree",
       label: "Two announcers, two different closing dates",
       demonstrates:
-        "The disagreement survives to the surface instead of being deduplicated away. AEON X will not pick one, and says which sources said what.",
+        "The disagreement survives to the surface instead of being deduplicated away. Opportunity X will not pick one, and says which sources said what.",
       observations: [
         observe(
           "https://ptdf.gov.ng/scholarship",
@@ -291,7 +291,7 @@ function specimens(now: string): Specimen[] {
       id: "interested-closing",
       label: "Interested, and the deadline is close",
       demonstrates:
-        "A declaration changes what AEON X says next and nothing else. The verification, the fields and the judgments are the same as they would be undeclared.",
+        "A declaration changes what Opportunity X says next and nothing else. The verification, the fields and the judgments are the same as they would be undeclared.",
       declared: "interested",
       observations: (() => {
         const body = programme({
@@ -315,7 +315,7 @@ function specimens(now: string): Specimen[] {
       id: "interested-uncertain",
       label: "Interested, and something is genuinely in the way",
       demonstrates:
-        "Enthusiasm does not upgrade a verdict. The unsettled things are listed as AEON X's own gaps, and none of them is an invented preparation task.",
+        "Enthusiasm does not upgrade a verdict. The unsettled things are listed as Opportunity X's own gaps, and none of them is an invented preparation task.",
       declared: "interested",
       observations: [
         observe(

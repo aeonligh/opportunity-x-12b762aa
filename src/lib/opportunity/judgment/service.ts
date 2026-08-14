@@ -114,7 +114,7 @@ export interface JudgeInput {
  * Why a recommendation was withheld, in words a person can act on.
  *
  * This produced `Withheld on verification.` — the blocker enum joined with
- * commas. Seen in a browser it is the sentence that explains why AEON X will
+ * commas. Seen in a browser it is the sentence that explains why Opportunity X will
  * not vouch for something, rendered as an internal field name. "Withheld" also
  * reads as *hidden*, which is the opposite of what happened: the opportunity is
  * right there, and what is being withheld is the endorsement.
@@ -187,12 +187,12 @@ export function judge(input: JudgeInput): PairingJudgments {
           : "undetermined",
     because:
       requirements.length === 0
-        ? "AEON X has not read this opportunity's requirements against what it knows about you."
+        ? "I have not read this opportunity's requirements against what I know about you."
         : hasConfirmedUnmet(requirements)
-          ? "You told AEON X something that rules this out."
+          ? "You told me something that rules this out."
           : requirements.every((r) => r.status === "met")
-            ? "Every requirement AEON X could check is met."
-            : "Some requirements could not be checked against what AEON X knows.",
+            ? "Every requirement I could check is met."
+            : "Some requirements could not be checked against what I know.",
   };
 
   /* ── Fit ──────────────────────────────────────────────────────────────── */
@@ -212,8 +212,8 @@ export function judge(input: JudgeInput): PairingJudgments {
         : "undetermined",
     because:
       fitInputs.length === 0
-        ? "AEON X has not assessed this against what you said you want."
-        : "Assessed against what you told AEON X you want.",
+        ? "I have not assessed this against what you said you want."
+        : "Assessed against what you told me you want.",
   };
 
   /* ── Risk ─────────────────────────────────────────────────────────────── */
@@ -235,7 +235,7 @@ export function judge(input: JudgeInput): PairingJudgments {
     verdict: costs.length === 0 ? "undetermined" : entity.stakes === "life-changing" ? "high" : "material",
     because:
       costs.length === 0
-        ? "AEON X has not established what pursuing this would cost you."
+        ? "I have not established what pursuing this would cost you."
         : `Identified: ${costs.join("; ")}.`,
   };
 
@@ -254,7 +254,7 @@ export function judge(input: JudgeInput): PairingJudgments {
   if (openState.state === "unknown") {
     inputs.push({
       kind: "deadline-proximity",
-      criterion: "There is a deadline AEON X can read.",
+      criterion: "There is a deadline I can read.",
       status: "unknown",
       provenance: "inferred",
       entityField: "deadline",
@@ -326,7 +326,7 @@ export function judge(input: JudgeInput): PairingJudgments {
         : blockers,
     because:
       blockers.length === 0
-        ? "Verified, open, and nothing AEON X knows about you rules it out."
+        ? "Verified, open, and nothing I know about you rules it out."
         : withheldBecause(blockers),
   };
 

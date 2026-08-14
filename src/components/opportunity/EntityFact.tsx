@@ -78,7 +78,7 @@ export function EntityFact({
       {view.state === "unobserved" ? (
         /*
           The system's limit, in the system's voice. Never "this opportunity has
-          no deadline" — AEON X does not know that, and saying it would be
+          no deadline" — Opportunity X does not know that, and saying it would be
           asserting something no source said.
         */
         <span className="text-[15px] leading-snug text-text-s">

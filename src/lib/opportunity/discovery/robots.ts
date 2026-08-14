@@ -23,13 +23,13 @@ import { retrieve, USER_AGENT, type Transport } from "./fetcher";
  * ── Scope ─────────────────────────────────────────────────────────────────
  *
  * Path prefix matching with `*` and `$`, longest-match-wins, `Crawl-delay`, and
- * a specific `AeonXBot` group taking precedence over `*`. Not implemented:
+ * a specific `OpportunityXBot` group taking precedence over `*`. Not implemented:
  * `Sitemap` discovery and `Allow`/`Disallow` on non-path fields. Both are
  * additions rather than corrections — nothing here becomes wrong when they
  * arrive.
  */
 
-const BOT_TOKEN = "aeonxbot";
+const BOT_TOKEN = "opportunityxbot";
 
 export interface RobotsPolicy {
   /** Whether any rules were successfully read. */

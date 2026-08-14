@@ -60,7 +60,7 @@ function LiveSearch() {
       <main className="max-w-3xl mx-auto px-6 py-12">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface text-xs text-text-s mb-4">
-            <Globe2 size={12} className="text-accent" /> Live web · Powered by AEON X
+            <Globe2 size={12} className="text-accent" /> Live web · Opportunity Intelligence
           </div>
           <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-3">
             Ask anything. <span className="text-accent">Find anything.</span>

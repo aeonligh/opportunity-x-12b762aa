@@ -1,5 +1,5 @@
 /**
- * Provenance chip — the visible origin of anything AEON X believes.
+ * Provenance chip — the visible origin of anything Opportunity X believes.
  *
  * Constitutional authority:
  *   Product Bible §07  — the three tiers, and "it always tells me why".

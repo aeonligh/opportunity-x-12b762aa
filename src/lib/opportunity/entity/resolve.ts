@@ -142,7 +142,7 @@ export interface ResolveInput {
    * Observations that touched this entity without contributing an item — a
    * failed re-check of its page, a retrieval nothing could read. Folded into
    * the resolution's observation list so the entity can still account for
-   * every time AEON X looked, not only the times it saw something.
+   * every time Opportunity X looked, not only the times it saw something.
    */
   alsoObserved?: readonly SourceObservation[];
 }
@@ -283,7 +283,7 @@ export function reviseEntity(
  * Retrievals that answered and produced no items.
  *
  * Not a defect list. A PDF circular nothing can parse yet, and a news page that
- * genuinely described no opportunity, are both real facts about what AEON X can
+ * genuinely described no opportunity, are both real facts about what Opportunity X can
  * currently see — and the count of them per source is the measurement that says
  * how much of the corpus is out of reach. Dropping them would turn absence of
  * extraction into absence of an opportunity.

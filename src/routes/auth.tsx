@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { safeRedirectPath } from "@/lib/safe-redirect";
+import { safeRedirectPath, AUTH_LANDING_PATH } from "@/lib/safe-redirect";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -40,6 +40,19 @@ async function waitForSession(timeoutMs = 8000): Promise<boolean> {
   return false;
 }
 
+/**
+ * Where to send this person once they are signed in.
+ *
+ * `?next=` is whatever was in the URL, which means it is attacker-controlled:
+ * read through `safeRedirectPath`, never used raw. Resolved at call time rather
+ * than stored, because the search string is only meaningful on this render.
+ */
+function destination(): string {
+  if (typeof window === "undefined") return AUTH_LANDING_PATH;
+  const next = new URLSearchParams(window.location.search).get("next");
+  return safeRedirectPath(next);
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -60,7 +73,7 @@ function AuthPage() {
       const { data } = await supabase.auth.getUser();
       if (!cancelled && data.user) {
         setHandingOff(true);
-        await navigate({ to: "/dashboard" });
+        await navigate({ to: destination() });
       }
       initialCheckDone.current = true;
     })();
@@ -74,7 +87,7 @@ function AuthPage() {
       const ok = await waitForSession(4000);
       if (cancelled || !ok) return;
       setHandingOff(true);
-      await navigate({ to: "/dashboard" });
+      await navigate({ to: destination() });
     });
 
     return () => {
@@ -104,7 +117,7 @@ function AuthPage() {
       const ok = await waitForSession(6000);
       if (!ok) throw new Error("Session did not become available");
       setHandingOff(true);
-      await navigate({ to: "/dashboard" });
+      await navigate({ to: destination() });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
       setLoading(false);

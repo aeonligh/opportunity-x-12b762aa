@@ -26,7 +26,7 @@ import { page } from "./fixtures.ts";
  *
  * So each case below is run end to end — acquisition, corpus, recommendation,
  * the Step resolution a person would actually see — and asserted to reach
- * `unknown` ("AEON X cannot see") rather than `absent` ("a search ran and
+ * `unknown` ("Opportunity X cannot see") rather than `absent` ("a search ran and
  * produced nothing better").
  *
  * The last test is the positive control. Without it the suite would pass on a

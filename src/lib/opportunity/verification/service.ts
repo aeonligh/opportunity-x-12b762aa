@@ -58,7 +58,7 @@ export function establishVerification(
     basis,
     retrievedCount: retrieved.length,
     /*
-      A source AEON X was watching that stops answering is evidence, not an
+      A source Opportunity X was watching that stops answering is evidence, not an
       outage to be retried past. It is only decisive when nothing else is still
       answering — one dead mirror among three live sources says nothing.
     */
@@ -98,7 +98,7 @@ function decide(
   if (input.allSourcesSilent) {
     return {
       verdict: "withdrawn",
-      reason: "Every source AEON X was watching stopped answering.",
+      reason: "Every source I was watching stopped answering.",
     };
   }
 

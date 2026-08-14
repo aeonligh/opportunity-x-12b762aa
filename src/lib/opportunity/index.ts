@@ -4,7 +4,7 @@
  * Three layers, kept apart on purpose:
  *
  *   observation/   what was seen, when, where. Append-only. Immutable.
- *   entity/        what AEON X believes the opportunity is. Revisable.
+ *   entity/        what Opportunity X believes the opportunity is. Revisable.
  *   judgment/      what it means for one person. Recomputed; time-varying.
  *
  * With verification between layers 2 and 3 — a property of the entity, never of

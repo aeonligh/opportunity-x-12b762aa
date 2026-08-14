@@ -193,3 +193,100 @@ syntactically reviewed only, not validated against Postgres.
 **Future work.** Merge `48d501f` to fix production auth. Rotate the access token.
 Implement password reset. Build or drop the API Keys feature. Fix the duplicate
 migration. Add a test harness — the zero-coverage finding is the largest gap.
+
+---
+
+## Opportunity X speaks as itself, not as AEON X
+
+**Feature.** Removal of the sibling product's identity from the entire
+Opportunity X surface: user-facing copy, the crawler's identity, the entity-id
+namespace, and the post-sign-in landing route.
+
+**Purpose.** Opportunity X and AEON X are sibling products, and this repository
+is the whole of Opportunity X. The engine was written inside AEON X and carried
+its voice across the transfer. A rendered `/opportunities` page read *"AEON X
+has not read this opportunity's requirements against what it knows about you"* —
+correct reasoning, wrong product, in the sentence a person actually reads.
+
+**How it was found, and why that matters.** Not by grep. An earlier vocabulary
+sweep covering routes, the server boundary and components reported clean,
+because the strings live in the *engine's* projection layer. It surfaced only
+when a page was rendered and read. That is the worst available detection
+mechanism — the copy is wrong for exactly as long as nobody looks — which is
+why the check is now an assertion rather than a habit.
+
+**Files changed.** 57 user-facing strings across `judgment/service.ts`,
+`surface/{card,inspection,wording,demo}.ts`, `verification/service.ts`,
+`observation/record.ts`, `discovery/crawl.ts`,
+`components/opportunity/{PairingInference,VerificationSeal}.tsx`,
+`components/Header.tsx`, `ShareToWhatsApp.tsx`, and four legacy routes. Plus
+`discovery/{robots,fetcher}.ts`, `discovery/transports/firecrawl.ts`,
+`entity/identity.ts`, `lib/safe-redirect.ts`, `routes/auth.tsx`, and
+`test/standalone.test.ts` (new). ~80 further occurrences in code comments were
+renamed for readability, which is cosmetic and carries no behavioural risk.
+
+**Decisions.**
+- **First person, not a renamed third person.** The strings became "I have not
+  established whether this is real", not "Opportunity X has not…". This was not
+  a style choice: `pursuit/stance.ts` already shipped that exact sentence in the
+  first person, so the codebase held two voices for one system. The product
+  names itself only where a sentence genuinely needs a subject — "That leaves
+  Opportunity X entirely."
+- **The crawler was renamed, and this was the last free moment.** `AeonXBot`
+  fetching on Opportunity X's behalf asks publishers to allowlist a name that
+  does not describe who is asking. Renaming a user agent normally breaks
+  existing robots.txt allowlists; it is safe here only because discovery has
+  never successfully run — `lastRetrievalAt` is null, so no site has ever seen
+  the old token. The `+https://aeonx.ai/` contact URL pointed at a domain this
+  product does not control.
+- **The entity-id namespace was changed, on the same reasoning.**
+  `aeon-x:opportunity-entity:` seeds the hash behind every entity UUID.
+  Changing it re-derives every id, which is free at zero entities and
+  permanently destructive afterwards, since the observation record is
+  append-only and cannot be migrated back. Done now, with the rationale written
+  into the file so the next reader knows it is a one-time decision.
+- **A real bug fell out of the sweep.** `AUTH_LANDING_PATH` was `/workspace`,
+  whose routes were deleted earlier in this phase — a 404 at the moment a person
+  has just proved who they are. `safeRedirectPath` was also imported into
+  `auth.tsx` and never called, so the open-redirect guard was dead code while
+  all three sign-in paths hardcoded `/dashboard`. The landing path is now
+  `/opportunities`, the capturable tree is the canonical one, and `?next=` is
+  honoured through the guard.
+- **"Ledger" removed from a promise, not just from the vocabulary.** The
+  inspection surface told people that if they applied it would "go in your
+  Ledger". Opportunity X has no Ledger and no application tracking, so that
+  sentence promised a feature that does not exist here.
+- **`dashboard.applications.tsx` left alone.** It says "Application Workspace",
+  but that is generic English on a legacy route, not a transferred AEON X
+  dependency. Deleting the route is out of scope for this change.
+
+**Dependencies.** None added.
+
+**Measured gates.** `bunx tsc --noEmit -p .` → 0 errors. `npm test` → 200/200
+passing (197 before, +3 new). `bun run build` → clean, `.vercel/output` emitted.
+`bun run lint` → 274 errors, **down 20 from 294 at HEAD** — measured by stashing
+and re-running, not assumed. The remaining errors are almost entirely
+pre-existing `prettier/prettier` formatting; the gate still fails repo-wide and
+is not claimed as passing.
+
+**Risks.**
+- The renamed crawler token and entity-id namespace are only safe while nothing
+  has been discovered. If any sweep has written observations against a database
+  this session could not see, entity ids will not match. Both were verified
+  against the established fact `entities=0, observationIds=[]`.
+- Three authored migrations remain **unapplied** — `apply_migration` on project
+  `anfiojmbgonrtympzjch` returns "You do not have permission to perform this
+  action". Unchanged by this work, and still the blocker on real persistence.
+
+**Testing.** `test/standalone.test.ts` asserts three things: that no shipped
+string in `src/` names another product (comments exempt — only strings reach a
+person); that the crawler's user agent and robots token agree and identify as
+Opportunity X; and that `AUTH_LANDING_PATH` is a route that actually exists in
+`routeTree.gen.ts`, so deleting a route cannot leave sign-in pointing into space
+again. Separately, all 1,776 strings the demo corpus projects were walked at
+runtime and none contains "AEON X".
+
+**Future work.** The `prefers-reduced-motion` and palette work is in; the
+outstanding gate is ESLint, which wants a repo-wide `--fix` as its own commit
+rather than mixed into a copy change. Real discovery remains blocked on egress
+and on the unapplied migrations.

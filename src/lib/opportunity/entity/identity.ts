@@ -65,9 +65,22 @@ export interface EntityIdentity {
   key: string;
 }
 
+/**
+ * The namespace every entity id is derived under.
+ *
+ * Changing this string changes the id of every opportunity that would ever be
+ * resolved, which is why it is written out here rather than inlined: it is a
+ * one-time decision. It was `aeon-x:` — a namespace belonging to a different
+ * product — and it was changed at the only moment that was free, while nothing
+ * had ever been discovered and no id had ever been stored. Once a single
+ * observation exists, editing this line silently orphans every entity derived
+ * before it, and the append-only record cannot be migrated back.
+ */
+const ID_NAMESPACE = "opportunity-x:opportunity-entity";
+
 export function entityIdFor(identity: EntityIdentity): string {
   const digest = createHash("sha256")
-    .update(`aeon-x:opportunity-entity:${identity.method}:${identity.key}`)
+    .update(`${ID_NAMESPACE}:${identity.method}:${identity.key}`)
     .digest("hex");
   return asUuid(digest);
 }

@@ -18,7 +18,7 @@ import type { PursuitResolution } from "./types";
  * on the other side of this file is computed without reference to it, and this
  * module reads them rather than adjusting them.
  *
- * What it does change is what AEON X should say next. Someone who has declared
+ * What it does change is what Opportunity X should say next. Someone who has declared
  * interest and returns three days before a deadline needs something different
  * from someone meeting the opportunity for the first time — not a different
  * opinion, a different *sentence*.
@@ -43,7 +43,7 @@ import type { PursuitResolution } from "./types";
  * nobody derived from anything, presented with the same authority as a deadline
  * three sources confirmed.
  *
- * What it produces instead is the thing AEON X genuinely can enumerate: **its
+ * What it produces instead is the thing Opportunity X genuinely can enumerate: **its
  * own uncertainty.** "No source stated who may apply" is derived and checkable.
  * "Prepare your documents" is invented. The first is useful to someone deciding
  * whether they can act; the second is filler that looks like help.
@@ -57,7 +57,7 @@ import type { PursuitResolution } from "./types";
  * Something genuinely between the person and acting.
  *
  * Every member is derived from what the engine holds. There is deliberately no
- * `task` or `step` member: a requirement AEON X invented would be
+ * `task` or `step` member: a requirement Opportunity X invented would be
  * indistinguishable, at a glance, from one a source stated.
  */
 export type Outstanding =
@@ -67,7 +67,7 @@ export type Outstanding =
   | { kind: "unobserved"; field: ObservedField; because: string }
   /** The opportunity has not been corroborated to the depth its stakes require. */
   | { kind: "unverified"; because: string }
-  /** AEON X has not read the requirements against what it knows about the person. */
+  /** Opportunity X has not read the requirements against what it knows about the person. */
   | { kind: "eligibility-unread"; because: string };
 
 /**
@@ -102,7 +102,7 @@ export type Urgency =
 export type NextMove =
   /** They have not spoken about this. Nothing is assumed either way. */
   | { kind: "review" }
-  /** Interested, and something AEON X does not know stands in the way. */
+  /** Interested, and something Opportunity X does not know stands in the way. */
   | { kind: "resolve-unknowns"; outstanding: Outstanding[] }
   /** Interested, clear, and there is somewhere to go. */
   | { kind: "act"; action: TerminalAction }
@@ -120,7 +120,7 @@ export interface PursuitStance {
   /** When they said it. Null when they have not. */
   since: string | null;
   urgency: Urgency;
-  /** What AEON X does not know. Empty is a real and good state. */
+  /** What Opportunity X does not know. Empty is a real and good state. */
   outstanding: Outstanding[];
   next: NextMove;
   /** The sentence the Step renders. Built here so what is shown can be retained. */
@@ -153,7 +153,7 @@ export function deriveUrgency(entity: OpportunityEntity, now: string): Urgency {
 }
 
 /**
- * Everything AEON X does not know that bears on acting.
+ * Everything Opportunity X does not know that bears on acting.
  *
  * Derived, in every case, from something the engine holds. Nothing here is a
  * task, and nothing here was invented.
@@ -276,7 +276,7 @@ function decide(input: {
   if (input.declaration === "undeclared") return { kind: "review" };
 
   /*
-    Interested, and something AEON X does not know stands in the way. This is
+    Interested, and something Opportunity X does not know stands in the way. This is
     checked before the action, and that order is the point: sending someone to
     apply while the deadline is contested and the eligibility unread would be
     treating their enthusiasm as a reason to stop mentioning what is unsettled.

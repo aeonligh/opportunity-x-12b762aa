@@ -13,7 +13,7 @@ import type { ClaimExtractor } from "./extractors/types";
  *
  * ── Why a single door ─────────────────────────────────────────────────────
  *
- * `retrievedAt` is a claim that AEON X looked at a source at a moment in time.
+ * `retrievedAt` is a claim that Opportunity X looked at a source at a moment in time.
  * Everything downstream inherits it: verification freshness, decay, the
  * "checked N days ago" a person reads before deciding whether to trust a
  * deadline. If any caller can supply that timestamp, the discipline "no
@@ -93,7 +93,7 @@ export function isTextual(contentType: string | null): boolean {
  *
  * A non-2xx status, a transport failure or a missing body all produce the
  * `unreachable` variant. That is deliberate rather than defensive: a 404 on a
- * page AEON X was watching is a real signal — frequently the earliest available
+ * page Opportunity X was watching is a real signal — frequently the earliest available
  * signal that an opportunity closed — and swallowing it is how the system comes
  * to hold an entity it can no longer account for.
  */
@@ -128,7 +128,7 @@ export function witness(
       reason:
         exchange.failure ??
         (exchange.status === null
-          ? "No response reached AEON X."
+          ? "No response reached me."
           : `Source answered ${exchange.status}.`),
     });
   }

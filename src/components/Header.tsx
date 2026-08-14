@@ -73,7 +73,7 @@ export default function Header() {
             OPPORTUNITY <span className="text-accent">X</span>
           </span>
           <span className="text-[9px] uppercase tracking-widest text-text-s">
-            Powered by AEON X
+            Opportunity Intelligence
           </span>
         </span>
       </Link>

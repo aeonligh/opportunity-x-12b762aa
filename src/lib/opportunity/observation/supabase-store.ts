@@ -33,7 +33,7 @@ import type {
  * confusion the three-state absence model exists to prevent.
  *
  * So this throws, and `recommendNextStep`'s caller turns a throw into
- * `unknown`: AEON X cannot see. A limit on the system, never a claim about the
+ * `unknown`: Opportunity X cannot see. A limit on the system, never a claim about the
  * person.
  */
 

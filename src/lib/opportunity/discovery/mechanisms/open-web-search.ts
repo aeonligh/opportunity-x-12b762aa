@@ -43,7 +43,7 @@ import { visit, type CrawlContext, type MechanismReport } from "../crawl";
  *
  * ── What is recorded about the search itself ──────────────────────────────
  *
- * Nothing, deliberately. The search is how AEON X came to look at a URL, not
+ * Nothing, deliberately. The search is how Opportunity X came to look at a URL, not
  * something it observed. `visit()` records the retrieval, and the retrieval is
  * the same shape whether the URL came from an announcer's link or from a query
  * — which is what keeps a searched-for opportunity from being second-class

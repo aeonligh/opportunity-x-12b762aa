@@ -240,7 +240,7 @@ function OpportunityDetail() {
           <Link to="/" className="text-accent">
             Opportunity X
           </Link>{" "}
-          · Powered by AEON X
+          · Opportunity Intelligence
         </div>
       </main>
     </div>

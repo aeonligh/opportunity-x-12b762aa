@@ -63,7 +63,7 @@ export function emptyReport(): MechanismReport {
  *
  * Returns the observation when a request was made, null when it was skipped.
  * The distinction is load-bearing: a skip leaves no observation, so nothing
- * downstream can mistake "AEON X chose not to look" for "AEON X looked and the
+ * downstream can mistake "Opportunity X chose not to look" for "Opportunity X looked and the
  * page was empty".
  */
 export async function visit(
@@ -87,7 +87,7 @@ export async function visit(
 
   const origin = originOf(url);
   if (origin === null) {
-    report.skipped.push({ url, reason: "Not a URL AEON X can parse." });
+    report.skipped.push({ url, reason: "Not a URL I can parse." });
     return null;
   }
 

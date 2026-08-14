@@ -45,7 +45,7 @@ export { humanDate, humanMoment, readingDate } from "./wording";
  * Entity facts and pairing inference sit in different keys, and the surface
  * renders them in visibly different regions. That is not styling. "This closes
  * on 30 September" and "this looks like a fit for you" are claims of completely
- * different kinds — one is checkable against a source, the other is AEON X's
+ * different kinds — one is checkable against a source, the other is Opportunity X's
  * opinion about a person — and a card that presents them in one list has told
  * the reader they are the same sort of statement.
  *
@@ -139,7 +139,7 @@ function display(
  *
  * Where nothing was declared — or where two announcers declared types that
  * imply different verbs — the action is to open the announcement. That is not a
- * fallback so much as the honest answer: AEON X knows where to look and does
+ * fallback so much as the honest answer: Opportunity X knows where to look and does
  * not know what the process is called.
  *
  * This is also why the expanded surface is not named "Registration".
@@ -190,8 +190,8 @@ export function terminalAction(entity: OpportunityEntity): TerminalAction | null
     href: apply.value,
     because:
       verbs.length > 1
-        ? "Sources describe this as different kinds of thing, so AEON X will not name the process."
-        : "No source declared what kind of opportunity this is, so AEON X will not name the process.",
+        ? "Sources describe this as different kinds of thing, so I will not name the process."
+        : "No source declared what kind of opportunity this is, so I will not name the process.",
   };
 }
 
@@ -213,7 +213,7 @@ export interface ShownExplanation {
   timing: string;
   /** Why this reached them at all. Pairing-level, and labelled as such. */
   whySurfaced: string;
-  /** Everything AEON X does not know or cannot reconcile. Never omitted. */
+  /** Everything Opportunity X does not know or cannot reconcile. Never omitted. */
   uncertainties: string[];
 }
 
@@ -232,7 +232,7 @@ export interface OpportunityCard {
   verification: VerificationResolution | null;
 
   /**
-   * ── Pairing level. AEON X's opinion about one person. ─────────────────
+   * ── Pairing level. Opportunity X's opinion about one person. ─────────────────
    *
    * A separate key rather than fields alongside the entity facts, so a renderer
    * cannot flatten the two into one list without deliberately doing so.
@@ -353,7 +353,7 @@ function explain(input: {
       ? title.value
       : title.state === "contested"
         ? `${title.readings[0].value} — sources disagree on the name`
-        : "An opportunity AEON X could not name";
+        : "An opportunity I could not name";
 
   const by =
     organiser.state === "agreed"
@@ -384,15 +384,15 @@ function explain(input: {
 
     verification:
       verification === null
-        ? "AEON X has not established whether this is real."
+        ? "I have not established whether this is real."
         : verification.verdict === "verified"
           ? `Verified against ${verification.basis.distinctSources} independent sources, ${verification.basis.institutionalSources} of them institutional. Established ${humanDate(verification.establishedAt) ?? verification.establishedAt}.`
           : verification.verdict === "expired"
-            ? `This was ${verification.lapsedFrom} until ${humanDate(verification.expiresAt) ?? verification.expiresAt}. AEON X has not re-checked it since, so it counts as unverified.`
+            ? `This was ${verification.lapsedFrom} until ${humanDate(verification.expiresAt) ?? verification.expiresAt}. I have not re-checked it since, so it counts as unverified.`
             : verification.verdict === "contradicted"
-              ? "Sources disagree about this opportunity, so AEON X will not call it verified."
+              ? "Sources disagree about this opportunity, so I will not call it verified."
               : verification.verdict === "withdrawn"
-                ? "Every source AEON X was watching has stopped answering."
+                ? "Every source I was watching has stopped answering."
                 : `Seen, but not corroborated to the depth a ${entity.stakes} opportunity requires.`,
 
     /*
@@ -405,11 +405,11 @@ function explain(input: {
         ? `Closes ${deadlineWords(entity, timing.deadline)}.`
         : timing.state === "closed"
           ? `The deadline passed on ${deadlineWords(entity, timing.deadline)}.`
-          : `AEON X cannot tell whether this is still open: ${timing.reason}`,
+          : `I cannot tell whether this is still open: ${timing.reason}`,
 
     whySurfaced:
       judgments === null
-        ? "AEON X has not assessed this against what it knows about you."
+        ? "I have not assessed this against what I know about you."
         : /*
              The reason alone, either way.
 

@@ -36,7 +36,7 @@ test("the retrieval timestamp is distinct from a date stated inside the page", (
   const deadline = soleItem(o).claims.find((c: ObservedClaim) => c.field === "deadline");
   assert.ok(deadline, "the page's deadline should have been extracted");
   assert.notEqual(deadline.normalised, o.retrievedAt);
-  /* The page says September; AEON X looked in August. Conflating them is how a
+  /* The page says September; Opportunity X looked in August. Conflating them is how a
      system starts believing a page was checked because it mentions a date. */
   assert.ok(o.retrievedAt < (deadline.normalised as string));
 });

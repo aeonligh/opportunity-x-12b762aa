@@ -134,7 +134,7 @@ function ApplicationsPipeline() {
       `📍 Status: ${app.status}`,
       "",
       "📣 Shared via Opportunity X",
-      "🚀 Join AEON X Early Access Hub",
+      "🚀 Join Opportunity X Early Access Hub",
       COMMUNITY_INVITE,
     ].join("\n");
 
@@ -152,7 +152,7 @@ function ApplicationsPipeline() {
       "Prepared, tracked, and won using Opportunity X!",
       "",
       "📣 Shared via Opportunity X",
-      "🚀 Join AEON X Early Access Hub",
+      "🚀 Join Opportunity X Early Access Hub",
       COMMUNITY_INVITE,
     ].join("\n");
 

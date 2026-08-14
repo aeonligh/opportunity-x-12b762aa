@@ -23,7 +23,7 @@ import { fixedAssessor, observe, T0, T1 } from "./fixtures.ts";
  *
  * Every test here starts from real engine output and then adds — or does not
  * add — something the person said. The invariant under test throughout is that
- * saying "I'm interested" changes what AEON X *says next* and changes no verdict
+ * saying "I'm interested" changes what Opportunity X *says next* and changes no verdict
  * whatsoever.
  *
  * The failure this suite is written to catch is the commercially obvious one: a
@@ -369,7 +369,7 @@ test("declaring interest is what makes the Step resolve, and it says why", async
   assert.deepEqual(resolution.step.claim.evidence.observations, []);
   assert.equal("confidence" in resolution.step.claim.evidence, false);
 
-  /* The world did not change; what AEON X knows about them did. */
+  /* The world did not change; what Opportunity X knows about them did. */
   assert.equal(resolution.step.claim.origin, "understanding");
   assert.match(resolution.step.claim.statement, /3 days left/);
 });

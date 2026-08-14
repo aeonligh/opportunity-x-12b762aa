@@ -29,7 +29,7 @@ import type { Claim, ClaimOrigin } from "@/lib/opportunity/foundation/claim";
  * cannot name its source class is not shippable (IA Bible §18, binding).
  *
  *   revelation    — something genuinely appeared or changed in the world.
- *   understanding — the model improved; the ranking moved because AEON X learned.
+ *   understanding — the model improved; the ranking moved because Opportunity X learned.
  *   stable        — nothing changed externally or internally, so the answer holds.
  */
 export type StepSource = ClaimOrigin;
@@ -43,7 +43,7 @@ export interface NextStep {
    * its evidence and its base rate.
    */
   claim: Claim;
-  /** The thing that advances it. May leave AEON X entirely. */
+  /** The thing that advances it. May leave Opportunity X entirely. */
   action?: { label: string; href: string };
   /**
    * What a commitment to this step would be recorded as, if the person makes
@@ -81,7 +81,7 @@ export type StepResolution =
   /** A real step, from one of the three legitimate sources. */
   | { state: "step"; step: NextStep }
   /**
-   * The person has not completed the first session, so AEON X holds no
+   * The person has not completed the first session, so Opportunity X holds no
    * understanding. Not an error and not an empty state — the handshake simply
    * hasn't happened (IA Bible §08: a new account never lands on an empty Step).
    */
@@ -92,11 +92,11 @@ export type StepResolution =
    */
   | { state: "absent"; searchedAt: string; previousStep?: NextStep }
   /**
-   * AEON X cannot see. A limit on the system, never a claim about the person.
+   * Opportunity X cannot see. A limit on the system, never a claim about the person.
    *
    * ── Why `since` is nullable, and why `because` is required ──────────────
    *
-   * `since` is the last point at which AEON X *did* have visibility. Every
+   * `since` is the last point at which Opportunity X *did* have visibility. Every
    * producer used to pass `new Date()` for it, which is not that point — it is
    * the moment the question was asked — and the Workspace rendered it as
    * "I've had no visibility into this since August 2026". To a person that

@@ -1,8 +1,8 @@
 /**
- * UNKNOWN — AEON X cannot see. A limit on the system, never a claim about the person.
+ * UNKNOWN — Opportunity X cannot see. A limit on the system, never a claim about the person.
  *
  * Constitutional authority:
- *   Product Bible §07     — the Visibility Principle: AEON X speaks with certainty
+ *   Product Bible §07     — the Visibility Principle: Opportunity X speaks with certainty
  *                           only about what it observed. Missing evidence is not
  *                           negative evidence.
  *   Experience Bible §7   — "I've had no visibility into this since June."

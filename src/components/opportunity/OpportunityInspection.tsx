@@ -136,7 +136,7 @@ export function OpportunityInspection({
 
               {/*
                 What the disagreement costs. Two values side by side invite a
-                reader to pick the friendlier one; saying that AEON X will not
+                reader to pick the friendlier one; saying that Opportunity X will not
                 pick — and will not tell them there is time — is the point.
               */}
               <p className="max-w-[62ch] text-[15px] leading-relaxed text-foreground">

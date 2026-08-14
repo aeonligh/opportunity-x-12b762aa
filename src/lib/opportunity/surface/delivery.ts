@@ -1,7 +1,7 @@
 import type { ShownExplanation } from "./card";
 
 /**
- * What AEON X actually told someone, kept.
+ * What Opportunity X actually told someone, kept.
  *
  * ══════════════════════════════════════════════════════════════════════════
  * A RECOMPUTED EXPLANATION IS NOT THE EXPLANATION THAT WAS GIVEN

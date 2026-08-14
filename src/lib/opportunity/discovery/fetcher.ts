@@ -31,13 +31,13 @@ import type { CompletedExchange } from "../observation/record";
  * `maxRedirects`   Redirect chains are how a crawl ends up somewhere it never
  *                  decided to go. The final URL is recorded, so an observation
  *                  always names what was actually read.
- * `userAgent`      Identifies AEON X and gives operators a way to reach a human.
+ * `userAgent`      Identifies Opportunity X and gives operators a way to reach a human.
  *                  A crawler that hides is a crawler that gets blocked, and
  *                  deserves to be.
  */
 
 export const USER_AGENT =
-  "AeonXBot/1.0 (+https://aeonx.ai/about/crawler; opportunity discovery)";
+  "OpportunityXBot/1.0 (+https://opportunityx.app/about/crawler; opportunity discovery)";
 
 export interface FetchLimits {
   timeoutMs: number;

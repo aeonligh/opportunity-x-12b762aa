@@ -1,5 +1,5 @@
 /**
- * The Personal Intelligence Profile — the shape of everything AEON X believes
+ * The Personal Intelligence Profile — the shape of everything Opportunity X believes
  * about a person, and the terms on which it may use any of it.
  *
  * Constitutional authority:
@@ -119,7 +119,7 @@ interface FactBase {
    * the product's own knowledge. Usable anywhere else only through `permissions`.
    */
   learnedIn: ProductScope;
-  /** When AEON X last had reason to believe this. Drives the freshness stamp. */
+  /** When Opportunity X last had reason to believe this. Drives the freshness stamp. */
   lastConfirmedAt: string;
   decay: DecayClass;
   /**
@@ -158,7 +158,7 @@ export interface ConfirmedFact extends FactBase {
 }
 
 /**
- * ◐ Inferred by AI — a pattern AEON X believes may be true, always labelled so.
+ * ◐ Inferred by AI — a pattern Opportunity X believes may be true, always labelled so.
  *
  * `observedFrom` is a non-empty tuple by construction. An inference with nothing
  * behind it is a guess wearing a confidence score, and a pipeline that saw
@@ -203,7 +203,7 @@ export type ProfileFactTier = ProfileFact["tier"];
  * Mirrors StepResolution deliberately (see core/step/types.ts). An empty Profile
  * and an unasked Profile are different facts about the world, and Experience
  * Bible §7 requires they never collapse into one grey box: before the handshake
- * AEON X holds no understanding, which is not the same as holding none after
+ * Opportunity X holds no understanding, which is not the same as holding none after
  * looking.
  */
 export type ProfileResolution =
@@ -226,7 +226,7 @@ export type ProfileResolution =
    * everything as one who never arrived.
    */
   | { state: "no-understanding" }
-  /** AEON X cannot read the Profile. A limit on the system, never on the person. */
+  /** Opportunity X cannot read the Profile. A limit on the system, never on the person. */
   | { state: "unknown"; since: string };
 
 /**
@@ -239,7 +239,7 @@ export type ProfileResolution =
  *
  * `not-found` and `unknown` are separate for the reason XB §7 gives everywhere
  * else: one says the record does not exist, the other says the system cannot
- * see. A bad reference reported as a system failure blames AEON X for something
+ * see. A bad reference reported as a system failure blames Opportunity X for something
  * that is merely absent, and a system failure reported as absence tells a person
  * their fact was deleted when it was not.
  */
@@ -247,7 +247,7 @@ export type FactResolution =
   | { state: "fact"; fact: ProfileFact }
   /** No such fact for this person. Not an error. */
   | { state: "not-found" }
-  /** AEON X cannot read it. A limit on the system, never on the person. */
+  /** Opportunity X cannot read it. A limit on the system, never on the person. */
   | { state: "unknown"; since: string };
 
 /** A stored row that violates the fact model. Surfaced, never rendered. */
@@ -275,7 +275,7 @@ export type ProfileFactDraft =
   | Omit<LearnedFact, "id" | "lastConfirmedAt" | "permissions">;
 
 export interface ProfileService {
-  /** Every fact AEON X holds about this person, whatever its tier. */
+  /** Every fact Opportunity X holds about this person, whatever its tier. */
   read(userId: string): Promise<ProfileResolution>;
 
   /**

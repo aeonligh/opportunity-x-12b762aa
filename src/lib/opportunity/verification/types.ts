@@ -85,7 +85,7 @@ export type StoredVerdict =
   | "verified"
   /** Sources disagree on a decisive field. V5. */
   | "contradicted"
-  /** A source AEON X was watching stopped answering, or said it is over. */
+  /** A source Opportunity X was watching stopped answering, or said it is over. */
   | "withdrawn";
 
 /** What a reader gets. `expired` appears only here — it is always derived. */
@@ -153,7 +153,7 @@ export const CORROBORATION: Record<Stakes, CorroborationRequirement> = {
     A funded degree, a fellowship, a relocation. Two institutional sources,
     re-checked weekly. The tighter freshness is not fussiness: the more a person
     reorganises their life around an opportunity, the more expensive it is for
-    AEON X to have been right last month and wrong today.
+    Opportunity X to have been right last month and wrong today.
   */
   "life-changing": { distinctSources: 3, institutionalSources: 2, freshnessDays: 7 },
 };

@@ -152,7 +152,7 @@ test("without an assessor, eligibility fit and risk are undetermined — never e
   assert.equal(j.eligibility.verdict, "undetermined");
   assert.equal(j.fit.verdict, "undetermined");
   assert.equal(j.risk.verdict, "undetermined");
-  assert.match(j.eligibility.because, /has not read this opportunity's requirements/);
+  assert.match(j.eligibility.because, /have not read this opportunity's requirements/);
 });
 
 test("missing evidence is never negative evidence — an unchecked requirement does not disqualify", () => {
@@ -197,7 +197,7 @@ test("a negative verdict requires a confirmed fact; an inferred one cannot reach
     now: T2,
     ranking: { position: 1, outOf: 1 },
     assessor: fixedAssessor({
-      eligibility: [unmetConfirmed("You told AEON X you have no first degree.", "f2")],
+      eligibility: [unmetConfirmed("You told Opportunity X you have no first degree.", "f2")],
     }),
   });
   assert.equal(fromStatement.eligibility.verdict, "ineligible");
@@ -330,7 +330,7 @@ test("verification and recommendation can disagree", () => {
     now: T2,
     ranking: { position: 1, outOf: 1 },
     assessor: fixedAssessor({
-      eligibility: [unmetConfirmed("You told AEON X you are not a postgraduate.", "f2")],
+      eligibility: [unmetConfirmed("You told Opportunity X you are not a postgraduate.", "f2")],
     }),
   });
 

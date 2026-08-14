@@ -7,7 +7,7 @@ import type { ObservedField, SourceClass } from "../observation/types";
  * WHAT AN ENTITY IS, AND WHAT IT IS NOT
  * ══════════════════════════════════════════════════════════════════════════
  *
- * An entity is AEON X's current belief about what an opportunity *is*, assembled
+ * An entity is Opportunity X's current belief about what an opportunity *is*, assembled
  * from observations and revisable when they change. It is not a listing, and the
  * distinction is the reason this layer exists.
  *

@@ -73,7 +73,7 @@ export interface Corpus {
    * Retrievals that answered and produced no items.
    *
    * Not failures. A PDF circular nothing can parse yet, and a news page that
-   * genuinely described nothing, are both facts about what AEON X can see — and
+   * genuinely described nothing, are both facts about what Opportunity X can see — and
    * counting them is the only way the coverage gap is measurable rather than
    * indistinguishable from an empty world.
    */
@@ -88,7 +88,7 @@ export interface Corpus {
  * Throws rather than degrading if the store cannot be read. A read failure is
  * not an empty corpus: returning one would let a database outage present as
  * "nothing better has appeared", which is a failure reported as a finding.
- * Callers turn the throw into `unknown` — AEON X cannot see.
+ * Callers turn the throw into `unknown` — Opportunity X cannot see.
  */
 export async function deriveCorpus(
   store: ObservationStore,

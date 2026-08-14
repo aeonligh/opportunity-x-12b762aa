@@ -23,7 +23,7 @@ import { deriveOpenState, resolveVerification } from "../verification/service";
  *
  *   step     — there is something to do, and here is why, with its evidence.
  *   absent   — a search ran, succeeded, and produced nothing better. A verdict.
- *   unknown  — AEON X cannot see. A limit on the system, never on the person.
+ *   unknown  — Opportunity X cannot see. A limit on the system, never on the person.
  *
  * The failure this guards against is specific and common: a pipeline that did
  * not run returning zero rows, and a surface rendering that as "nothing new for
@@ -44,7 +44,7 @@ import { deriveOpenState, resolveVerification } from "../verification/service";
  *
  * A `Claim` cannot be constructed without `Evidence`, and `Evidence` can only be
  * minted from a Profile fact. That is the composition law, and it bites here
- * exactly as intended: AEON X can establish that an opportunity is real, open
+ * exactly as intended: Opportunity X can establish that an opportunity is real, open
  * and well-corroborated using nothing but observations — and still not be
  * entitled to call it *your* next best step, because nothing yet connects it to
  * you.
@@ -300,7 +300,7 @@ function buildStep(
     /*
       `revelation` when a source produced this. `understanding` when the person's
       own declaration is what moved it to the front — the world did not change,
-      what AEON X knows about them did.
+      what Opportunity X knows about them did.
     */
     origin: stance?.declaration === "interested" ? "understanding" : "revelation",
     evidence,
@@ -323,7 +323,7 @@ function buildStep(
     claim,
     action: href ? { label: "Open the application", href } : undefined,
     /*
-      A commitment is only offered when AEON X can name what would be written.
+      A commitment is only offered when Opportunity X can name what would be written.
       An invented title would be fabricating the person's own record, and a
       guessed deadline would later become a "passed" state they never entered —
       so the deadline is null unless one was derived, never approximated.

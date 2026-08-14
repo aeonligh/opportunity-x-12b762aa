@@ -14,7 +14,7 @@ import type { Transport } from "../fetcher";
  *
  * An index answers from a crawl it performed at a time of its own choosing.
  * Wiring one in would have produced observations false in three ways:
- * `retrievedAt` would claim AEON X read the page at a moment it did not,
+ * `retrievedAt` would claim Opportunity X read the page at a moment it did not,
  * robots.txt compliance would be fiction because our request never reached the
  * site, and the retained bytes would be the index's rendering rather than the
  * source's.
@@ -40,13 +40,13 @@ import type { Transport } from "../fetcher";
  * ── What is still borrowed, and is recorded ───────────────────────────────
  *
  * The request goes out from Firecrawl's user agent and Firecrawl's addresses,
- * not ours. A site that would have refused `AeonXBot` may answer them, and a
+ * not ours. A site that would have refused `OpportunityXBot` may answer them, and a
  * site that blocks datacentre ranges may refuse them where we would have got
- * through. Either way the retrieval is not the one AEON X would have made
+ * through. Either way the retrieval is not the one Opportunity X would have made
  * alone.
  *
  * That is a real difference and it is not hidden: the response carries an
- * `x-aeonx-via` header, so anything downstream that cares can tell a direct
+ * `x-opportunityx-via` header, so anything downstream that cares can tell a direct
  * retrieval from a brokered one without inspecting configuration. Nothing is
  * asserted about the page that the page did not say.
  */
@@ -97,7 +97,7 @@ export function firecrawlTransport(options: { apiKey?: string } = {}): Transport
       return new Response(null, {
         status: 502,
         statusText: `Firecrawl responded ${response.status}`,
-        headers: { "x-aeonx-via": "firecrawl", "x-aeonx-transport-error": "true" },
+        headers: { "x-opportunityx-via": "firecrawl", "x-opportunityx-transport-error": "true" },
       });
     }
 
@@ -113,7 +113,7 @@ export function firecrawlTransport(options: { apiKey?: string } = {}): Transport
       return new Response(null, {
         status: 502,
         statusText: "Firecrawl returned no document",
-        headers: { "x-aeonx-via": "firecrawl", "x-aeonx-transport-error": "true" },
+        headers: { "x-opportunityx-via": "firecrawl", "x-opportunityx-transport-error": "true" },
       });
     }
 
@@ -127,8 +127,8 @@ export function firecrawlTransport(options: { apiKey?: string } = {}): Transport
       status,
       headers: {
         "content-type": "text/html; charset=utf-8",
-        "x-aeonx-via": "firecrawl",
-        "x-aeonx-final-url": finalUrl,
+        "x-opportunityx-via": "firecrawl",
+        "x-opportunityx-final-url": finalUrl,
       },
     });
   };

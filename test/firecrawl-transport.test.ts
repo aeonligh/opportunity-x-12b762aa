@@ -150,7 +150,7 @@ test("a brokered retrieval says it was brokered", () => {
     "src/lib/opportunity/discovery/transports/firecrawl.ts",
     "utf8"
   );
-  assert.match(source, /"x-aeonx-via": "firecrawl"/);
+  assert.match(source, /"x-opportunityx-via": "firecrawl"/);
 });
 
 test("robots is still decided by this engine, not by the broker", () => {

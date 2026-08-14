@@ -159,7 +159,7 @@ interface PairingJudgmentBase extends JudgmentBase {
  * `ineligible` is the asymmetric verdict and is guarded accordingly in the
  * service: it may only be reached from an explicit disqualifying fact the person
  * themselves stated. **Missing evidence is never negative evidence.** A person
- * who has not told AEON X their nationality is `undetermined`, never
+ * who has not told Opportunity X their nationality is `undetermined`, never
  * `ineligible` — the second would shut a door on the strength of a blank field,
  * and they would never know it happened.
  */

@@ -31,7 +31,7 @@ import { SupabaseVerificationLog, type VerificationLog } from "./verification/lo
  * component that appears wired and is not is worse than one that is plainly
  * absent.
  *
- * A caller with no store resolves `unknown` — AEON X cannot see — which is the
+ * A caller with no store resolves `unknown` — Opportunity X cannot see — which is the
  * truth.
  */
 

@@ -35,7 +35,7 @@ export interface SourceRef {
   kind: "listing" | "document" | "record" | "statement" | "observation";
   /** The original, where one can be linked. */
   href?: string;
-  /** When AEON X last checked it. Never omitted — see FreshnessStamp. */
+  /** When Opportunity X last checked it. Never omitted — see FreshnessStamp. */
   lastVerifiedAt: string;
   decay: DecayClass;
 }
@@ -86,7 +86,7 @@ export type BaseRate =
 interface EvidenceBase {
   /** The inline sentence. Capped at 58ch when rendered. Never generic filler. */
   summary: string;
-  /** When AEON X last had reason to believe it. */
+  /** When Opportunity X last had reason to believe it. */
   lastConfirmedAt: string;
   decay: DecayClass;
   /** Depth 3 — the original. */
@@ -155,7 +155,7 @@ export type Evidence = UncheckedEvidence & {
 };
 
 /**
- * Anything AEON X asserts: a step, a ranking, a readiness figure, an insight.
+ * Anything Opportunity X asserts: a step, a ranking, a readiness figure, an insight.
  *
  * `evidence` and `baseRate` are required. That is the composition law, and it is
  * the entire reason this type exists rather than being a loose set of props.

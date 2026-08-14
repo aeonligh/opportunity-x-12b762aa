@@ -43,8 +43,8 @@ import { projectInspection, type OpportunityInspection } from "./inspection";
  * the person the wrong one half the time.
  *
  *   inspection — here it is.
- *   not-found  — nothing AEON X has observed resolves to that reference.
- *   unknown    — AEON X cannot see: no record configured, or the read failed.
+ *   not-found  — nothing Opportunity X has observed resolves to that reference.
+ *   unknown    — Opportunity X cannot see: no record configured, or the read failed.
  *
  * `not-found` is only reachable when the record was successfully read and did
  * not contain the entity. Anything else is `unknown`.
@@ -189,12 +189,12 @@ export async function resolveCards(
 }
 
 /**
- * One thing the person has said, and what AEON X can still see of it.
+ * One thing the person has said, and what Opportunity X can still see of it.
  *
  * `title` is null when the declaration outlives the evidence — the entity was
  * re-resolved under a different identity, or the record no longer holds it.
  * That is a real state and it renders as one: the statement is the person's,
- * and it does not stop existing because AEON X lost track of what it was about.
+ * and it does not stop existing because Opportunity X lost track of what it was about.
  */
 export interface DeclarationRow {
   entityId: string;
@@ -221,7 +221,7 @@ export type DeclarationsResolution =
  * the two into one list would pad the record of someone's life with intentions
  * they never acted on.
  *
- * But both are the person's own statements rather than AEON X's findings, and
+ * But both are the person's own statements rather than Opportunity X's findings, and
  * until now a declaration had no surface of its own at all: it changed the Step
  * and was then visible only on the card it was made from. Someone who had said
  * yes to six things had nowhere to see the six.
@@ -252,7 +252,7 @@ export async function resolveDeclarations(
   /*
     Titles, where the record still holds them. A corpus that cannot be read does
     not invalidate the declarations — they are the person's statements, not
-    AEON X's observations — so that failure degrades to untitled rows rather
+    Opportunity X's observations — so that failure degrades to untitled rows rather
     than taking the whole section down with it.
   */
   const titles = new Map<string, string>();

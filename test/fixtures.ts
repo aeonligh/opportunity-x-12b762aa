@@ -167,7 +167,7 @@ export function confirmedFact(id: string, statement: string): ProfileFact {
     tier: "confirmed",
     kind: "goal",
     statement,
-    howLearned: "You told AEON X during the handshake.",
+    howLearned: "You told Opportunity X during the handshake.",
     learnedIn: "opportunity-x",
     lastConfirmedAt: T0,
     decay: "slow",

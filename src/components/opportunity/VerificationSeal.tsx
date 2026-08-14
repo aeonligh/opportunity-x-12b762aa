@@ -47,7 +47,7 @@ export function VerificationSeal({
           Verification
         </span>
         <span className="text-[15px] leading-snug text-text-s">
-          AEON X has not established whether this is real.
+          I have not established whether this is real.
         </span>
       </div>
     );
