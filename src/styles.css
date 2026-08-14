@@ -44,31 +44,72 @@
 :root {
   --radius: 0.75rem;
   color-scheme: dark;
-  /* dark "AEON" theme as default */
-  --background: oklch(0.13 0.005 270);
-  --surface: oklch(0.18 0.008 270);
-  --foreground: oklch(0.95 0.005 270);
-  --text-s: oklch(0.65 0.015 270);
-  --border: oklch(0.27 0.012 270);
-  --accent: oklch(0.82 0.16 210);          /* electric cyan */
-  --success: oklch(0.85 0.20 150);
-  --warning: oklch(0.88 0.18 95);
+
+  /*
+    Opportunity X — three colours.
+
+      Blue Charcoal     #001619   the ground everything sits on
+      Thin Air          #C7F8FE   what you read
+      Fluorescent Blue  #50E8F4   what you can act on
+
+    Only those three are named. Every other token is mixed from them with
+    `color-mix`, so surfaces and borders cannot drift into a fourth hue nobody
+    chose — change a hex here and the whole scale follows.
+
+    Fluorescent blue is reserved for action. It is the only saturated thing on
+    a near-black field, so anything wearing it reads as pressable; spending it
+    on decoration would make the one affordance that matters stop standing out.
+  */
+  --charcoal: #001619;
+  --thin-air: #C7F8FE;
+  --fluorescent: #50E8F4;
+
+  --background: var(--charcoal);
+  /* Lifted off the ground just enough to read as a raised surface, still the
+     same colour rather than a grey borrowed from somewhere else. */
+  --surface: color-mix(in oklab, var(--charcoal) 92%, var(--thin-air));
+  --foreground: var(--thin-air);
+  /* Secondary text: quieter, and still legible — mixed toward the ground
+     rather than made transparent, so it holds up over any surface. */
+  --text-s: color-mix(in oklab, var(--thin-air) 62%, var(--charcoal));
+  --border: color-mix(in oklab, var(--charcoal) 82%, var(--thin-air));
+  --accent: var(--fluorescent);
+
+  /* State colours keep their meaning — a warning that reads as brand-cyan is
+     not a warning — but are pulled toward the palette so they belong here. */
+  --success: oklch(0.85 0.18 165);
+  --warning: oklch(0.88 0.16 95);
   --whatsapp: oklch(0.72 0.17 152);
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: oklch(0.68 0.20 20);
 }
 
 html.light {
   color-scheme: light;
-  --background: oklch(1 0 0);                /* #FFFFFF */
-  --surface: oklch(0.98 0.005 250);          /* #F8FAFC */
-  --foreground: oklch(0.18 0.03 260);        /* #0F172A */
-  --text-s: oklch(0.46 0.02 260);
-  --border: oklch(0.90 0.01 260);
-  --accent: oklch(0.55 0.20 260);            /* #2563EB */
-  --success: oklch(0.62 0.18 145);           /* #16A34A */
-  --warning: oklch(0.75 0.18 75);
+
+  /*
+    The same three colours, inverted. Thin air becomes the ground and charcoal
+    becomes the text.
+
+    Accent is the one thing that cannot simply flip: fluorescent blue on a pale
+    field is barely visible, and an action nobody can see is not an action. It
+    is darkened until it carries the same weight against light that the pure
+    colour carries against charcoal — the same colour, doing the same job.
+  */
+  --charcoal: #001619;
+  --thin-air: #C7F8FE;
+  --fluorescent: #50E8F4;
+
+  --background: #FFFFFF;
+  --surface: color-mix(in oklab, var(--thin-air) 45%, #FFFFFF);
+  --foreground: var(--charcoal);
+  --text-s: color-mix(in oklab, var(--charcoal) 68%, var(--thin-air));
+  --border: color-mix(in oklab, var(--thin-air) 85%, var(--charcoal));
+  --accent: color-mix(in oklab, var(--fluorescent) 55%, var(--charcoal));
+
+  --success: oklch(0.55 0.16 165);
+  --warning: oklch(0.62 0.16 75);
   --whatsapp: oklch(0.60 0.17 152);
-  --destructive: oklch(0.58 0.22 25);
+  --destructive: oklch(0.55 0.20 20);
 }
 
 @layer base {
