@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { EntityFact } from "./EntityFact";
 import { VerificationSeal } from "./VerificationSeal";
 import { PairingInference } from "./PairingInference";
@@ -183,7 +183,7 @@ export function OpportunityCard({
           is available and is not what the card is for.
         */}
         <Link
-          href={inspect}
+          to={inspect}
           className="rounded-full bg-accent px-6 py-3 text-xs font-bold uppercase tracking-widest text-background transition-opacity duration-[120ms] active:opacity-90"
         >
           What this involves

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { declarePursuit, withdrawPursuit } from "@/app/actions/pursuit";
+import { declarePursuit, withdrawPursuit } from "@/lib/pursuit.functions";
 import type { PursuitResolution } from "@/lib/opportunity/pursuit/types";
 
 /**
@@ -76,7 +76,7 @@ export function InterestedControl({
   function declare(state: "interested" | "not-interested") {
     setLimit(null);
     startTransition(async () => {
-      const result = await declarePursuit({ entityId, state });
+      const result = await declarePursuit({ data: { entityId, state } });
       if (!result.recorded) setLimit(result.limit);
     });
   }
@@ -84,7 +84,7 @@ export function InterestedControl({
   function withdraw() {
     setLimit(null);
     startTransition(async () => {
-      const result = await withdrawPursuit({ entityId });
+      const result = await withdrawPursuit({ data: { entityId } });
       if (!result.recorded) setLimit(result.limit);
     });
   }

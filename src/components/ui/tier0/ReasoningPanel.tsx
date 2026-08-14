@@ -6,7 +6,7 @@ import { Overlay } from "@/components/ui/Overlay";
 import { ProvenanceChip } from "@/components/ui/ProvenanceChip";
 import { EvidenceLine } from "./EvidenceLine";
 import { BaseRateLine } from "./BaseRateLine";
-import { editFact } from "@/app/actions/profile";
+import { editFact } from "@/lib/pursuit.functions";
 import type { Claim, ClaimInput } from "@/lib/core/tier0/types";
 
 /**

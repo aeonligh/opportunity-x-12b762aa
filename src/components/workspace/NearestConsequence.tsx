@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import type { Commitment } from "@/lib/core/ledger/types";
 
 /**
@@ -50,7 +50,7 @@ export function NearestConsequence({
       <p className="text-[14px] leading-relaxed text-text-ss">
         Nothing committed yet. Anything you apply to will be tracked in your{" "}
         <Link
-          href="/ledger"
+          to={"/workspace/ledger" as never}
           className="underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:decoration-accent"
         >
           ledger

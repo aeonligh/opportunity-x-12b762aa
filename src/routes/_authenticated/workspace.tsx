@@ -43,6 +43,30 @@ function Workspace() {
     <div className="mx-auto flex min-h-[calc(100dvh-3.5rem)] max-w-5xl flex-col justify-center px-4 py-16 sm:px-6">
       <NextBestStep resolution={resolution} />
 
+      {/*
+        The two destinations the canonical journey needs, and no more.
+
+        The shell carries no navigation list — that is deliberate and stays.
+        But a surface nobody can leave is not a hub, and the Ledger and the
+        laboratory were both orphaned: reachable only by typing the URL. These
+        sit under the answer, at the weight of a footnote, because they are
+        where you go *after* reading the Step rather than instead of it.
+      */}
+      <nav aria-label="Where else you can go" className="mt-10 flex flex-wrap gap-x-6 gap-y-2">
+        <Link
+          to="/workspace/ledger"
+          className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          What you have said
+        </Link>
+        <Link
+          to="/workspace/preview"
+          className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          The fixture laboratory
+        </Link>
+      </nav>
+
       <section aria-labelledby="considered" className="mt-16 flex flex-col gap-6">
         {/* The heading has to survive the state beneath it: "What I weighed"
             above "I have not looked at any source yet" says weighing happened

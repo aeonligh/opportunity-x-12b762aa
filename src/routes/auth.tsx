@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -59,7 +60,7 @@ function AuthPage() {
       const { data } = await supabase.auth.getUser();
       if (!cancelled && data.user) {
         setHandingOff(true);
-        await navigate({ to: "/dashboard" });
+        await navigate({ to: safeRedirectPath(new URLSearchParams(window.location.search).get("next")) });
       }
       initialCheckDone.current = true;
     })();
@@ -73,7 +74,7 @@ function AuthPage() {
       const ok = await waitForSession(4000);
       if (cancelled || !ok) return;
       setHandingOff(true);
-      await navigate({ to: "/dashboard" });
+      await navigate({ to: safeRedirectPath(new URLSearchParams(window.location.search).get("next")) });
     });
 
     return () => {
@@ -103,7 +104,7 @@ function AuthPage() {
       const ok = await waitForSession(6000);
       if (!ok) throw new Error("Session did not become available");
       setHandingOff(true);
-      await navigate({ to: "/dashboard" });
+      await navigate({ to: safeRedirectPath(new URLSearchParams(window.location.search).get("next")) });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
       setLoading(false);

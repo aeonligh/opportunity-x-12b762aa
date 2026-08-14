@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
-import { recordCommitment } from "@/app/actions/step";
+import { Link } from "@tanstack/react-router";
+/* Commitments live in the earlier product's tables and were not part of the
+   transfer. Until they are, the Step cannot offer to write one. */
+const recordCommitment = null as unknown as (i: unknown) => Promise<{ recorded: false; limit: string }>;
 import type { ProductScope } from "@/lib/core/profile/types";
 
 /**
