@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "node --conditions=react-server --import ./test/register.mjs --test \"test/**/*.test.ts\""
+    "test": "node --conditions=react-server --import ./test/register.mjs --test \"test/**/*.test.ts\"",
+    "sweep": "node --experimental-strip-types scripts/sweep.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
