@@ -743,8 +743,8 @@ test("the card renders the projection's sentences rather than composing its own"
    11 · The journey has no dead ends
    ══════════════════════════════════════════════════════════════════════════ */
 
-const WORKSPACE_PAGE = readFileSync("src/app/(workspace)/workspace/page.tsx", "utf8");
-const PREVIEW_PAGE = readFileSync("src/app/(workspace)/opportunity/preview/page.tsx", "utf8");
+const WORKSPACE_PAGE = readFileSync("src/routes/_authenticated/workspace.tsx", "utf8");
+const PREVIEW_PAGE = readFileSync("src/routes/_authenticated/workspace.preview.tsx", "utf8");
 const PURSUIT_SQL = readFileSync(
   "supabase/migrations/20260810160000_opportunity_pursuit_and_delivery.sql",
   "utf8"

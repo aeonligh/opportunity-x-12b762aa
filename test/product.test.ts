@@ -440,7 +440,7 @@ test("journey 9b — the Step can name a commitment, and both values came from s
 
 test("journey 10 — every fixture card is engine output, and the laboratory says so", () => {
   const demo = readFileSync("src/lib/opportunity/surface/demo.ts", "utf8");
-  const page = readFileSync("src/app/(workspace)/opportunity/preview/page.tsx", "utf8");
+  const page = readFileSync("src/routes/_authenticated/workspace.preview.tsx", "utf8");
 
   /* Built, not written. */
   for (const stage of [
@@ -528,7 +528,7 @@ test("journey 10d — the laboratory covers every state it claims to, and each s
   }
 
   /* The three absences are three components, never one with a variant prop. */
-  const page = readFileSync("src/app/(workspace)/opportunity/preview/page.tsx", "utf8");
+  const page = readFileSync("src/routes/_authenticated/workspace.preview.tsx", "utf8");
   assert.match(page, /UnknownState/);
   assert.match(page, /EmptyState/);
   assert.match(page, /NextBestStep/, "Absent is rendered by the Step, from a real resolution");
@@ -611,7 +611,7 @@ test("the Workspace reads a person's declarations once, not once per card", () =
     projection has to accept them, and the route has to pass them.
   */
   const service = readFileSync("src/lib/opportunity/surface/service.ts", "utf8");
-  const page = readFileSync("src/app/(workspace)/workspace/page.tsx", "utf8");
+  const page = readFileSync("src/routes/_authenticated/workspace.tsx", "utf8");
 
   assert.match(
     service,
@@ -703,7 +703,7 @@ test("reduced motion is honoured globally, not per component", () => {
     A per-component opt-out is a per-component thing to forget. The global rule
     is what makes a new surface safe by default.
   */
-  const css = readFileSync("src/app/globals.css", "utf8");
+  const css = readFileSync("src/styles.css", "utf8");
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /animation-duration:\s*0\.01ms\s*!important/);
   assert.match(css, /transition-duration:\s*0\.01ms\s*!important/);
@@ -713,7 +713,7 @@ test("reduced motion is honoured globally, not per component", () => {
    Memory, and the line between what happened and what was said.            */
 
 test("a declaration never becomes a commitment", () => {
-  const page = readFileSync("src/app/(workspace)/ledger/page.tsx", "utf8");
+  const page = readFileSync("src/routes/_authenticated/workspace.ledger.tsx", "utf8");
 
   /*
     L4: the Ledger's "length is determined by what the user actually committed
@@ -742,7 +742,7 @@ test("a declaration whose opportunity AEON X can no longer see is still shown", 
     track of what it was about, and dropping the row would quietly edit their
     own record — the one thing the Ownership Principle puts beyond the system.
   */
-  const page = readFileSync("src/app/(workspace)/ledger/page.tsx", "utf8");
+  const page = readFileSync("src/routes/_authenticated/workspace.ledger.tsx", "utf8");
   assert.match(page, /something I can no longer see/);
   assert.match(page, /I still hold what you said/);
 

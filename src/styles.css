@@ -225,3 +225,28 @@ html.light {
   .brand-loader-caption { animation: none; opacity: 1; }
 }
 
+
+/* ============================================================
+   Reduced motion, globally.
+
+   The rule above disables the brand loader specifically. That is a
+   per-component opt-out, and a per-component opt-out is a per-component thing
+   to forget: any surface added later animates regardless of the preference,
+   and nobody notices because the person who set it cannot report what they did
+   not see.
+
+   Stated once, for everything. Opportunity X's motion principle is "atmosphere
+   moves, information does not" — and for a reader who has asked for stillness,
+   neither does.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
