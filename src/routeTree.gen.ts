@@ -15,9 +15,13 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
+import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedOpportunitiesExamplesRouteImport } from './routes/_authenticated/opportunities.examples'
+import { Route as AuthenticatedOpportunitiesIdRouteImport } from './routes/_authenticated/opportunities.$id'
 import { Route as AuthenticatedDashboardDocumentsRouteImport } from './routes/_authenticated/dashboard.documents'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
 import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authenticated/admin/queue'
@@ -55,6 +59,17 @@ const AuthenticatedVaultRoute = AuthenticatedVaultRouteImport.update({
   path: '/vault',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOpportunitiesRoute =
+  AuthenticatedOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -70,6 +85,18 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOpportunitiesExamplesRoute =
+  AuthenticatedOpportunitiesExamplesRouteImport.update({
+    id: '/examples',
+    path: '/examples',
+    getParentRoute: () => AuthenticatedOpportunitiesRoute,
+  } as any)
+const AuthenticatedOpportunitiesIdRoute =
+  AuthenticatedOpportunitiesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedOpportunitiesRoute,
+  } as any)
 const AuthenticatedDashboardDocumentsRoute =
   AuthenticatedDashboardDocumentsRouteImport.update({
     id: '/documents',
@@ -119,6 +146,8 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
+  '/saved': typeof AuthenticatedSavedRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -126,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/admin/queue': typeof AuthenticatedAdminQueueRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
+  '/opportunities/$id': typeof AuthenticatedOpportunitiesIdRoute
+  '/opportunities/examples': typeof AuthenticatedOpportunitiesExamplesRoute
   '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
   '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
 }
@@ -136,6 +167,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
+  '/saved': typeof AuthenticatedSavedRoute
   '/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -143,6 +176,8 @@ export interface FileRoutesByTo {
   '/admin/queue': typeof AuthenticatedAdminQueueRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
+  '/opportunities/$id': typeof AuthenticatedOpportunitiesIdRoute
+  '/opportunities/examples': typeof AuthenticatedOpportunitiesExamplesRoute
   '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
   '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
 }
@@ -155,6 +190,8 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
+  '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -162,6 +199,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/queue': typeof AuthenticatedAdminQueueRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
+  '/_authenticated/opportunities/$id': typeof AuthenticatedOpportunitiesIdRoute
+  '/_authenticated/opportunities/examples': typeof AuthenticatedOpportunitiesExamplesRoute
   '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
   '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
 }
@@ -174,6 +213,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/onboarding'
+    | '/opportunities'
+    | '/saved'
     | '/vault'
     | '/opportunity/$id'
     | '/admin/analytics'
@@ -181,6 +222,8 @@ export interface FileRouteTypes {
     | '/admin/queue'
     | '/dashboard/applications'
     | '/dashboard/documents'
+    | '/opportunities/$id'
+    | '/opportunities/examples'
     | '/api/public/hooks/crawl-opportunities'
     | '/api/public/hooks/deadline-reminders'
   fileRoutesByTo: FileRoutesByTo
@@ -191,6 +234,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/onboarding'
+    | '/opportunities'
+    | '/saved'
     | '/vault'
     | '/opportunity/$id'
     | '/admin/analytics'
@@ -198,6 +243,8 @@ export interface FileRouteTypes {
     | '/admin/queue'
     | '/dashboard/applications'
     | '/dashboard/documents'
+    | '/opportunities/$id'
+    | '/opportunities/examples'
     | '/api/public/hooks/crawl-opportunities'
     | '/api/public/hooks/deadline-reminders'
   id:
@@ -209,6 +256,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
+    | '/_authenticated/opportunities'
+    | '/_authenticated/saved'
     | '/_authenticated/vault'
     | '/opportunity/$id'
     | '/_authenticated/admin/analytics'
@@ -216,6 +265,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/queue'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/documents'
+    | '/_authenticated/opportunities/$id'
+    | '/_authenticated/opportunities/examples'
     | '/api/public/hooks/crawl-opportunities'
     | '/api/public/hooks/deadline-reminders'
   fileRoutesById: FileRoutesById
@@ -274,6 +325,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVaultRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/saved': {
+      id: '/_authenticated/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof AuthenticatedSavedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/opportunities': {
+      id: '/_authenticated/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -294,6 +359,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/opportunities/examples': {
+      id: '/_authenticated/opportunities/examples'
+      path: '/examples'
+      fullPath: '/opportunities/examples'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesExamplesRouteImport
+      parentRoute: typeof AuthenticatedOpportunitiesRoute
+    }
+    '/_authenticated/opportunities/$id': {
+      id: '/_authenticated/opportunities/$id'
+      path: '/$id'
+      fullPath: '/opportunities/$id'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesIdRouteImport
+      parentRoute: typeof AuthenticatedOpportunitiesRoute
     }
     '/_authenticated/dashboard/documents': {
       id: '/_authenticated/dashboard/documents'
@@ -382,10 +461,29 @@ const AuthenticatedDashboardRouteWithChildren =
     AuthenticatedDashboardRouteChildren,
   )
 
+interface AuthenticatedOpportunitiesRouteChildren {
+  AuthenticatedOpportunitiesIdRoute: typeof AuthenticatedOpportunitiesIdRoute
+  AuthenticatedOpportunitiesExamplesRoute: typeof AuthenticatedOpportunitiesExamplesRoute
+}
+
+const AuthenticatedOpportunitiesRouteChildren: AuthenticatedOpportunitiesRouteChildren =
+  {
+    AuthenticatedOpportunitiesIdRoute: AuthenticatedOpportunitiesIdRoute,
+    AuthenticatedOpportunitiesExamplesRoute:
+      AuthenticatedOpportunitiesExamplesRoute,
+  }
+
+const AuthenticatedOpportunitiesRouteWithChildren =
+  AuthenticatedOpportunitiesRoute._addFileChildren(
+    AuthenticatedOpportunitiesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRouteWithChildren
+  AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
 }
 
@@ -393,6 +491,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRouteWithChildren,
+  AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedVaultRoute: AuthenticatedVaultRoute,
 }
 
