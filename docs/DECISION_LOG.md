@@ -715,3 +715,89 @@ other than a throwaway local one. Production was not promoted. The canonical
 project `anfiojmbgonrtympzjch` remains unreachable because it belongs to a
 Supabase account this session is not connected to — not a scope toggle, and not
 something a different project can substitute for.
+
+---
+
+## The canonical database, applied and verified against itself
+
+**Feature.** The three Opportunity X migrations applied to `anfiojmbgonrtympzjch`,
+plus a fourth hardening one, and every guarantee proved against the live
+database rather than read from the SQL.
+
+**Identity confirmed before anything was written.** The newly connected account
+holds one organisation, *aeonligh's Org*, with two projects. The canonical one
+identifies itself as **`opportunity-x-12b762aa`** — the same name as the GitHub
+repository and the Vercel project. The other, `ammxjzievfwcwmecacma`
+("aeonligh's Project", February, different region), was left alone. Nothing was
+written until the name matched.
+
+**The project was paused, and that nearly produced a false result.** It was
+`INACTIVE`; the first connection attempt started a restore. During `COMING_UP`,
+`list_tables` returned `[]`, `list_migrations` returned `[]`, and **all three
+`apply_migration` calls returned `{"success": true}`** — after which a catalog
+query appeared to confirm the tables existed.
+
+None of it survived. Once the project reached `ACTIVE_HEALTHY` the database
+showed its real contents: fourteen base tables, no migration records, and **zero
+Opportunity X tables** — no engine enums, no refusal functions. The three
+"successes" had landed on a transient instance and were discarded by the
+restore.
+
+This is the phase's own instruction earning its keep. Had the success flags been
+taken at face value, the report would have said the migrations were applied and
+the database would have been empty. Every subsequent claim is therefore made
+from a catalog query or a behavioural probe, never from a tool's return value.
+
+**Applied, for real, in filename order.** Re-applied against the healthy
+database and verified after each. `list_migrations` had shown `[]` while
+fourteen base tables existed, so the earlier schema was created outside the
+migration system; the four Opportunity X migrations are the first tracked ones.
+
+**Every guarantee proved by making the forbidden operation fail.** Run against
+the live canonical database inside a transaction that ends in `raise`, so the
+probe rows never commit:
+
+| Guarantee | Result |
+|---|---|
+| observation UPDATE / DELETE / TRUNCATE | refused |
+| verification event UPDATE / DELETE | refused |
+| delivery UPDATE / DELETE | refused |
+| delivery missing one of its four sentences | refused |
+| delivery on an unknown surface | refused |
+| retrieval dated in the future | refused |
+| retrieved row with no items and no reason | refused |
+| unreachable row carrying content | refused |
+| malformed content digest | refused |
+| pursuit UPDATE / TRUNCATE | refused |
+| pursuit DELETE (withdrawal) | allowed |
+| person A reading B's declarations | 0 of B's rows visible |
+| person A writing a declaration owned by B | refused |
+| person A deleting B's declaration | 0 rows affected |
+
+**Nothing was fabricated, and the Unknown signal is intact.** Behavioural proof
+required rows, and `opportunity_observations` is append-only — a probe row could
+never have been deleted. So every probe ran inside a transaction terminated by
+`raise exception`, which aborts it. Confirmed afterwards: all four tables at 0
+rows, `auth.users` at 0, and `last_retrieval_at` **null**. That null is the
+product's only evidence that real discovery has never happened, and committing a
+fake observation would have destroyed it permanently.
+
+**A fourth migration, from Supabase's own linter.** Both refusal functions were
+`SECURITY DEFINER` and reachable at `/rest/v1/rpc/...` by `anon` and
+`authenticated` — PostgreSQL's default `EXECUTE` grant to `public`, never
+revoked. They only `raise`, so nothing was exposed, but a trigger function
+should not be an endpoint.
+`20260815170000_refusal_functions_are_not_endpoints.sql` revokes it.
+PostgreSQL checks `EXECUTE` when a trigger is created rather than on each row,
+so the enforcement is unaffected — asserted, not assumed: the probes were re-run
+afterwards and every forbidden operation is still refused. `has_role` and
+`rls_auto_enable` carry the same warning and were deliberately left alone; they
+belong to the earlier product surface.
+
+**What blocks the rest, precisely.** `auth.users` contains **zero rows**. There
+is no account to sign in with, so the real journey cannot start — not a code
+problem and not something this session should fix by minting credentials in a
+production auth system.
+
+**Gates.** ESLint 0 errors, TypeScript 0, tests 215/215, build clean, local
+migration verifier **40/40**, routes 8/8, browser 26/26 and 14/14.

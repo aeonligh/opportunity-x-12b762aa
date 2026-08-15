@@ -1,0 +1,38 @@
+-- The two refusal functions are triggers, not API endpoints.
+--
+-- Supabase's security linter flagged both as `SECURITY DEFINER` functions
+-- callable by `anon` and `authenticated` through PostgREST — reachable at
+-- `/rest/v1/rpc/refuse_observation_mutation` and
+-- `/rest/v1/rpc/refuse_person_record_revision`.
+--
+-- ── Why this is small ─────────────────────────────────────────────────────
+--
+-- Both functions do exactly one thing: `raise exception`. They take no
+-- arguments, read nothing, and write nothing, so calling one over the API
+-- returns an error and achieves nothing else. No data is exposed by this and
+-- none could be.
+--
+-- ── Why it is worth doing anyway ──────────────────────────────────────────
+--
+-- A `SECURITY DEFINER` function runs as its owner. These two never should be
+-- entered from anywhere but a trigger, and leaving them callable means the
+-- next person to read the linter has to re-derive that they are harmless. The
+-- privilege was never intended; it is PostgreSQL's default `EXECUTE` grant to
+-- `public`, which the original migrations did not revoke.
+--
+-- ── Why the triggers still fire ───────────────────────────────────────────
+--
+-- PostgreSQL checks `EXECUTE` on a trigger function when the trigger is
+-- *created*, not on every row it fires for. Revoking the grant from `anon` and
+-- `authenticated` therefore disarms the endpoint and leaves the enforcement
+-- intact — which is asserted rather than assumed: the append-only probes were
+-- re-run against the live database after this migration was applied, and every
+-- forbidden operation is still refused.
+--
+-- `has_role` and `rls_auto_enable` carry the same warning and are deliberately
+-- untouched: they predate the Opportunity X engine, belong to the earlier
+-- product surface, and changing another feature's privileges to quiet a linter
+-- during a foundation lock would be exactly the unscoped edit this phase forbids.
+
+revoke execute on function public.refuse_observation_mutation() from public, anon, authenticated;
+revoke execute on function public.refuse_person_record_revision() from public, anon, authenticated;

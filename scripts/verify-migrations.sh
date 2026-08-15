@@ -94,7 +94,8 @@ SQL
 echo "── Applying the three migrations in filename order"
 for m in supabase/migrations/20260810121500_opportunity_observations.sql \
          supabase/migrations/20260810122000_opportunity_verification_events.sql \
-         supabase/migrations/20260810160000_opportunity_pursuit_and_delivery.sql; do
+         supabase/migrations/20260810160000_opportunity_pursuit_and_delivery.sql \
+         supabase/migrations/20260815170000_refusal_functions_are_not_endpoints.sql; do
   if psql -h /tmp -p "$PORT" -U postgres -d "$DB" -v ON_ERROR_STOP=1 -q -f "$m" >/dev/null 2>&1; then
     ok "$(basename "$m") applied"
   else
@@ -228,6 +229,15 @@ refused "changing a declaration in place (UPDATE)" \
 refused "TRUNCATE on declarations" "truncate public.opportunity_pursuits;"
 allowed "withdrawing a declaration (DELETE)" \
   "delete from public.opportunity_pursuits where entity_id='aaaaaaaa-0000-4000-8000-000000000009';"
+
+echo
+echo "── The refusal functions are triggers, not endpoints"
+[ "$(psql_q "select has_function_privilege('anon','public.refuse_observation_mutation()','execute')")" = "f" ] \
+  && ok "anon cannot call refuse_observation_mutation over the API" \
+  || bad "anon can still call refuse_observation_mutation"
+[ "$(psql_q "select has_function_privilege('authenticated','public.refuse_person_record_revision()','execute')")" = "f" ] \
+  && ok "authenticated cannot call refuse_person_record_revision over the API" \
+  || bad "authenticated can still call refuse_person_record_revision"
 
 echo
 echo "── Row-level security: one person cannot reach another's declarations"
