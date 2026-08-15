@@ -645,3 +645,73 @@ build clean.
 real pursuit, real journey, real discovery) remain BLOCKED, now on one specific
 thing: access to the Supabase account owning `anfiojmbgonrtympzjch`. Real
 discovery additionally needs the egress policy lifted.
+
+---
+
+## Phase 10 closure: everything reachable, and the boundary named
+
+**Feature.** `scripts/verify-migrations.sh`, the Vercel framework-preset
+investigation, and a full re-audit against the constitutional facts. No product
+feature, no architectural change.
+
+**Audit against the seven constitutional facts.** Re-derived from the repository
+rather than from the previous report. `.env` references `anfiojmbgonrtympzjch`
+four times and `fbqufjvkzbifklxtouol` zero times. No tracked file mentions the
+AEON X project except the two documents that deliberately explain why it is not
+used. Zero imports of `@/lib/core`, `components/workspace` or `ui/tier0`. The
+project identifier is nowhere hardcoded in `src/` — it arrives from the
+environment. The three migrations are present in filename order. The laboratory
+guard is intact. The only vocabulary hits are two occurrences of "Workspace" as
+ordinary English on a legacy dashboard route, already assessed as not an AEON X
+dependency.
+
+**`scripts/verify-migrations.sh` — the guarantees, made repeatable.** These were
+previously proved once, by hand, in a shell. They are the foundation every other
+layer rests on and they remain unapplied to the canonical project, so the check
+now runs on demand: `npm run verify:migrations`. It stands up a throwaway
+PostgreSQL, shims only the Supabase objects the migrations actually reference,
+applies all three in filename order, and asserts **37** guarantees — with the
+forbidden operations required to raise, not to affect zero rows.
+
+**It caught its own first version.** Four assertions failed on the opening run:
+`UPDATE` and `DELETE` against `opportunity_verification_events` and
+`opportunity_deliveries` were reported as *allowed*. Both tables were empty, and
+a row-level `BEFORE` trigger never fires when a statement matches no rows — so
+the script was measuring nothing and correctly said so rather than passing
+vacuously. This is the exact failure the phase brief names: *"Do not report
+'UPDATE 0 rows' as equivalent to a denied UPDATE."* Every table is now seeded
+before its guarantee is tested.
+
+Seeding then failed twice more, both times because the schema refused a
+malformed row: a delivery whose `shown` object omitted three of its four
+sentences, and a delivery on a surface that does not exist. Those refusals are
+the constraints working, and they are now assertions in their own right.
+
+**Vercel framework preset — investigated, and deliberately not changed.** The
+project declares `framework: "tanstack-start-lovable"`. The question was whether
+that is stale metadata or something that affects the build.
+
+Evidence gathered: `vite.config.ts` builds through `nitro({ defaultPreset:
+"vercel" })`, which emits Build Output API v3 — `.vercel/output/config.json`
+declares `framework: nitro` and carries the routing table directly, so Vercel
+consumes a finished contract rather than inferring one. The repository contains
+no Lovable anything: not in `package.json`, `bun.lock`, `vite.config.ts`,
+`node_modules`, or `src/`. Seven consecutive deployments are READY, each
+reporting `lambdaRuntimeStats: {"nodejs":1}`, so the server function deploys.
+
+**Conclusion: stale metadata, no functional effect, no correction made.** A
+framework preset governs defaults for a build that has not already produced the
+Build Output contract; this one has. Changing it on a working pipeline with no
+demonstrated problem would be risk without benefit, and the brief's instruction
+was not to change it blindly. Recorded as a cosmetic inaccuracy on the Vercel
+project record.
+
+**Measured gates.** ESLint 0 errors (9 warnings). TypeScript 0. Tests 215/215.
+Build clean. Migrations 37/37. Routes 8/8 serving. Browser 26/26 journey,
+14/14 deep-link.
+
+**The boundary, unchanged and now precise.** Nothing was applied to any database
+other than a throwaway local one. Production was not promoted. The canonical
+project `anfiojmbgonrtympzjch` remains unreachable because it belongs to a
+Supabase account this session is not connected to — not a scope toggle, and not
+something a different project can substitute for.
