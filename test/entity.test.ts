@@ -69,7 +69,7 @@ test("disagreement is expressible — the later reading does not overwrite the e
   assert.equal(agreedValue(result.entity, "deadline"), null);
   assert.deepEqual(
     contestedFields(result.entity).map((f) => f.field),
-    ["deadline"]
+    ["deadline"],
   );
 });
 
@@ -162,7 +162,14 @@ test("an entity carries no owner, no score and no rank", () => {
   assert.ok("entity" in result);
 
   const keys = Object.keys(result.entity);
-  for (const forbidden of ["ownerId", "owner_id", "score", "rank", "opportunityScore", "selectionProbability"]) {
+  for (const forbidden of [
+    "ownerId",
+    "owner_id",
+    "score",
+    "rank",
+    "opportunityScore",
+    "selectionProbability",
+  ]) {
     assert.equal(keys.includes(forbidden), false, `entity must not carry ${forbidden}`);
   }
 });

@@ -11,7 +11,12 @@ import {
 } from "./crawl";
 import type { Transport } from "./fetcher";
 import type { RobotsPolicy } from "./robots";
-import { coverage, type DiscoveryMechanism, type MechanismCoverage, type MechanismId } from "./mechanism";
+import {
+  coverage,
+  type DiscoveryMechanism,
+  type MechanismCoverage,
+  type MechanismId,
+} from "./mechanism";
 import { institutionalChannels } from "./mechanisms/institutional-channels";
 import { changeDetection } from "./mechanisms/change-detection";
 
@@ -139,7 +144,7 @@ export async function runDiscovery(options: DiscoveryOptions): Promise<Discovery
 async function recentlyObserved(
   store: ObservationStore,
   hours: number,
-  now: string
+  now: string,
 ): Promise<Set<string>> {
   const cutoff = new Date(new Date(now).getTime() - hours * 3_600_000).toISOString();
   const observed = await store.observedUrls();

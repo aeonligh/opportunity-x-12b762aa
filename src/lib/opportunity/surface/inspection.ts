@@ -179,9 +179,7 @@ export function projectInspection(input: {
   return {
     card,
     fields,
-    contradictions: ALL_FIELDS.flatMap((field) =>
-      contradictionFor(input.entity, field, byId)
-    ),
+    contradictions: ALL_FIELDS.flatMap((field) => contradictionFor(input.entity, field, byId)),
     deadlineReasoning: deadlineReasoning(input.entity, card),
     verificationHistory: input.verification?.transitions ?? [],
     sources: input.observations.map((observation) => ({
@@ -242,7 +240,7 @@ function statementsIn(observation: SourceObservation): SourceStatement[] {
 function contradictionFor(
   entity: OpportunityEntity,
   field: ObservedField,
-  byId: ReadonlyMap<string, SourceObservation>
+  byId: ReadonlyMap<string, SourceObservation>,
 ): Contradiction[] {
   const held = entity.fields.find((f) => f.field === field);
   if (!held || agrees(held)) return [];
@@ -273,11 +271,11 @@ function contradictionFor(
                 (c) =>
                   c.field === field &&
                   (c.normalised ?? c.asStated) === reading.value &&
-                  c.asStated !== reading.value
+                  c.asStated !== reading.value,
               )
-              .map((c) => c.asStated)
+              .map((c) => c.asStated),
           );
-        })
+        }),
       ),
     ];
 
@@ -325,7 +323,9 @@ function deadlineReasoning(entity: OpportunityEntity, card: OpportunityCard): st
   if (!agrees(held)) {
     return `Sources give ${held.readings.length} different deadlines — ${held.readings
       .map((r) => readingDate(r))
-      .join(" and ")}. A contested deadline is not a deadline, so I treat the timing as unknown rather than choosing the later one.`;
+      .join(
+        " and ",
+      )}. A contested deadline is not a deadline, so I treat the timing as unknown rather than choosing the later one.`;
   }
 
   const reading = held.readings[0];
@@ -337,7 +337,7 @@ function deadlineReasoning(entity: OpportunityEntity, card: OpportunityCard): st
   */
   const base = `One closing date — ${readingDate(reading)} — stated by ${count(
     reading.observedIn.length,
-    "source"
+    "source",
   )}, last seen on ${humanDate(reading.lastSeenAt) ?? reading.lastSeenAt}. Whether it has passed is worked out from that date and the clock, because no source announces its own closure reliably.`;
 
   return card.timing.state === "closed"
@@ -354,11 +354,11 @@ function whatHappensNext(card: OpportunityCard): string[] {
     steps.push(
       card.action.verb === "Open the announcement"
         ? "Opening the announcement takes you to the source. I do not know what the process is called, so I will not describe one."
-        : `${card.action.verb} takes you to ${new URL(card.action.href).hostname}. That leaves Opportunity X entirely.`
+        : `${card.action.verb} takes you to ${new URL(card.action.href).hostname}. That leaves Opportunity X entirely.`,
     );
   } else {
     steps.push(
-      "I have no single place to send you: sources disagree about where to go, and both are listed above."
+      "I have no single place to send you: sources disagree about where to go, and both are listed above.",
     );
   }
 
@@ -367,12 +367,12 @@ function whatHappensNext(card: OpportunityCard): string[] {
     commitment from a click. Following a link means someone went to look.
   */
   steps.push(
-    "Following that link is not recorded as an application. Nothing is concluded from the fact that you clicked, and I do not track whether you applied."
+    "Following that link is not recorded as an application. Nothing is concluded from the fact that you clicked, and I do not track whether you applied.",
   );
 
   if (card.pursuit.state === "undeclared") {
     steps.push(
-      "Marking this Interested keeps it in view and affects when you are reminded. It is your statement, editable and removable, and it never becomes a signal about you."
+      "Marking this Interested keeps it in view and affects when you are reminded. It is your statement, editable and removable, and it never becomes a signal about you.",
     );
   }
 

@@ -7,7 +7,17 @@ import { establishVerification } from "@/lib/opportunity/verification/service";
 import { judge, judgeAll, NO_ASSESSOR } from "@/lib/opportunity/judgment/service";
 import type { PairingJudgments, RankingInput } from "@/lib/opportunity/judgment/types";
 import { measureDivergence } from "@/lib/opportunity/monitors";
-import { confirmedFact, inferredFact, fixedAssessor, observe, page, T0, T1, T2, membersOf } from "./fixtures.ts";
+import {
+  confirmedFact,
+  inferredFact,
+  fixedAssessor,
+  observe,
+  page,
+  T0,
+  T1,
+  T2,
+  membersOf,
+} from "./fixtures.ts";
 
 const UNN = "https://www.unn.edu.ng/example-scholarship/";
 const UNILAG = "https://unilag.edu.ng/example-scholarship/";
@@ -72,7 +82,14 @@ test("all six judgments are produced, each independently addressable", () => {
     ranking: { position: 1, outOf: 1 },
   });
 
-  for (const kind of ["verification", "eligibility", "fit", "risk", "ranking", "recommendation"] as const) {
+  for (const kind of [
+    "verification",
+    "eligibility",
+    "fit",
+    "risk",
+    "ranking",
+    "recommendation",
+  ] as const) {
     assert.ok(j[kind], `${kind} judgment must exist`);
     assert.equal(j[kind].kind, kind);
     assert.ok(j[kind].because.length > 0, `${kind} must say why`);
@@ -167,7 +184,12 @@ test("missing evidence is never negative evidence — an unchecked requirement d
     assessor: fixedAssessor({
       eligibility: [
         met("Open to Nigerian nationals.", "f1"),
-        { kind: "stated-constraint", criterion: "Requires a first degree.", status: "unknown", provenance: "inferred" },
+        {
+          kind: "stated-constraint",
+          criterion: "Requires a first degree.",
+          status: "unknown",
+          provenance: "inferred",
+        },
       ],
     }),
   });
@@ -275,7 +297,7 @@ test("ranking orders on verification, open state, then deadline — and nothing 
       verification: p.verification,
       facts: [],
       now: T2,
-    }))
+    })),
   );
 
   assert.equal(ranked[0].entityId, near.entity.id, "verified and closing soonest ranks first");
@@ -283,11 +305,11 @@ test("ranking orders on verification, open state, then deadline — and nothing 
   assert.equal(
     ranked[2].entityId,
     unverified.entity.id,
-    "an unverified entity ranks last however near its deadline"
+    "an unverified entity ranks last however near its deadline",
   );
   assert.deepEqual(
     ranked.map((r) => r.ranking.position),
-    [1, 2, 3]
+    [1, 2, 3],
   );
 });
 
@@ -315,7 +337,7 @@ test("a closed opportunity is still judged and still explains itself", () => {
   assert.doesNotMatch(
     j.recommendation.because,
     /\b(verification|eligibility|fit|risk|ranking)\b/,
-    "no judgment kind is printed to the reader as its own name"
+    "no judgment kind is printed to the reader as its own name",
   );
 });
 
@@ -359,7 +381,10 @@ test("an override is structurally excluded from learning", () => {
 
 test("a judgment set never renders a person's facts into the entity", () => {
   const { entity, verification } = verifiedPairing();
-  const facts = [confirmedFact("f1", "I want a fully funded master's."), inferredFact("f2", "Prefers UK programmes.")];
+  const facts = [
+    confirmedFact("f1", "I want a fully funded master's."),
+    inferredFact("f2", "Prefers UK programmes."),
+  ];
   const j: PairingJudgments = judge({
     personId: "p1",
     entity,

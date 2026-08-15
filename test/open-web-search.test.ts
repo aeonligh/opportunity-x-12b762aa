@@ -2,7 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { openWebSearch, DEFAULT_QUERIES } from "@/lib/opportunity/discovery/mechanisms/open-web-search";
+import {
+  openWebSearch,
+  DEFAULT_QUERIES,
+} from "@/lib/opportunity/discovery/mechanisms/open-web-search";
 import { runDiscovery } from "@/lib/opportunity/discovery/run";
 import { InMemoryObservationStore } from "@/lib/opportunity/observation/store";
 import { InMemoryVerificationLog } from "@/lib/opportunity/verification/log";
@@ -84,9 +87,7 @@ test("a search hit is retrieved, and only the page's own words are recorded", as
   const title = observation.items[0]?.claims.find((c) => c.field === "title");
   assert.equal(title?.asStated, "Independent Foundation Fellowship");
 
-  const identity = observation.items[0]?.identity.find(
-    (s) => s.kind === "declared-identifier"
-  );
+  const identity = observation.items[0]?.identity.find((s) => s.kind === "declared-identifier");
   assert.deepEqual(identity, { kind: "declared-identifier", value: "ALF-FELLOW-2026" });
 });
 
@@ -177,7 +178,7 @@ test("nothing the search API says about a page can reach the record", () => {
   */
   const source = readFileSync(
     "src/lib/opportunity/discovery/mechanisms/open-web-search.ts",
-    "utf8"
+    "utf8",
   );
 
   assert.match(source, /Promise<string\[\]>/, "search returns URLs and nothing else");

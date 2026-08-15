@@ -83,9 +83,7 @@ export interface RecommendationResult {
   considered: PairingJudgments[];
 }
 
-export async function recommendNextStep(
-  input: RecommendInput
-): Promise<RecommendationResult> {
+export async function recommendNextStep(input: RecommendInput): Promise<RecommendationResult> {
   const searchedAt = await input.store.lastRetrievalAt();
 
   /*
@@ -110,7 +108,9 @@ export async function recommendNextStep(
       const verification = input.verifications.get(entity.id);
       return verification ? { entity, verification } : null;
     })
-    .filter((x): x is { entity: OpportunityEntity; verification: VerificationRecord } => x !== null);
+    .filter(
+      (x): x is { entity: OpportunityEntity; verification: VerificationRecord } => x !== null,
+    );
 
   const considered = judgeAll(
     judgeable.map(({ entity, verification }) => ({
@@ -120,7 +120,7 @@ export async function recommendNextStep(
       facts: input.facts,
       now: input.now,
       assessor: input.assessor,
-    }))
+    })),
   );
 
   /*
@@ -150,16 +150,18 @@ export async function recommendNextStep(
         judgments,
         pursuit: input.pursuits?.get(judgments.entityId) ?? { state: "undeclared" },
         now: input.now,
-      })
+      }),
     );
   }
 
   const declined = new Set(
-    [...stanceFor.values()].filter((s) => s.declaration === "not-interested").map((s) => s.entityId)
+    [...stanceFor.values()]
+      .filter((s) => s.declaration === "not-interested")
+      .map((s) => s.entityId),
   );
 
   const interested = considered.filter(
-    (j) => stanceFor.get(j.entityId)?.declaration === "interested"
+    (j) => stanceFor.get(j.entityId)?.declaration === "interested",
   );
 
   /* Soonest real deadline first among declared interests. Not a score — a date. */
@@ -177,7 +179,7 @@ export async function recommendNextStep(
       (j) =>
         j.recommendation.verdict === "recommend" &&
         !declined.has(j.entityId) &&
-        stanceFor.get(j.entityId)?.declaration !== "interested"
+        stanceFor.get(j.entityId)?.declaration !== "interested",
     ),
   ];
 
@@ -234,7 +236,7 @@ function buildStep(
   entity: OpportunityEntity,
   facts: readonly ProfileFact[],
   now: string,
-  stance?: PursuitStance
+  stance?: PursuitStance,
 ): NextStep | null {
   const title = agreedValue(entity, "title");
   if (title === null) {
@@ -312,7 +314,7 @@ function buildStep(
         status: i.status,
         provenance: i.provenance,
         factId: i.factId,
-      })
+      }),
     ),
   };
 
@@ -353,7 +355,7 @@ function groundIn(
   entity: OpportunityEntity,
   facts: readonly ProfileFact[],
   source: SourceRef,
-  stance: PursuitStance | undefined
+  stance: PursuitStance | undefined,
 ) {
   if (stance?.declaration === "interested" && stance.since) {
     return evidenceFromDeclaration(
@@ -364,13 +366,13 @@ function groundIn(
         summary: `You told me you were interested in this.`,
         source,
         product: "opportunity-x",
-      }
+      },
     );
   }
 
   const grounding = [...judgments.eligibility.requirements, ...judgments.fit.inputs].find(
     (i): i is RankingInput & { factId: string } =>
-      i.status === "met" && typeof i.factId === "string"
+      i.status === "met" && typeof i.factId === "string",
   );
   if (!grounding) return null;
 

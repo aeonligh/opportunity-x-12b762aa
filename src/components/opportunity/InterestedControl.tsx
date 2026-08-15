@@ -195,9 +195,8 @@ export function InterestedControl({
       */}
       {fixture ? null : (
         <p className="max-w-[58ch] text-[13px] leading-relaxed text-text-s">
-          This is yours. It changes what I keep in view and when I remind you. It
-          never becomes a signal about you, and I never infer it from what you
-          click.
+          This is yours. It changes what I keep in view and when I remind you. It never becomes a
+          signal about you, and I never infer it from what you click.
         </p>
       )}
     </div>

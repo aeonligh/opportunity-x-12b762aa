@@ -85,7 +85,7 @@ export interface MergeCandidate {
 /** The strongest signal available for an item, page identity included. */
 export function strongestSignal(
   item: ObservedItem,
-  pageIdentity: readonly IdentitySignal[]
+  pageIdentity: readonly IdentitySignal[],
 ): IdentitySignal {
   const all = [...item.identity, ...pageIdentity];
 
@@ -117,7 +117,7 @@ const STRENGTH_LABEL: Record<IdentitySignal["kind"], string> = {
 
 export function identityFor(
   item: ObservedItem,
-  pageIdentity: readonly IdentitySignal[]
+  pageIdentity: readonly IdentitySignal[],
 ): EntityIdentity {
   const signal = strongestSignal(item, pageIdentity);
   return {
@@ -135,9 +135,10 @@ export function identityFor(
  * as many members as it carried items, and one item can join a group first
  * reached through a different URL entirely.
  */
-export function groupObservations(
-  observations: readonly SourceObservation[]
-): { groups: ResolutionGroup[]; candidates: MergeCandidate[] } {
+export function groupObservations(observations: readonly SourceObservation[]): {
+  groups: ResolutionGroup[];
+  candidates: MergeCandidate[];
+} {
   const byKey = new Map<string, ResolutionGroup>();
 
   for (const observation of observations) {
@@ -221,9 +222,7 @@ function proposeMerges(groups: readonly ResolutionGroup[]): MergeCandidate[] {
       const organiserB = valuesOf(b, "organiser");
       const sharedOrganiser = [...organiserA].filter((v) => organiserB.has(v));
       if (sharedTitle.length > 0 && sharedOrganiser.length > 0) {
-        because.push(
-          `Identical title and organiser: "${sharedTitle[0]}" by ${sharedOrganiser[0]}`
-        );
+        because.push(`Identical title and organiser: "${sharedTitle[0]}" by ${sharedOrganiser[0]}`);
       }
 
       if (because.length === 0) continue;
@@ -234,7 +233,7 @@ function proposeMerges(groups: readonly ResolutionGroup[]): MergeCandidate[] {
       const cycleB = cycleOf(b);
       if (cycleA && cycleB && cycleA !== cycleB) {
         against.push(
-          `Different declared cycles (${cycleA} and ${cycleB}). These are separate rounds a person applies to separately.`
+          `Different declared cycles (${cycleA} and ${cycleB}). These are separate rounds a person applies to separately.`,
         );
       }
 
@@ -242,13 +241,13 @@ function proposeMerges(groups: readonly ResolutionGroup[]): MergeCandidate[] {
       const idB = declaredIdentifier(b);
       if (idA && idB && idA !== idB) {
         against.push(
-          `The publisher gave them different identifiers (${idA} and ${idB}), which is a statement that they are not the same thing.`
+          `The publisher gave them different identifiers (${idA} and ${idB}), which is a statement that they are not the same thing.`,
         );
       }
 
       if (against.length === 0) {
         against.push(
-          "No declaration links them. Merging on resemblance alone would eventually fuse two opportunities that merely read alike."
+          "No declaration links them. Merging on resemblance alone would eventually fuse two opportunities that merely read alike.",
         );
       }
 

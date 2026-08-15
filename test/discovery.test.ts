@@ -6,7 +6,10 @@ import { InMemoryVerificationLog } from "@/lib/opportunity/verification/log";
 import { retrieve, USER_AGENT, type Transport } from "@/lib/opportunity/discovery/fetcher";
 import { parseRobots, readRobots } from "@/lib/opportunity/discovery/robots";
 import { runDiscovery } from "@/lib/opportunity/discovery/run";
-import { institutionalChannels, sameDomainLinks } from "@/lib/opportunity/discovery/mechanisms/institutional-channels";
+import {
+  institutionalChannels,
+  sameDomainLinks,
+} from "@/lib/opportunity/discovery/mechanisms/institutional-channels";
 import type { Announcer } from "@/lib/opportunity/announcers/registry";
 import { page } from "./fixtures.ts";
 
@@ -126,7 +129,7 @@ test("an unreadable robots.txt disallows everything", async () => {
 
 test("Disallow is honoured, and Allow overrides it at greater specificity", () => {
   const policy = parseRobots(
-    ["User-agent: *", "Disallow: /private", "Allow: /private/public-notice"].join("\n")
+    ["User-agent: *", "Disallow: /private", "Allow: /private/public-notice"].join("\n"),
   );
   assert.equal(policy.allows("/news"), true);
   assert.equal(policy.allows("/private/thing"), false);
@@ -142,7 +145,7 @@ test("a group naming OpportunityXBot takes precedence over the wildcard", () => 
       "User-agent: OpportunityXBot",
       "Disallow: /admin",
       "Crawl-delay: 3",
-    ].join("\n")
+    ].join("\n"),
   );
   assert.equal(policy.allows("/news"), true);
   assert.equal(policy.allows("/admin/secret"), false);
@@ -156,7 +159,7 @@ test("an empty Disallow is a permission, not a prohibition", () => {
 
 test("wildcards and end-anchors are matched", () => {
   const policy = parseRobots(
-    ["User-agent: *", "Disallow: /*.pdf$", "Disallow: /tmp/*/cache"].join("\n")
+    ["User-agent: *", "Disallow: /*.pdf$", "Disallow: /tmp/*/cache"].join("\n"),
   );
   assert.equal(policy.allows("/files/report.pdf"), false);
   assert.equal(policy.allows("/files/report.pdf?v=2"), true);
@@ -182,8 +185,14 @@ test("links to subdomains of the announcer are followed; other domains are not",
      and a filter on exact host would have excluded this one. */
   assert.ok(links.includes("https://programme.unn.edu.ng/apply"));
   assert.ok(links.includes("https://www.unn.edu.ng/other"));
-  assert.equal(links.some((l) => l.includes("elsewhere.test")), false);
-  assert.equal(links.some((l) => l.startsWith("mailto:")), false);
+  assert.equal(
+    links.some((l) => l.includes("elsewhere.test")),
+    false,
+  );
+  assert.equal(
+    links.some((l) => l.startsWith("mailto:")),
+    false,
+  );
 });
 
 test("fragments are stripped so one page is not two observations", () => {

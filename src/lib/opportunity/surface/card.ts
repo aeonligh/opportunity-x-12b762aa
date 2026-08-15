@@ -125,7 +125,7 @@ const DATE_FIELDS = new Set<ObservedField>(["deadline", "opens"]);
  */
 function display(
   field: ObservedField,
-  reading: Pick<EntityReading, "value" | "precision">
+  reading: Pick<EntityReading, "value" | "precision">,
 ): string {
   return DATE_FIELDS.has(field) ? readingDate(reading) : reading.value;
 }
@@ -281,9 +281,7 @@ export function projectCard(input: CardInput): OpportunityCard {
   const location = viewOf(entity, "location");
   const timing = deriveOpenState(entity, now);
 
-  const verification = input.verification
-    ? resolveVerification(input.verification, now)
-    : null;
+  const verification = input.verification ? resolveVerification(input.verification, now) : null;
 
   return {
     entityId: entity.id,
@@ -317,7 +315,6 @@ export function projectCard(input: CardInput): OpportunityCard {
     shown: explain({ entity, title, organiser, timing, verification, judgments: input.judgments }),
   };
 }
-
 
 /**
  * The deadline as the publisher expressed it.
@@ -367,7 +364,7 @@ function explain(input: {
   for (const field of entity.fields) {
     if (agrees(field)) continue;
     uncertainties.push(
-      `Sources give ${field.readings.length} different values for the ${fieldWords(field.field)}.`
+      `Sources give ${field.readings.length} different values for the ${fieldWords(field.field)}.`,
     );
   }
   for (const field of ["deadline", "eligibility", "funding"] as const) {

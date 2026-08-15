@@ -74,7 +74,7 @@ const UNDECLARED: PursuitResolution = { state: "undeclared" };
 /** Everything the person has said, in one read. */
 export async function pursuitsFor(
   personId: string,
-  client: PersonClient
+  client: PersonClient,
 ): Promise<ReadonlyMap<string, PursuitResolution>> {
   try {
     if (client === null) return new Map();
@@ -89,7 +89,7 @@ export async function pursuitsFor(
 async function pursuitFor(
   personId: string,
   entityId: string,
-  client: PersonClient
+  client: PersonClient,
 ): Promise<PursuitResolution> {
   try {
     if (client === null) return UNDECLARED;
@@ -125,7 +125,7 @@ export async function resolveCards(
      * same N+1 into every future caller that forgot.
      */
     pursuits?: ReadonlyMap<string, PursuitResolution>;
-  } = {}
+  } = {},
 ): Promise<CardsResolution> {
   const now = new Date().toISOString();
   const record = opportunityRecord();
@@ -160,7 +160,7 @@ export async function resolveCards(
         verification,
         facts: [],
         now,
-      }))
+      })),
     );
 
     const cards: OpportunityCard[] = [];
@@ -174,7 +174,7 @@ export async function resolveCards(
             options.pursuits?.get(entity.id) ??
             (options.pursuits ? UNDECLARED : await pursuitFor(personId, entity.id, client)),
           now,
-        })
+        }),
       );
     }
 
@@ -231,7 +231,7 @@ export type DeclarationsResolution =
  */
 export async function resolveDeclarations(
   personId: string,
-  client: PersonClient
+  client: PersonClient,
 ): Promise<DeclarationsResolution> {
   let pursuits: ReadonlyMap<string, PursuitResolution>;
 
@@ -297,7 +297,7 @@ export async function resolveDeclarations(
 export async function resolveInspection(
   personId: string,
   entityId: string,
-  client: PersonClient
+  client: PersonClient,
 ): Promise<InspectionResolution> {
   const now = new Date().toISOString();
   const record = opportunityRecord();

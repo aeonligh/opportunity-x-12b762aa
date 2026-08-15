@@ -56,7 +56,7 @@ export function institutionalChannels(options: InstitutionalChannelOptions = {})
         let budget = maxPages;
 
         const known = announcer.knownPaths.map(
-          (path) => new URL(path, `https://${announcer.domain}`).href
+          (path) => new URL(path, `https://${announcer.domain}`).href,
         );
         const queued = new Set(known);
         const discovered: string[] = [];
@@ -68,11 +68,7 @@ export function institutionalChannels(options: InstitutionalChannelOptions = {})
 
           if (observation?.outcome !== "retrieved") continue;
 
-          for (const link of sameDomainLinks(
-            observation.content.body,
-            url,
-            announcer.domain
-          )) {
+          for (const link of sameDomainLinks(observation.content.body, url, announcer.domain)) {
             if (!queued.has(link)) {
               queued.add(link);
               discovered.push(link);
@@ -104,7 +100,7 @@ export function institutionalChannels(options: InstitutionalChannelOptions = {})
 export function sameDomainLinks(
   body: string,
   baseUrl: string,
-  registrableDomain: string
+  registrableDomain: string,
 ): string[] {
   const found = new Set<string>();
 

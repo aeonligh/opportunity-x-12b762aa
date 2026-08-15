@@ -114,7 +114,7 @@ function observe(url: string, body: string, at: string): SourceObservation {
       encoding: "utf-8",
       contentType: "text/html; charset=utf-8",
     },
-    { source: { sourceId, label, sourceClass } }
+    { source: { sourceId, label, sourceClass } },
   );
 }
 
@@ -138,8 +138,7 @@ const PERSON = "preview";
 
 function specimens(now: string): Specimen[] {
   /* Retrievals, oldest first. All in the past relative to `now`. */
-  const seen = (daysAgo: number) =>
-    new Date(new Date(now).getTime() - daysAgo * DAY).toISOString();
+  const seen = (daysAgo: number) => new Date(new Date(now).getTime() - daysAgo * DAY).toISOString();
 
   return [
     {
@@ -155,8 +154,7 @@ function specimens(now: string): Specimen[] {
           applyUrl: "https://education.gov.ng/bea/apply",
           identifier: "DEMO-FMOE-BEA-2026",
           funding: "Full tuition, monthly stipend, one return flight",
-          eligibility:
-            "Nigerian citizens holding a first degree with at least Second Class Upper",
+          eligibility: "Nigerian citizens holding a first degree with at least Second Class Upper",
           location: "Study abroad; partner countries vary by cycle",
         });
         return [
@@ -184,7 +182,7 @@ function specimens(now: string): Specimen[] {
             type: "EducationEvent",
             location: "Nsukka, Enugu State",
           }),
-          seen(4)
+          seen(4),
         ),
       ],
     },
@@ -205,7 +203,7 @@ function specimens(now: string): Specimen[] {
             identifier: "DEMO-PTDF-OSS-2026",
             funding: "Full tuition and stipend",
           }),
-          seen(9)
+          seen(9),
         ),
         observe(
           "https://www.unn.edu.ng/ptdf-scholarship/",
@@ -217,7 +215,7 @@ function specimens(now: string): Specimen[] {
             identifier: "DEMO-PTDF-OSS-2026",
             funding: "Full tuition and stipend",
           }),
-          seen(3)
+          seen(3),
         ),
       ],
     },
@@ -282,7 +280,7 @@ function specimens(now: string): Specimen[] {
             identifier: "DEMO-PTDF-FELLOW-2026",
             eligibility: "Holders of a masters degree in a petroleum-related discipline",
           }),
-          seen(8)
+          seen(8),
         ),
       ],
     },
@@ -327,7 +325,7 @@ function specimens(now: string): Specimen[] {
             applyUrl: "https://uniport.edu.ng/opportunities/shell-jv/apply",
             identifier: "DEMO-UNIPORT-SHELL-2026",
           }),
-          seen(5)
+          seen(5),
         ),
       ],
     },
@@ -422,7 +420,11 @@ export async function demoCorpus(now: string = new Date().toISOString()): Promis
         method: entity.resolution.method,
         stakes: entity.stakes,
       },
-      establishVerification(entity, group.members.map((m) => m.observation), now)
+      establishVerification(
+        entity,
+        group.members.map((m) => m.observation),
+        now,
+      ),
     );
   }
 
@@ -447,7 +449,7 @@ export async function demoCorpus(now: string = new Date().toISOString()): Promis
         state,
         /* Said a few days ago, so "since you said that" has somewhere to point. */
         declaredAt: new Date(new Date(now).getTime() - 3 * DAY).toISOString(),
-      })
+      }),
     );
   }
 
@@ -459,7 +461,7 @@ export async function demoCorpus(now: string = new Date().toISOString()): Promis
       verification: records.get(entity.id)!,
       facts: [],
       now,
-    }))
+    })),
   );
 
   const scenarios: DemoScenario[] = [];
@@ -469,9 +471,7 @@ export async function demoCorpus(now: string = new Date().toISOString()): Promis
      grouping happened to produce — the sequence is the argument. */
   const byId = new Map(resolved.map((r) => [r.entity.id, r]));
   const ordered = set.flatMap((specimen) => {
-    const match = [...byId.values()].find(
-      (r) => specimenFor.get(r.entity.id)?.id === specimen.id
-    );
+    const match = [...byId.values()].find((r) => specimenFor.get(r.entity.id)?.id === specimen.id);
     return match ? [{ specimen, ...match }] : [];
   });
 

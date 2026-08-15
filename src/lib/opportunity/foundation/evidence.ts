@@ -1,8 +1,4 @@
-import type {
-  DecayClass,
-  ProductScope,
-  ProfileFact,
-} from "@/lib/opportunity/foundation/person";
+import type { DecayClass, ProductScope, ProfileFact } from "@/lib/opportunity/foundation/person";
 import type { Evidence, SourceRef, UncheckedEvidence } from "./claim";
 
 /**
@@ -87,7 +83,7 @@ export function evidenceFromFact(
     source: SourceRef;
     /** The product context this claim is being made in. */
     product: ProductScope;
-  }
+  },
 ): EvidenceResult {
   /*
     E3 — product isolation, checked before anything is built.
@@ -103,7 +99,7 @@ export function evidenceFromFact(
   */
   if (claim.product !== fact.learnedIn) {
     const granted = fact.permissions.some(
-      (p) => p.product === claim.product && p.state === "granted"
+      (p) => p.product === claim.product && p.state === "granted",
     );
     if (!granted) {
       return {
@@ -201,7 +197,7 @@ export function evidenceFromDeclaration(
     summary: string;
     source: SourceRef;
     product: ProductScope;
-  }
+  },
 ): Evidence {
   return minted({
     summary: claim.summary,

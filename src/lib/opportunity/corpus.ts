@@ -93,7 +93,7 @@ export interface Corpus {
 export async function deriveCorpus(
   store: ObservationStore,
   log: VerificationLog,
-  options: { decidedAt: string }
+  options: { decidedAt: string },
 ): Promise<Corpus> {
   const searchedAt = await store.lastRetrievalAt();
   const observations = await store.readAll();

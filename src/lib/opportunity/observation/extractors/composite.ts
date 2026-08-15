@@ -41,7 +41,7 @@ export interface CompositeOptions {
 
 export function compositeExtractor(
   members: readonly ClaimExtractor[],
-  options: CompositeOptions = {}
+  options: CompositeOptions = {},
 ): ClaimExtractor {
   const own = options.version ?? "1.0.0";
 
@@ -74,7 +74,7 @@ export function compositeExtractor(
             meaning anything.
           */
           throw new Error(
-            `Extractor ${member.id} is declared "enriches" but returned ${result.items.length} item(s). Only an "identifies" extractor may assert that a document describes an opportunity.`
+            `Extractor ${member.id} is declared "enriches" but returned ${result.items.length} item(s). Only an "identifies" extractor may assert that a document describes an opportunity.`,
           );
         }
 
@@ -154,7 +154,7 @@ function mergeItems(items: readonly ObservedItem[]): ObservedItem[] {
          many parsers noticed it. Different text is a disagreement, and both
          survive. */
       const duplicate = existing.claims.some(
-        (c) => c.field === claim.field && c.asStated === claim.asStated
+        (c) => c.field === claim.field && c.asStated === claim.asStated,
       );
       if (!duplicate) existing.claims.push(claim);
     }
@@ -166,7 +166,10 @@ function mergeItems(items: readonly ObservedItem[]): ObservedItem[] {
 }
 
 function fingerprint(members: readonly ClaimExtractor[]): number {
-  const text = members.map((m) => `${m.id}@${m.version}`).sort().join("|");
+  const text = members
+    .map((m) => `${m.id}@${m.version}`)
+    .sort()
+    .join("|");
   let hash = 0;
   for (let i = 0; i < text.length; i += 1) {
     hash = (hash * 31 + text.charCodeAt(i)) % 100_000;

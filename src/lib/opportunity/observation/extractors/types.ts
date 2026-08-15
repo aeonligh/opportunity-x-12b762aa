@@ -1,9 +1,4 @@
-import type {
-  IdentitySignal,
-  ObservedItem,
-  ParserVersion,
-  Unreadable,
-} from "../types";
+import type { IdentitySignal, ObservedItem, ParserVersion, Unreadable } from "../types";
 
 /**
  * The extraction contract.

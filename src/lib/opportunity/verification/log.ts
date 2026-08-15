@@ -39,7 +39,7 @@ export interface VerificationLog {
   /** Append one transition. There is no update and no delete. */
   record(
     entity: { id: string; key: string; method: string; stakes: Stakes },
-    record: VerificationRecord
+    record: VerificationRecord,
   ): Promise<void>;
   /** Every entity that has any verification history, folded to a record. */
   readAll(): Promise<Map<string, VerificationRecord>>;
@@ -85,7 +85,7 @@ export function foldEvents(rows: readonly EventRow[]): VerificationRecord | null
       at: new Date(row.at).toISOString(),
       reason: row.reason,
       ...(row.observation_id ? { observationId: row.observation_id } : {}),
-    })
+    }),
   );
 
   return {
@@ -107,7 +107,7 @@ export class SupabaseVerificationLog implements VerificationLog {
 
   async record(
     entity: { id: string; key: string; method: string; stakes: Stakes },
-    record: VerificationRecord
+    record: VerificationRecord,
   ): Promise<void> {
     /*
       Only the newest transition is written. The earlier ones are already rows —
@@ -132,7 +132,7 @@ export class SupabaseVerificationLog implements VerificationLog {
 
     if (error) {
       throw new Error(
-        `Could not record the verification transition for ${entity.id}: ${error.message}`
+        `Could not record the verification transition for ${entity.id}: ${error.message}`,
       );
     }
   }
@@ -185,7 +185,7 @@ export class InMemoryVerificationLog implements VerificationLog {
 
   async record(
     entity: { id: string; key: string; method: string; stakes: Stakes },
-    record: VerificationRecord
+    record: VerificationRecord,
   ): Promise<void> {
     const latest = record.transitions[record.transitions.length - 1];
     const rows = this.#events.get(entity.id) ?? [];

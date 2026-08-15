@@ -279,7 +279,7 @@ export function isEntityScoped(judgment: Judgment): judgment is VerificationJudg
 /** Read the entity a judgment set is about, for callers that hold only the set. */
 export function judgedEntity(
   judgments: PairingJudgments,
-  entities: readonly OpportunityEntity[]
+  entities: readonly OpportunityEntity[],
 ): OpportunityEntity | null {
   return entities.find((e) => e.id === judgments.entityId) ?? null;
 }

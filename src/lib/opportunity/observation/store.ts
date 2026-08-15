@@ -43,7 +43,7 @@ export class InMemoryObservationStore implements ObservationStore {
     */
     if (this.#byId.has(observation.id)) {
       throw new Error(
-        `Observation ${observation.id} already exists. Observations are append-only; a re-encounter is a new observation.`
+        `Observation ${observation.id} already exists. Observations are append-only; a re-encounter is a new observation.`,
       );
     }
 
@@ -83,9 +83,7 @@ export class InMemoryObservationStore implements ObservationStore {
   }
 
   async readAll(): Promise<SourceObservation[]> {
-    return [...this.#byId.values()].sort((a, b) =>
-      a.retrievedAt.localeCompare(b.retrievedAt)
-    );
+    return [...this.#byId.values()].sort((a, b) => a.retrievedAt.localeCompare(b.retrievedAt));
   }
 
   async count(): Promise<number> {

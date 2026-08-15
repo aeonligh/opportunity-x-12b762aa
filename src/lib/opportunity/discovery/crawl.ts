@@ -70,7 +70,7 @@ export async function visit(
   ctx: CrawlContext,
   url: string,
   report: MechanismReport,
-  touched: Set<string>
+  touched: Set<string>,
 ): Promise<SourceObservation | null> {
   if (ctx.visited.has(url)) {
     report.skipped.push({ url, reason: "Already visited in this run." });
@@ -156,7 +156,7 @@ export interface Transition {
  */
 export async function reconcile(
   ctx: CrawlContext,
-  touched: ReadonlySet<string>
+  touched: ReadonlySet<string>,
 ): Promise<Transition[]> {
   if (touched.size === 0) return [];
 
@@ -192,12 +192,7 @@ export async function reconcile(
     const entity = resolved.entity;
     const observations = group.members.map((m) => m.observation);
     const previous = (await ctx.verification.read(entity.id)) ?? undefined;
-    const record = establishVerification(
-      entity,
-      observations,
-      new Date().toISOString(),
-      previous
-    );
+    const record = establishVerification(entity, observations, new Date().toISOString(), previous);
 
     await ctx.verification.record(
       {
@@ -206,7 +201,7 @@ export async function reconcile(
         method: entity.resolution.method,
         stakes: entity.stakes,
       },
-      record
+      record,
     );
 
     const latest = record.transitions[record.transitions.length - 1];

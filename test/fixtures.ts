@@ -53,11 +53,7 @@ export function page(opts: PageOptions): string {
 }
 
 /** A page declaring several — a listing, or a news post carrying two calls. */
-export function listingPage(
-  pageTitle: string,
-  entries: PageOptions[],
-  canonical?: string
-): string {
+export function listingPage(pageTitle: string, entries: PageOptions[], canonical?: string): string {
   return html(pageTitle, entries.map(programme), canonical);
 }
 
@@ -84,7 +80,7 @@ export function exchange(
   completedAt: string,
   status: number | null = 200,
   contentType = "text/html; charset=utf-8",
-  encoding: "utf-8" | "base64" = "utf-8"
+  encoding: "utf-8" | "base64" = "utf-8",
 ): CompletedExchange {
   return {
     url,
@@ -100,7 +96,7 @@ export function observe(
   url: string,
   body: string | null,
   completedAt: string,
-  status: number | null = 200
+  status: number | null = 200,
 ): SourceObservation {
   const { sourceId, label, sourceClass } = classify(url);
   return witness(exchange(url, body, completedAt, status), {
@@ -114,7 +110,7 @@ export function observeBinary(
   url: string,
   bytes: string,
   completedAt: string,
-  contentType = "application/pdf"
+  contentType = "application/pdf",
 ): SourceObservation {
   const { sourceId, label, sourceClass } = classify(url);
   return witness(
@@ -124,9 +120,9 @@ export function observeBinary(
       completedAt,
       200,
       contentType,
-      "base64"
+      "base64",
     ),
-    { source: { sourceId, label, sourceClass }, extractor: defaultExtractor }
+    { source: { sourceId, label, sourceClass }, extractor: defaultExtractor },
   );
 }
 

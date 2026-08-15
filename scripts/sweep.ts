@@ -47,7 +47,7 @@ async function main(): Promise<void> {
 
   if (!url || !serviceRoleKey) {
     console.error(
-      "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. The sweep writes observations and will not run without somewhere durable to write them."
+      "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. The sweep writes observations and will not run without somewhere durable to write them.",
     );
     process.exitCode = 1;
     return;
@@ -59,7 +59,7 @@ async function main(): Promise<void> {
 
   if (announcers.length === 0) {
     console.error(
-      `No announcer matched ${requested.join(", ")}. Known ids: ${ANNOUNCERS.map((a) => a.id).join(", ")}`
+      `No announcer matched ${requested.join(", ")}. Known ids: ${ANNOUNCERS.map((a) => a.id).join(", ")}`,
     );
     process.exitCode = 1;
     return;
@@ -98,7 +98,9 @@ async function main(): Promise<void> {
   }
 
   console.log(`  observations ${report.observationIds.length}`);
-  console.log(`  watermark    ${report.retrievalWatermark ?? "null (nothing has ever been retrieved)"}`);
+  console.log(
+    `  watermark    ${report.retrievalWatermark ?? "null (nothing has ever been retrieved)"}`,
+  );
 }
 
 await main();

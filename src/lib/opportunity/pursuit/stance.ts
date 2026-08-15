@@ -144,7 +144,7 @@ export function deriveUrgency(entity: OpportunityEntity, now: string): Urgency {
   */
   const daysLeft = Math.max(
     0,
-    Math.floor((new Date(open.deadline).getTime() - new Date(now).getTime()) / DAY)
+    Math.floor((new Date(open.deadline).getTime() - new Date(now).getTime()) / DAY),
   );
 
   return daysLeft <= CLOSING_WINDOW_DAYS
@@ -161,7 +161,7 @@ export function deriveUrgency(entity: OpportunityEntity, now: string): Urgency {
 export function outstandingFor(
   entity: OpportunityEntity,
   verification: VerificationResolution | null,
-  judgments: PairingJudgments | null
+  judgments: PairingJudgments | null,
 ): Outstanding[] {
   const out: Outstanding[] = [];
 
@@ -226,8 +226,7 @@ export interface StanceInput {
 export function deriveStance(input: StanceInput): PursuitStance {
   const { entity, pursuit, now } = input;
 
-  const declaration =
-    pursuit.state === "declared" ? pursuit.declaration.state : "undeclared";
+  const declaration = pursuit.state === "declared" ? pursuit.declaration.state : "undeclared";
   const since = pursuit.state === "declared" ? pursuit.declaration.declaredAt : null;
 
   const urgency = deriveUrgency(entity, now);

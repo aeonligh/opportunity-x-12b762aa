@@ -27,7 +27,7 @@ function pageWith(deadline: string) {
 
 function entityFrom(
   observations: ReturnType<typeof observe>[],
-  stakes: Stakes = "material"
+  stakes: Stakes = "material",
 ): OpportunityEntity {
   const result = resolveEntity({
     members: membersOf(observations),
@@ -59,10 +59,7 @@ test("one institutional source does not verify a material opportunity", () => {
 });
 
 test("two institutional sources verify a material opportunity", () => {
-  const o = [
-    observe(UNN, pageWith("2026-09-30"), T0),
-    observe(UNILAG, pageWith("2026-09-30"), T1),
-  ];
+  const o = [observe(UNN, pageWith("2026-09-30"), T0), observe(UNILAG, pageWith("2026-09-30"), T1)];
   const record = establishVerification(entityFrom(o), o, T1);
   assert.equal(record.verdict, "verified");
   assert.equal(record.basis.distinctSources, 2);
@@ -70,20 +67,14 @@ test("two institutional sources verify a material opportunity", () => {
 });
 
 test("verification depth scales with the opportunity's own stakes", () => {
-  const o = [
-    observe(UNN, pageWith("2026-09-30"), T0),
-    observe(UNILAG, pageWith("2026-09-30"), T1),
-  ];
+  const o = [observe(UNN, pageWith("2026-09-30"), T0), observe(UNILAG, pageWith("2026-09-30"), T1)];
 
   /* The same two sources: enough for material, not enough for life-changing. */
   assert.equal(establishVerification(entityFrom(o, "material"), o, T1).verdict, "verified");
-  assert.equal(
-    establishVerification(entityFrom(o, "life-changing"), o, T1).verdict,
-    "unverified"
-  );
+  assert.equal(establishVerification(entityFrom(o, "life-changing"), o, T1).verdict, "unverified");
 
   assert.ok(
-    CORROBORATION["life-changing"].distinctSources > CORROBORATION.material.distinctSources
+    CORROBORATION["life-changing"].distinctSources > CORROBORATION.material.distinctSources,
   );
   assert.ok(CORROBORATION["life-changing"].freshnessDays < CORROBORATION.material.freshnessDays);
 });
@@ -120,10 +111,7 @@ test("every source falling silent withdraws the entity", () => {
 });
 
 test("verification fails closed at expiry, without any job running", () => {
-  const o = [
-    observe(UNN, pageWith("2026-12-30"), T0),
-    observe(UNILAG, pageWith("2026-12-30"), T1),
-  ];
+  const o = [observe(UNN, pageWith("2026-12-30"), T0), observe(UNILAG, pageWith("2026-12-30"), T1)];
   const record = establishVerification(entityFrom(o), o, T1);
   assert.equal(record.verdict, "verified");
 
@@ -138,10 +126,7 @@ test("verification fails closed at expiry, without any job running", () => {
 });
 
 test("the expiry is derived from stakes and cannot be supplied", () => {
-  const o = [
-    observe(UNN, pageWith("2026-12-30"), T0),
-    observe(UNILAG, pageWith("2026-12-30"), T1),
-  ];
+  const o = [observe(UNN, pageWith("2026-12-30"), T0), observe(UNILAG, pageWith("2026-12-30"), T1)];
   const material = establishVerification(entityFrom(o, "material"), o, T1);
   const critical = establishVerification(entityFrom(o, "life-changing"), o, T1);
   assert.ok(critical.expiresAt < material.expiresAt);
@@ -166,10 +151,7 @@ test("transitions are retained, not just the current verdict", () => {
 });
 
 test("expiry alone does not count as de-verification", () => {
-  const o = [
-    observe(UNN, pageWith("2026-12-30"), T0),
-    observe(UNILAG, pageWith("2026-12-30"), T1),
-  ];
+  const o = [observe(UNN, pageWith("2026-12-30"), T0), observe(UNILAG, pageWith("2026-12-30"), T1)];
   const record = establishVerification(entityFrom(o), o, T1);
   /* The clock demoting a stale row is not the model revising a belief. */
   assert.equal(hasEverDeverified([record]), false);
@@ -200,10 +182,7 @@ test("no observed deadline resolves unknown, never open", () => {
 });
 
 test("a contested deadline is not a deadline", () => {
-  const o = [
-    observe(UNN, pageWith("2026-09-30"), T0),
-    observe(UNILAG, pageWith("2026-10-15"), T1),
-  ];
+  const o = [observe(UNN, pageWith("2026-09-30"), T0), observe(UNILAG, pageWith("2026-10-15"), T1)];
   const state = deriveOpenState(entityFrom(o), T1);
   assert.equal(state.state, "unknown");
   if (state.state !== "unknown") return;

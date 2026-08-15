@@ -145,10 +145,7 @@ declare const EVIDENCE_PROVENANCE_CHECKED: unique symbol;
  * never an accepted substitute.
  */
 export type UncheckedEvidence = EvidenceBase &
-  (
-    | { provenance: "confirmed" }
-    | { provenance: "inferred" | "learned"; confidence: number }
-  );
+  ({ provenance: "confirmed" } | { provenance: "inferred" | "learned"; confidence: number });
 
 export type Evidence = UncheckedEvidence & {
   readonly [EVIDENCE_PROVENANCE_CHECKED]: true;

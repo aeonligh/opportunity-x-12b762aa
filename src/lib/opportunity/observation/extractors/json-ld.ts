@@ -105,9 +105,7 @@ function textOf(value: unknown): string | null {
  */
 const HAS_TIME = /\d{1,2}:\d{2}/;
 
-function normaliseDate(
-  raw: string
-): { value: string; precision?: "day" } | undefined {
+function normaliseDate(raw: string): { value: string; precision?: "day" } | undefined {
   const parsed = new Date(raw);
   if (Number.isNaN(parsed.getTime())) return undefined;
   /* A bare "2027" parses as 2027-01-01 in most runtimes — a precise deadline
@@ -135,7 +133,7 @@ function isOpportunity(node: Record<string, unknown>): boolean {
 /** Walk every node in a JSON-LD document, remembering where each one was. */
 function* nodes(
   value: unknown,
-  path: string
+  path: string,
 ): Generator<{ node: Record<string, unknown>; path: string }> {
   if (Array.isArray(value)) {
     for (const [index, item] of value.entries()) yield* nodes(item, `${path}[${index}]`);
@@ -151,11 +149,7 @@ function* nodes(
   }
 }
 
-function itemFrom(
-  node: Record<string, unknown>,
-  path: string,
-  by: string
-): ObservedItem {
+function itemFrom(node: Record<string, unknown>, path: string, by: string): ObservedItem {
   const claims: ObservedClaim[] = [];
   const seen = new Set<string>();
 
@@ -242,7 +236,8 @@ export const jsonLdExtractor: ClaimExtractor = {
         items: [],
         pageIdentity: [],
         unreadable: {
-          reason: "Binary media. Nothing in this engine can read it yet, and the bytes are retained so it can be read later.",
+          reason:
+            "Binary media. Nothing in this engine can read it yet, and the bytes are retained so it can be read later.",
           mediaType: contentType,
         },
       };

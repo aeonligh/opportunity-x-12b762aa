@@ -55,7 +55,7 @@ function bea(opts: { deadline?: string; id?: string; eligibility?: string | null
     node.programPrerequisites = opts.eligibility ?? "Nigerian citizens with a first degree";
   }
   return `<!doctype html><html><head><script type="application/ld+json">${JSON.stringify(
-    node
+    node,
   )}</script></head><body></body></html>`;
 }
 
@@ -102,7 +102,7 @@ function declinedOn(entityId: string, at = T1): PursuitResolution {
 function stanceFor(
   built: ReturnType<typeof build>,
   pursuit: PursuitResolution,
-  opts: { assessed?: boolean } = {}
+  opts: { assessed?: boolean } = {},
 ) {
   const judgments = judge({
     personId: "p1",
@@ -198,7 +198,7 @@ test("4 · declared interest but something is unknown — the uncertainty leads"
     assert.equal(
       /gather|prepare|upload|draft|collect your/i.test(item.because),
       false,
-      `"${item.because}" reads as an invented preparation task`
+      `"${item.because}" reads as an invented preparation task`,
     );
   }
 });
@@ -230,7 +230,7 @@ test("withdrawal returns the person to undeclared, and that is deliberate", asyn
   const built = verified(IN_FOUR_DAYS);
 
   await log.declare(
-    declaration({ personId: "p1", entityId: built.entity.id, state: "interested", declaredAt: T1 })
+    declaration({ personId: "p1", entityId: built.entity.id, state: "interested", declaredAt: T1 }),
   );
   await log.withdraw("p1", built.entity.id);
 
@@ -281,10 +281,10 @@ test("no stance ever tells the person they will win, fit, or are ready", () => {
         const text = [stance.statement, ...stance.outstanding.map((o) => o.because)].join(" ");
         assert.equal(
           /you will win|good fit for you|you should apply|you're ready|you are ready|likely to succeed|strong candidate/i.test(
-            text
+            text,
           ),
           false,
-          `stance leaked a judgment: "${text}"`
+          `stance leaked a judgment: "${text}"`,
         );
       }
     }
@@ -324,10 +324,7 @@ test("the closing window is a stated number of days, not a mood", () => {
    The Step actually changes
    ══════════════════════════════════════════════════════════════════════════ */
 
-async function stepFor(
-  built: ReturnType<typeof build>,
-  pursuits: Map<string, PursuitResolution>
-) {
+async function stepFor(built: ReturnType<typeof build>, pursuits: Map<string, PursuitResolution>) {
   const store = new InMemoryObservationStore();
   for (const o of built.observations) await store.append(o);
 
@@ -355,7 +352,7 @@ test("declaring interest is what makes the Step resolve, and it says why", async
   const built = verified(IN_FOUR_DAYS);
   const { resolution } = await stepFor(
     built,
-    new Map([[built.entity.id, interestedOn(built.entity.id)]])
+    new Map([[built.entity.id, interestedOn(built.entity.id)]]),
   );
 
   assert.equal(resolution.state, "step");
@@ -378,7 +375,7 @@ test("declining removes an opportunity from the Step entirely", async () => {
   const built = verified(IN_FOUR_DAYS);
   const { resolution, considered } = await stepFor(
     built,
-    new Map([[built.entity.id, declinedOn(built.entity.id)]])
+    new Map([[built.entity.id, declinedOn(built.entity.id)]]),
   );
 
   /* Still judged and still inspectable — withholding is not hiding. */
@@ -392,7 +389,7 @@ test("an interested opportunity whose deadline passed does not become the Step",
   const built = verified(LAST_MONTH);
   const { resolution } = await stepFor(
     built,
-    new Map([[built.entity.id, interestedOn(built.entity.id)]])
+    new Map([[built.entity.id, interestedOn(built.entity.id)]]),
   );
 
   assert.equal(resolution.state, "absent");
@@ -444,13 +441,16 @@ test("the Outstanding union has no member for an invented task", () => {
 });
 
 test("no surface renders a preparation checklist", () => {
-  const rendered = CARD_COMPONENT.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+  const rendered = CARD_COMPONENT.replace(/\/\*[\s\S]*?\*\//g, "").replace(
+    /\{\/\*[\s\S]*?\*\/\}/g,
+    "",
+  );
 
   for (const phrase of ["Gather", "Prepare your", "Upload", "Checklist", "Get ready"]) {
     assert.equal(
       rendered.includes(phrase),
       false,
-      `"${phrase}" is preparation UX the corpus does not establish`
+      `"${phrase}" is preparation UX the corpus does not establish`,
     );
   }
 });

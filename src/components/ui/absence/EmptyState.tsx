@@ -21,8 +21,6 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <p className={`max-w-[52ch] text-sm leading-relaxed text-text-s ${className}`}>
-      {expectation}
-    </p>
+    <p className={`max-w-[52ch] text-sm leading-relaxed text-text-s ${className}`}>{expectation}</p>
   );
 }

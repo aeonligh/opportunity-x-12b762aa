@@ -184,7 +184,7 @@ function matches(pattern: string, pathname: string): boolean {
  */
 export async function readRobots(
   origin: string,
-  options: { transport?: Transport; cache?: Map<string, RobotsPolicy> } = {}
+  options: { transport?: Transport; cache?: Map<string, RobotsPolicy> } = {},
 ): Promise<RobotsPolicy> {
   const cached = options.cache?.get(origin);
   if (cached) return cached;

@@ -19,13 +19,15 @@ const TIERS: Record<ProvenanceTier, { glyph: string; label: string; className: s
     glyph: "✓",
     label: "Confirmed by you",
     // aurora-green — a fact the person stated themselves
-    className: "text-[oklch(0.75_0.18_152)] border-[oklch(0.75_0.18_152/0.45)] bg-[oklch(0.75_0.18_152/0.10)]",
+    className:
+      "text-[oklch(0.75_0.18_152)] border-[oklch(0.75_0.18_152/0.45)] bg-[oklch(0.75_0.18_152/0.10)]",
   },
   inferred: {
     glyph: "◐",
     label: "Inferred by AI",
     // amber — may be incorrect, always correctable
-    className: "text-[oklch(0.78_0.13_78)] border-[oklch(0.78_0.13_78/0.45)] bg-[oklch(0.78_0.13_78/0.10)]",
+    className:
+      "text-[oklch(0.78_0.13_78)] border-[oklch(0.78_0.13_78/0.45)] bg-[oklch(0.78_0.13_78/0.10)]",
   },
   learned: {
     glyph: "◎",

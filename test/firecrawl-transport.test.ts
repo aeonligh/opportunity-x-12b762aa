@@ -39,7 +39,7 @@ function stubFirecrawl(handler: (body: Record<string, unknown>) => Response) {
 function ok(rawHtml: string, extra: Record<string, unknown> = {}) {
   return new Response(
     JSON.stringify({ success: true, data: { rawHtml, metadata: { statusCode: 200, ...extra } } }),
-    { status: 200, headers: { "content-type": "application/json" } }
+    { status: 200, headers: { "content-type": "application/json" } },
   );
 }
 
@@ -115,7 +115,7 @@ test("a page fetched through Firecrawl still yields the publisher's declared ide
   assert.deepEqual(
     item.identity.find((s) => s.kind === "declared-identifier"),
     { kind: "declared-identifier", value: "FMOE-BEA-2026" },
-    "the publisher's own identifier survives the round trip"
+    "the publisher's own identifier survives the round trip",
   );
 });
 
@@ -146,10 +146,7 @@ test("a brokered retrieval says it was brokered", () => {
     real difference from a direct retrieval, and it is recorded rather than
     hidden.
   */
-  const source = readFileSync(
-    "src/lib/opportunity/discovery/transports/firecrawl.ts",
-    "utf8"
-  );
+  const source = readFileSync("src/lib/opportunity/discovery/transports/firecrawl.ts", "utf8");
   assert.match(source, /"x-opportunityx-via": "firecrawl"/);
 });
 
@@ -160,15 +157,12 @@ test("robots is still decided by this engine, not by the broker", () => {
     transport is consulted, and unreadable still means disallowed.
   */
   const crawl = readFileSync("src/lib/opportunity/discovery/crawl.ts", "utf8");
-  const transport = readFileSync(
-    "src/lib/opportunity/discovery/transports/firecrawl.ts",
-    "utf8"
-  );
+  const transport = readFileSync("src/lib/opportunity/discovery/transports/firecrawl.ts", "utf8");
 
   assert.match(crawl, /robots/i, "the crawl consults robots before visiting");
   assert.doesNotMatch(
     transport.replace(/\/\*[\s\S]*?\*\//g, ""),
     /robots/i,
-    "the transport must not make, skip, or relax a robots decision"
+    "the transport must not make, skip, or relax a robots decision",
   );
 });

@@ -201,7 +201,7 @@ test("a store that throws on read resolves unknown, never absent", async () => {
       deriveCorpus(broken, new InMemoryVerificationLog(), {
         decidedAt: new Date().toISOString(),
       }),
-    /connection refused/
+    /connection refused/,
   );
 });
 
@@ -262,7 +262,10 @@ test("a run reports the mechanisms that did not run, not only those that did", a
   assert.equal(report.coverage.length, MECHANISMS.length);
 
   const ran = report.coverage.filter((c) => c.ran);
-  assert.deepEqual(ran.map((c) => c.id), ["institutional-channels"]);
+  assert.deepEqual(
+    ran.map((c) => c.id),
+    ["institutional-channels"],
+  );
 
   /* The announcer registry accounts for this entire run. Being able to state
      that is the difference between a known limitation and an invisible one. */

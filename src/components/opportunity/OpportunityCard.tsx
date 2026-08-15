@@ -73,9 +73,7 @@ export function OpportunityCard({
   const inspect = inspectHref ?? `/opportunity/${card.entityId}`;
 
   return (
-    <article
-      className={`flex flex-col gap-6 rounded-lg border border-border p-6 ${className}`}
-    >
+    <article className={`flex flex-col gap-6 rounded-lg border border-border p-6 ${className}`}>
       {evidence === "fixture" ? (
         <p className="rounded-md border border-border bg-surface/40 px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-text-s">
           Fixture — nothing here was retrieved from a real source

@@ -27,7 +27,12 @@ export * from "./announcers/registry";
 
 export * from "./entity/types";
 export { entityIdFor, type EntityIdentity } from "./entity/identity";
-export { resolveEntity, reviseEntity, type ResolveInput, type ResolveResult } from "./entity/resolve";
+export {
+  resolveEntity,
+  reviseEntity,
+  type ResolveInput,
+  type ResolveResult,
+} from "./entity/resolve";
 
 export * from "./verification/types";
 export {
@@ -50,8 +55,16 @@ export {
   type MechanismId,
   type MechanismCoverage,
 } from "./discovery/mechanism";
-export { runDiscovery, defaultMechanisms, type DiscoveryOptions, type DiscoveryReport } from "./discovery/run";
-export { institutionalChannels, sameDomainLinks } from "./discovery/mechanisms/institutional-channels";
+export {
+  runDiscovery,
+  defaultMechanisms,
+  type DiscoveryOptions,
+  type DiscoveryReport,
+} from "./discovery/run";
+export {
+  institutionalChannels,
+  sameDomainLinks,
+} from "./discovery/mechanisms/institutional-channels";
 export { changeDetection } from "./discovery/mechanisms/change-detection";
 
 export * from "./judgment/types";

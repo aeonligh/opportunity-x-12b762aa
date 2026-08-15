@@ -43,7 +43,7 @@ export const declarePursuit = createServerFn({ method: "POST" })
         entityId: data.entityId,
         state: data.state,
         declaredAt: new Date().toISOString(),
-      })
+      }),
     );
     return { recorded: true as const };
   });

@@ -326,7 +326,7 @@ export interface ProfileService {
     userId: string,
     factId: string,
     product: ProductScope,
-    state: FactPermission["state"]
+    state: FactPermission["state"],
   ): Promise<FactPermission>;
 
   /** The same permission records, read by product instead of by fact (IA §11). */

@@ -33,8 +33,18 @@ import type { StoredVerdict } from "../verification/types";
  */
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 /** `2026-09-30T00:00:00.000Z` → `30 September 2026`. Null if unparseable. */

@@ -75,9 +75,7 @@ export function OpportunityInspection({
         <h1 className="max-w-[24ch] text-3xl font-black leading-[1.1] tracking-tighter text-foreground sm:text-4xl">
           {card.shown.statement}
         </h1>
-        <p className="max-w-[58ch] text-[15px] leading-relaxed text-text-s">
-          {card.shown.timing}
-        </p>
+        <p className="max-w-[58ch] text-[15px] leading-relaxed text-text-s">{card.shown.timing}</p>
       </header>
 
       {/*
@@ -203,8 +201,7 @@ export function OpportunityInspection({
                   {transitionWords(transition.from, transition.to)}
                 </span>
                 <span className="max-w-[58ch] font-mono text-[11px] leading-relaxed text-text-s">
-                  {transition.reason} ·{" "}
-                  <FreshnessStamp at={transition.at} verb="" decay="fast" />
+                  {transition.reason} · <FreshnessStamp at={transition.at} verb="" decay="fast" />
                 </span>
               </li>
             ))}
@@ -229,8 +226,7 @@ export function OpportunityInspection({
                 {source.label}
               </a>
               <span className="font-mono text-[11px] text-text-s">
-                {source.kind} ·{" "}
-                <FreshnessStamp at={source.retrievedAt} verb="read" decay="fast" />
+                {source.kind} · <FreshnessStamp at={source.retrievedAt} verb="read" decay="fast" />
                 {/*
                   A failed retrieval is evidence too, and often the earliest
                   signal that something closed. Hiding it would leave the count
@@ -270,8 +266,7 @@ export function OpportunityInspection({
                 </dl>
               ) : source.answered ? (
                 <p className="max-w-[58ch] border-l-2 border-border pl-4 text-[14px] leading-relaxed text-text-s">
-                  This page answered, and nothing about the opportunity could be
-                  read from it.
+                  This page answered, and nothing about the opportunity could be read from it.
                 </p>
               ) : null}
             </li>

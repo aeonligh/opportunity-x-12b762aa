@@ -93,9 +93,7 @@ test("a listing page declaring two opportunities yields two items, not one", () 
      left no trace anywhere in the record — not merged wrongly, destroyed. */
   assert.equal(o.items.length, 2);
 
-  const titles = o.items.map(
-    (i) => i.claims.find((c) => c.field === "title")?.asStated
-  );
+  const titles = o.items.map((i) => i.claims.find((c) => c.field === "title")?.asStated);
   assert.ok(titles.includes("BEA Scholarship 2026/2027"));
   assert.ok(titles.includes("PTDF Overseas Scholarship 2026"));
 
@@ -105,8 +103,20 @@ test("a listing page declaring two opportunities yields two items, not one", () 
 
 test("two opportunities on one page do not pool each other's deadlines", () => {
   const body = listingPage("Two calls", [
-    { title: "A", organiser: "Org A", deadline: "2026-09-30", applyUrl: "https://a.test/x", identifier: "A-1" },
-    { title: "B", organiser: "Org B", deadline: "2026-11-15", applyUrl: "https://b.test/x", identifier: "B-1" },
+    {
+      title: "A",
+      organiser: "Org A",
+      deadline: "2026-09-30",
+      applyUrl: "https://a.test/x",
+      identifier: "A-1",
+    },
+    {
+      title: "B",
+      organiser: "Org B",
+      deadline: "2026-11-15",
+      applyUrl: "https://b.test/x",
+      identifier: "B-1",
+    },
   ]);
 
   const { groups } = groupObservations([observe(UNN, body, T0)]);
@@ -210,10 +220,10 @@ test("a declared cycle separates two rounds served at one stable URL", () => {
      year's deadline overwrite this year's and tell a person to apply by a date
      belonging to a different round. */
   assert.equal(groups.length, 2);
-  assert.deepEqual(
-    groups.map((g) => g.identity.key).sort(),
-    [`${BEA_ID}#2026/2027`, `${BEA_ID}#2027/2028`]
-  );
+  assert.deepEqual(groups.map((g) => g.identity.key).sort(), [
+    `${BEA_ID}#2026/2027`,
+    `${BEA_ID}#2027/2028`,
+  ]);
   for (const group of groups) {
     assert.match(group.rationale, /declared cycle/);
   }
@@ -348,8 +358,16 @@ test("two different opportunities sharing a title stay separate", () => {
     });
 
   const { groups, candidates } = groupObservations([
-    observe("https://www.unn.edu.ng/pg", generic("UNN", "UNN-PG-1", "https://unn.edu.ng/apply"), T0),
-    observe("https://unilag.edu.ng/pg", generic("UNILAG", "UNILAG-PG-1", "https://unilag.edu.ng/apply"), T0),
+    observe(
+      "https://www.unn.edu.ng/pg",
+      generic("UNN", "UNN-PG-1", "https://unn.edu.ng/apply"),
+      T0,
+    ),
+    observe(
+      "https://unilag.edu.ng/pg",
+      generic("UNILAG", "UNILAG-PG-1", "https://unilag.edu.ng/apply"),
+      T0,
+    ),
   ]);
 
   assert.equal(groups.length, 2, "an identical name is not an identity");
@@ -363,7 +381,7 @@ test("one opportunity under two different names resolves to one entity", () => {
     observe(
       UNN,
       beaAt(UNN, { title: "Bilateral Education Agreement (BEA) Scholarship 2026/2027" }),
-      T1
+      T1,
     ),
   ];
 
@@ -384,7 +402,7 @@ test("one opportunity under two different names resolves to one entity", () => {
   assert.equal(title.readings.length, 2);
   assert.deepEqual(
     contestedFields(resolved.entity).map((f) => f.field),
-    ["title"]
+    ["title"],
   );
 });
 
@@ -439,7 +457,9 @@ test("announcers disagreeing about eligibility keep both readings, attributed", 
    ══════════════════════════════════════════════════════════════════════════ */
 
 test("a PDF circular is retained whole and recorded as unreadable, not empty", () => {
-  const o = retrieved(observeBinary("https://education.gov.ng/circulars/bea.pdf", "%PDF-1.4 fake", T0));
+  const o = retrieved(
+    observeBinary("https://education.gov.ng/circulars/bea.pdf", "%PDF-1.4 fake", T0),
+  );
 
   assert.equal(o.content.encoding, "base64");
   /* The bytes round-trip. Decoding a PDF as UTF-8 — which this engine used to
@@ -474,8 +494,13 @@ test("a prose page contributes identity even when it declares no opportunity", (
   const o = retrieved(
     observe(
       "https://www.unn.edu.ng/news/bursary?utm_source=x",
-      prosePage("Bursary announced", "Apply by 30 September.", "https://www.unn.edu.ng/news/bursary")
-    , T0)
+      prosePage(
+        "Bursary announced",
+        "Apply by 30 September.",
+        "https://www.unn.edu.ng/news/bursary",
+      ),
+      T0,
+    ),
   );
 
   /* No item — a `<title>` is not evidence an opportunity exists, or every
@@ -486,8 +511,8 @@ test("a prose page contributes identity even when it declares no opportunity", (
      names the same canonical the two resolve together. */
   assert.ok(
     o.pageIdentity.some(
-      (s) => s.kind === "canonical-url" && s.value === "https://www.unn.edu.ng/news/bursary"
-    )
+      (s) => s.kind === "canonical-url" && s.value === "https://www.unn.edu.ng/news/bursary",
+    ),
   );
   /* And the page URL is always present, and always last. */
   assert.equal(o.pageIdentity.at(-1)?.kind, "page-url");
@@ -528,11 +553,23 @@ test("a mixed corpus resolves into the right number of entities", async () => {
     observe(
       "https://unilag.edu.ng/opportunities",
       listingPage("Opportunities", [
-        { title: "PTDF", organiser: "PTDF", deadline: "2026-11-15", applyUrl: "https://ptdf.gov.ng/a", identifier: "PTDF-1" },
-        { title: "NELFUND", organiser: "NELFUND", deadline: "2026-12-01", applyUrl: "https://nelf.gov.ng/a", identifier: "NELF-1" },
+        {
+          title: "PTDF",
+          organiser: "PTDF",
+          deadline: "2026-11-15",
+          applyUrl: "https://ptdf.gov.ng/a",
+          identifier: "PTDF-1",
+        },
+        {
+          title: "NELFUND",
+          organiser: "NELFUND",
+          deadline: "2026-12-01",
+          applyUrl: "https://nelf.gov.ng/a",
+          identifier: "NELF-1",
+        },
       ]),
-      T1
-    )
+      T1,
+    ),
   );
 
   /* A circular nothing can read, and a page that answered with nothing. */

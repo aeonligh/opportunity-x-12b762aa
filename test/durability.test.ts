@@ -121,7 +121,7 @@ test("a folded record still fails closed at its expiry", async () => {
   const record = establishVerification(resolved.entity, observations, T0);
   await log.record(
     { id: resolved.entity.id, key: UNN, method: "canonical-url", stakes: "material" },
-    record
+    record,
   );
 
   const folded = await log.read(resolved.entity.id);
@@ -134,11 +134,9 @@ test("a folded record still fails closed at its expiry", async () => {
 /* ── Deriving the corpus from the record ─────────────────────────────────── */
 
 test("an empty store derives an empty corpus with a null search time", async () => {
-  const corpus = await deriveCorpus(
-    new InMemoryObservationStore(),
-    new InMemoryVerificationLog(),
-    { decidedAt: T2 }
-  );
+  const corpus = await deriveCorpus(new InMemoryObservationStore(), new InMemoryVerificationLog(), {
+    decidedAt: T2,
+  });
 
   assert.deepEqual(corpus.entities, []);
   /* Null, never `now`. This is the single value that separates "discovery ran
@@ -170,8 +168,8 @@ test("a URL that only ever failed is recorded as a defect, not silently dropped"
   const corpus = await deriveCorpus(store, new InMemoryVerificationLog(), { decidedAt: T2 });
 
   assert.deepEqual(corpus.entities, []);
-  assert.equal(corpus.defects.length, 0, 'a URL that only ever failed produces no group at all');
-  assert.equal(corpus.unreadable.length, 0, 'an unreachable retrieval is not an unreadable page');
+  assert.equal(corpus.defects.length, 0, "a URL that only ever failed produces no group at all");
+  assert.equal(corpus.unreadable.length, 0, "an unreachable retrieval is not an unreadable page");
   /* A retrieval happened, so the search time is real even though nothing was
      resolvable from it. */
   assert.equal(corpus.searchedAt, T0);
@@ -188,33 +186,30 @@ test("unclassified stakes default to the most demanding tier, never the least", 
 
 const OBSERVATIONS_SQL = readFileSync(
   "supabase/migrations/20260810121500_opportunity_observations.sql",
-  "utf8"
+  "utf8",
 );
 const EVENTS_SQL = readFileSync(
   "supabase/migrations/20260810122000_opportunity_verification_events.sql",
-  "utf8"
+  "utf8",
 );
 
 test("the observations table revokes update, delete and truncate from every role", () => {
   assert.match(
     OBSERVATIONS_SQL,
-    /revoke insert, update, delete, truncate, references, trigger\s+on public\.opportunity_observations from anon, authenticated;/
+    /revoke insert, update, delete, truncate, references, trigger\s+on public\.opportunity_observations from anon, authenticated;/,
   );
   /* Including the role the crawler itself runs as. The append-only rule is not
      a rule the writer gets to opt out of. */
   assert.match(
     OBSERVATIONS_SQL,
-    /revoke update, delete, truncate on public\.opportunity_observations from service_role;/
+    /revoke update, delete, truncate on public\.opportunity_observations from service_role;/,
   );
 });
 
 test("both tables refuse mutation in a trigger, not only at the grant", () => {
   assert.match(OBSERVATIONS_SQL, /before update or delete on public\.opportunity_observations/);
   assert.match(OBSERVATIONS_SQL, /before truncate on public\.opportunity_observations/);
-  assert.match(
-    EVENTS_SQL,
-    /before update or delete on public\.opportunity_verification_events/
-  );
+  assert.match(EVENTS_SQL, /before update or delete on public\.opportunity_verification_events/);
 });
 
 test("the schema refuses a retrieval stamped in the future", () => {
@@ -231,7 +226,7 @@ test("the schema refuses a failed retrieval that carries content", () => {
 test("the verification enum has no stored 'expired' member", () => {
   const enumBlock = EVENTS_SQL.slice(
     EVENTS_SQL.indexOf("create type public.verification_verdict"),
-    EVENTS_SQL.indexOf(");", EVENTS_SQL.indexOf("create type public.verification_verdict"))
+    EVENTS_SQL.indexOf(");", EVENTS_SQL.indexOf("create type public.verification_verdict")),
   );
   /* Expiry is a function of the clock. A stored `expired` would be correct only
      until the next tick, so it is applied on read and has nowhere to persist. */

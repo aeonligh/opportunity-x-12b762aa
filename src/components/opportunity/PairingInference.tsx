@@ -83,9 +83,7 @@ export function PairingInference({
         </p>
       ) : (
         <>
-          <p className="max-w-[58ch] text-[15px] leading-relaxed text-foreground">
-            {whySurfaced}
-          </p>
+          <p className="max-w-[58ch] text-[15px] leading-relaxed text-foreground">{whySurfaced}</p>
 
           <dl className="flex flex-col gap-2">
             {(

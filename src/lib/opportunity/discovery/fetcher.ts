@@ -58,7 +58,7 @@ export type Transport = (url: string, init: RequestInit) => Promise<Response>;
 
 export async function retrieve(
   url: string,
-  options: { limits?: FetchLimits; transport?: Transport } = {}
+  options: { limits?: FetchLimits; transport?: Transport } = {},
 ): Promise<CompletedExchange> {
   const limits = options.limits ?? DEFAULT_LIMITS;
   const transport = options.transport ?? ((u, init) => fetch(u, init));
@@ -136,9 +136,7 @@ export async function retrieve(
          is, and a timestamp taken earlier would overstate what was read. */
       completedAt: new Date().toISOString(),
       status: response.status,
-      body: textual
-        ? new TextDecoder().decode(bytes)
-        : Buffer.from(bytes).toString("base64"),
+      body: textual ? new TextDecoder().decode(bytes) : Buffer.from(bytes).toString("base64"),
       encoding: textual ? "utf-8" : "base64",
       contentType,
     };

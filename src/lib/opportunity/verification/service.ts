@@ -30,12 +30,12 @@ export function establishVerification(
   entity: OpportunityEntity,
   observations: readonly SourceObservation[],
   now: string,
-  previous?: VerificationRecord
+  previous?: VerificationRecord,
 ): VerificationRecord {
   const requirement = CORROBORATION[entity.stakes];
 
   const retrieved = observations.filter(
-    (o): o is Extract<SourceObservation, { outcome: "retrieved" }> => o.outcome === "retrieved"
+    (o): o is Extract<SourceObservation, { outcome: "retrieved" }> => o.outcome === "retrieved",
   );
   const unreachable = observations.filter((o) => o.outcome === "unreachable");
 
@@ -43,7 +43,7 @@ export function establishVerification(
   const institutional = new Set(
     retrieved
       .filter((o) => o.source.sourceClass === "official" || o.source.sourceClass === "announcer")
-      .map((o) => o.source.sourceId)
+      .map((o) => o.source.sourceId),
   );
 
   const basis: VerificationBasis = {
@@ -80,9 +80,7 @@ export function establishVerification(
     /* Derived. The only place an expiry is ever produced. */
     expiresAt: addDays(now, requirement.freshnessDays),
     basis,
-    transitions: previous
-      ? [...previous.transitions, transition]
-      : [transition],
+    transitions: previous ? [...previous.transitions, transition] : [transition],
   };
 }
 
@@ -93,7 +91,7 @@ function decide(
     basis: VerificationBasis;
     retrievedCount: number;
     allSourcesSilent: boolean;
-  }
+  },
 ): { verdict: StoredVerdict; reason: string } {
   if (input.allSourcesSilent) {
     return {
@@ -110,7 +108,7 @@ function decide(
     two readings of.
   */
   const contested = contestedFields(entity).filter((f) =>
-    (DECISIVE_FIELDS as readonly string[]).includes(f.field)
+    (DECISIVE_FIELDS as readonly string[]).includes(f.field),
   );
   if (contested.length > 0) {
     return {
@@ -151,7 +149,7 @@ function decide(
  */
 export function resolveVerification(
   record: VerificationRecord,
-  now: string
+  now: string,
 ): VerificationResolution {
   const base = {
     establishedAt: record.establishedAt,
@@ -223,13 +221,9 @@ export function deriveOpenState(entity: OpportunityEntity, now: string): OpenSta
     decides open-or-closed; it does not rewrite what was published.
   */
   const closesAfter =
-    reading.precision === "day"
-      ? new Date(deadline.getTime() + DAY_MS - 1).toISOString()
-      : iso;
+    reading.precision === "day" ? new Date(deadline.getTime() + DAY_MS - 1).toISOString() : iso;
 
-  return now < closesAfter
-    ? { state: "open", deadline: iso }
-    : { state: "closed", deadline: iso };
+  return now < closesAfter ? { state: "open", deadline: iso } : { state: "closed", deadline: iso };
 }
 
 const DAY_MS = 86_400_000;
@@ -249,7 +243,9 @@ const DAY_MS = 86_400_000;
 export function hasEverDeverified(records: readonly VerificationRecord[]): boolean {
   return records.some((record) =>
     record.transitions.some(
-      (t) => t.from === "verified" && (t.to === "unverified" || t.to === "contradicted" || t.to === "withdrawn")
-    )
+      (t) =>
+        t.from === "verified" &&
+        (t.to === "unverified" || t.to === "contradicted" || t.to === "withdrawn"),
+    ),
   );
 }

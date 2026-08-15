@@ -3,7 +3,11 @@ import assert from "node:assert/strict";
 
 import { InMemoryObservationStore } from "@/lib/opportunity/observation/store";
 import { classify } from "@/lib/opportunity/announcers/registry";
-import type { ObservedClaim, RetrievedObservation, SourceObservation } from "@/lib/opportunity/observation/types";
+import type {
+  ObservedClaim,
+  RetrievedObservation,
+  SourceObservation,
+} from "@/lib/opportunity/observation/types";
 import { observe, page, T0, T1 } from "./fixtures.ts";
 
 /** Every fixture page here declares exactly one opportunity. */
@@ -99,7 +103,7 @@ test("the store has no update and no delete", () => {
     assert.equal(
       typeof surface[forbidden],
       "undefined",
-      `ObservationStore must not expose ${forbidden}()`
+      `ObservationStore must not expose ${forbidden}()`,
     );
   }
 });
@@ -114,7 +118,7 @@ test("re-encountering a URL appends; it never replaces", async () => {
   assert.equal(both.length, 2);
   assert.deepEqual(
     both.map((o) => o.retrievedAt),
-    [T0, T1]
+    [T0, T1],
   );
 });
 
@@ -164,7 +168,10 @@ test("a bare year is not normalised into a precise date", () => {
   assert.equal(o.outcome, "retrieved");
   if (o.outcome !== "retrieved") return;
 
-  assert.equal(soleItem(o).claims.find((c: ObservedClaim) => c.field === "deadline")?.normalised, undefined);
+  assert.equal(
+    soleItem(o).claims.find((c: ObservedClaim) => c.field === "deadline")?.normalised,
+    undefined,
+  );
 });
 
 test("a page with no JSON-LD yields no claims rather than a prose guess", () => {
@@ -174,5 +181,5 @@ test("a page with no JSON-LD yields no claims rather than a prose guess", () => 
   if (o.outcome !== "retrieved") return;
 
   assert.deepEqual(o.items, []);
-  assert.ok(o.unreadable, 'an empty extraction must say why');
+  assert.ok(o.unreadable, "an empty extraction must say why");
 });

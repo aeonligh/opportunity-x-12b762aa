@@ -232,7 +232,8 @@ export function judge(input: JudgeInput): PairingJudgments {
       list is the honest reading when nobody has established what this would
       cost this person.
     */
-    verdict: costs.length === 0 ? "undetermined" : entity.stakes === "life-changing" ? "high" : "material",
+    verdict:
+      costs.length === 0 ? "undetermined" : entity.stakes === "life-changing" ? "high" : "material",
     because:
       costs.length === 0
         ? "I have not established what pursuing this would cost you."
@@ -245,7 +246,12 @@ export function judge(input: JudgeInput): PairingJudgments {
     {
       kind: "entity-attribute",
       criterion: "The opportunity is verified.",
-      status: resolution.verdict === "verified" ? "met" : resolution.verdict === "expired" ? "unknown" : "unmet",
+      status:
+        resolution.verdict === "verified"
+          ? "met"
+          : resolution.verdict === "expired"
+            ? "unknown"
+            : "unmet",
       provenance: "inferred",
       entityField: "verification",
     },
@@ -321,9 +327,7 @@ export function judge(input: JudgeInput): PairingJudgments {
       case unexplained.
     */
     decidedBy:
-      blockers.length === 0
-        ? ["verification", "eligibility", "fit", "risk", "ranking"]
-        : blockers,
+      blockers.length === 0 ? ["verification", "eligibility", "fit", "risk", "ranking"] : blockers,
     because:
       blockers.length === 0
         ? "Verified, open, and nothing I know about you rules it out."
@@ -355,9 +359,7 @@ export function judge(input: JudgeInput): PairingJudgments {
  * are filtered at recommendation, not here: an entity that vanishes before it
  * is judged cannot explain why it was not shown.
  */
-export function judgeAll(
-  inputs: readonly Omit<JudgeInput, "ranking">[]
-): PairingJudgments[] {
+export function judgeAll(inputs: readonly Omit<JudgeInput, "ranking">[]): PairingJudgments[] {
   const scored = inputs.map((input) => {
     const resolution = resolveVerification(input.verification, input.now);
     const openState = deriveOpenState(input.entity, input.now);
@@ -369,11 +371,9 @@ export function judgeAll(
     };
   });
 
-  scored.sort(
-    (a, b) => a.verified - b.verified || a.open - b.open || a.deadline - b.deadline
-  );
+  scored.sort((a, b) => a.verified - b.verified || a.open - b.open || a.deadline - b.deadline);
 
   return scored.map((s, index) =>
-    judge({ ...s.input, ranking: { position: index + 1, outOf: scored.length } })
+    judge({ ...s.input, ranking: { position: index + 1, outOf: scored.length } }),
   );
 }

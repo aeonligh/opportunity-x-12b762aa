@@ -62,9 +62,7 @@ export function EntityFact({
           <ul className="mt-1 flex flex-col gap-1.5">
             {view.readings.map((reading) => (
               <li key={reading.value} className="flex flex-col">
-                <span className="text-[15px] leading-snug text-foreground">
-                  {reading.value}
-                </span>
+                <span className="text-[15px] leading-snug text-foreground">{reading.value}</span>
                 <span className="font-mono text-[11px] text-text-s">
                   {count(reading.sources, "source")} ·{" "}
                   <FreshnessStamp at={reading.lastSeenAt} verb="last seen" decay="fast" />
@@ -81,9 +79,7 @@ export function EntityFact({
           no deadline" — Opportunity X does not know that, and saying it would be
           asserting something no source said.
         */
-        <span className="text-[15px] leading-snug text-text-s">
-          No source stated this.
-        </span>
+        <span className="text-[15px] leading-snug text-text-s">No source stated this.</span>
       ) : null}
     </div>
   );

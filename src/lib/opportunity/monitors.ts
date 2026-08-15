@@ -50,15 +50,13 @@ function rate(count: number, of: number): Rate {
  * excluded — the clock demoting a stale row is not the model revising a belief.
  */
 export function deverificationRate(records: readonly VerificationRecord[]): Rate {
-  const everVerified = records.filter((r) =>
-    r.transitions.some((t) => t.to === "verified")
-  );
+  const everVerified = records.filter((r) => r.transitions.some((t) => t.to === "verified"));
   const demoted = everVerified.filter((r) =>
     r.transitions.some(
       (t) =>
         t.from === "verified" &&
-        (t.to === "unverified" || t.to === "contradicted" || t.to === "withdrawn")
-    )
+        (t.to === "unverified" || t.to === "contradicted" || t.to === "withdrawn"),
+    ),
   );
   return rate(demoted.length, everVerified.length);
 }
@@ -70,9 +68,7 @@ export function deverificationRate(records: readonly VerificationRecord[]): Rate
  * one is the suspicious signal — it usually means a threshold was loosened, not
  * that the world improved.
  */
-export function emptyRecommendationRate(
-  sets: readonly PairingJudgments[][]
-): Rate {
+export function emptyRecommendationRate(sets: readonly PairingJudgments[][]): Rate {
   const empty = sets.filter((s) => s.every((j) => j.recommendation.verdict === "withhold"));
   return rate(empty.length, sets.length);
 }
@@ -85,10 +81,7 @@ export function emptyRecommendationRate(
  * longer changes, and every surface downstream continues to look healthy. This
  * is the rate that catches it.
  */
-export function noveltyRate(
-  firstObservedAt: readonly string[],
-  since: string
-): Rate {
+export function noveltyRate(firstObservedAt: readonly string[], since: string): Rate {
   return rate(firstObservedAt.filter((at) => at >= since).length, firstObservedAt.length);
 }
 
@@ -102,13 +95,10 @@ export function noveltyRate(
  */
 export function subThresholdReach(
   judgments: readonly PairingJudgments[],
-  surfacedEntityIds: ReadonlySet<string>
+  surfacedEntityIds: ReadonlySet<string>,
 ): Rate {
   const withheld = judgments.filter((j) => j.recommendation.verdict === "withhold");
-  return rate(
-    withheld.filter((j) => surfacedEntityIds.has(j.entityId)).length,
-    withheld.length
-  );
+  return rate(withheld.filter((j) => surfacedEntityIds.has(j.entityId)).length, withheld.length);
 }
 
 /**
@@ -139,20 +129,19 @@ export interface Divergence {
 export function measureDivergence(judgments: readonly PairingJudgments[]): Divergence {
   const verifiedButWithheld = judgments.filter(
     (j) =>
-      j.verification.resolution.verdict === "verified" &&
-      j.recommendation.verdict === "withhold"
+      j.verification.resolution.verdict === "verified" && j.recommendation.verdict === "withhold",
   ).length;
 
   const unverifiedButTopRanked = judgments.filter(
-    (j) => j.verification.resolution.verdict !== "verified" && j.ranking.position === 1
+    (j) => j.verification.resolution.verdict !== "verified" && j.ranking.position === 1,
   ).length;
 
   const eligibleButUnfit = judgments.filter(
-    (j) => j.eligibility.verdict === "eligible" && j.fit.verdict === "does-not-fit"
+    (j) => j.eligibility.verdict === "eligible" && j.fit.verdict === "does-not-fit",
   ).length;
 
   const recommendedNotTopRanked = judgments.filter(
-    (j) => j.recommendation.verdict === "recommend" && j.ranking.position !== 1
+    (j) => j.recommendation.verdict === "recommend" && j.ranking.position !== 1,
   ).length;
 
   return {
@@ -161,10 +150,6 @@ export function measureDivergence(judgments: readonly PairingJudgments[]): Diver
     eligibleButUnfit,
     recommendedNotTopRanked,
     anyDivergence:
-      verifiedButWithheld +
-        unverifiedButTopRanked +
-        eligibleButUnfit +
-        recommendedNotTopRanked >
-      0,
+      verifiedButWithheld + unverifiedButTopRanked + eligibleButUnfit + recommendedNotTopRanked > 0,
   };
 }

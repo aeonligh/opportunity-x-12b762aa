@@ -1,8 +1,4 @@
-import {
-  isRetrieved,
-  type ObservedField,
-  type SourceObservation,
-} from "../observation/types";
+import { isRetrieved, type ObservedField, type SourceObservation } from "../observation/types";
 import type { GroupedItem } from "./group";
 import { entityIdFor, type EntityIdentity } from "./identity";
 import type { EntityField, EntityReading, OpportunityEntity, Stakes } from "./types";
@@ -109,7 +105,7 @@ function foldFields(members: readonly GroupedItem[]): EntityField[] {
     }
 
     const readings = [...byValue.values()].sort((a, b) =>
-      a.firstSeenAt.localeCompare(b.firstSeenAt)
+      a.firstSeenAt.localeCompare(b.firstSeenAt),
     );
     if (readings.length > 0) {
       fields.push({ field, readings: readings as [EntityReading, ...EntityReading[]] });
@@ -163,7 +159,7 @@ export function resolveEntity(input: ResolveInput): ResolveResult {
   }
 
   const ordered = [...input.members].sort((a, b) =>
-    a.observation.retrievedAt.localeCompare(b.observation.retrievedAt)
+    a.observation.retrievedAt.localeCompare(b.observation.retrievedAt),
   );
   const first = ordered[0].observation;
   const last = ordered[ordered.length - 1].observation;
@@ -205,9 +201,7 @@ export function resolveEntity(input: ResolveInput): ResolveResult {
       stakes: input.stakes,
       declaredTypes: [
         ...new Set(
-          ordered
-            .map((m) => m.item.declaredType)
-            .filter((t): t is string => typeof t === "string")
+          ordered.map((m) => m.item.declaredType).filter((t): t is string => typeof t === "string"),
         ),
       ],
     },
@@ -230,10 +224,7 @@ export function resolveEntity(input: ResolveInput): ResolveResult {
  * its predecessor would leave a corrected merge looking exactly like a merge
  * that was always right.
  */
-export function reviseEntity(
-  entity: OpportunityEntity,
-  input: ResolveInput
-): ResolveResult {
+export function reviseEntity(entity: OpportunityEntity, input: ResolveInput): ResolveResult {
   const supplied = new Set(input.members.map((m) => m.observation.id));
   for (const o of input.alsoObserved ?? []) supplied.add(o.id);
 
@@ -250,10 +241,7 @@ export function reviseEntity(
   if ("defect" in revised) return revised;
 
   const allIds = [
-    ...new Set([
-      ...entity.resolution.observationIds,
-      ...revised.entity.resolution.observationIds,
-    ]),
+    ...new Set([...entity.resolution.observationIds, ...revised.entity.resolution.observationIds]),
   ] as [string, ...string[]];
 
   return {
@@ -289,7 +277,7 @@ export function reviseEntity(
  * extraction into absence of an opportunity.
  */
 export function unreadableObservations(
-  observations: readonly SourceObservation[]
+  observations: readonly SourceObservation[],
 ): { observation: SourceObservation; reason: string; mediaType: string }[] {
   const out: { observation: SourceObservation; reason: string; mediaType: string }[] = [];
 

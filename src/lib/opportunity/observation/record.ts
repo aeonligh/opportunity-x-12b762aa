@@ -97,10 +97,7 @@ export function isTextual(contentType: string | null): boolean {
  * signal that an opportunity closed — and swallowing it is how the system comes
  * to hold an entity it can no longer account for.
  */
-export function witness(
-  exchange: CompletedExchange,
-  options: WitnessOptions
-): SourceObservation {
+export function witness(exchange: CompletedExchange, options: WitnessOptions): SourceObservation {
   const extractor = options.extractor ?? defaultExtractor;
 
   const base = {

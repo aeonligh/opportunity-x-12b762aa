@@ -109,9 +109,9 @@ export const MECHANISMS: readonly MechanismDeclaration[] = [
   },
 ];
 
-export const IMPLEMENTED_MECHANISMS = MECHANISMS.filter(
-  (m) => m.status === "implemented"
-).map((m) => m.id);
+export const IMPLEMENTED_MECHANISMS = MECHANISMS.filter((m) => m.status === "implemented").map(
+  (m) => m.id,
+);
 
 export interface MechanismCoverage {
   id: MechanismId;
@@ -136,9 +136,7 @@ export interface MechanismCoverage {
  * that mechanism are the same thing — which may be correct today and is a fact
  * worth being able to state either way.
  */
-export function coverage(
-  reports: ReadonlyMap<MechanismId, MechanismReport>
-): MechanismCoverage[] {
+export function coverage(reports: ReadonlyMap<MechanismId, MechanismReport>): MechanismCoverage[] {
   const totalRetrieved = [...reports.values()].reduce((sum, r) => sum + r.retrieved, 0);
 
   return MECHANISMS.map((declared) => {

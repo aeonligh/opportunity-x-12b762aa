@@ -109,9 +109,7 @@ function firecrawlSearch(apiKey: string) {
       data?: Array<{ url?: string }> | { web?: Array<{ url?: string }> };
     };
 
-    const rows = Array.isArray(payload.data)
-      ? payload.data
-      : (payload.data?.web ?? []);
+    const rows = Array.isArray(payload.data) ? payload.data : (payload.data?.web ?? []);
 
     return rows.flatMap((r) => (typeof r.url === "string" ? [r.url] : []));
   };

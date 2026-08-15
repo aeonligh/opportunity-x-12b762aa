@@ -19,7 +19,7 @@
  */
 if (typeof window !== "undefined") {
   throw new Error(
-    "This module is server-only and was imported in the browser. It reads credentials that must never reach a client bundle."
+    "This module is server-only and was imported in the browser. It reads credentials that must never reach a client bundle.",
   );
 }
 

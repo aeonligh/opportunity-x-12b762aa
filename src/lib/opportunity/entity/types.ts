@@ -113,8 +113,7 @@ export function agrees(field: EntityField): boolean {
  */
 export interface EntityResolution {
   decidedAt: string;
-  method:
-    /**
+  method: /**
      * The publisher named the thing — a schema.org `identifier` or `@id`. The
      * only signal strong enough to merge across domains, and the only one that
      * separates two cycles at one address.
@@ -187,10 +186,7 @@ export interface OpportunityEntity {
 }
 
 /** Read one field's agreed value, or null when it is absent or contested. */
-export function agreedValue(
-  entity: OpportunityEntity,
-  field: ObservedField
-): string | null {
+export function agreedValue(entity: OpportunityEntity, field: ObservedField): string | null {
   const held = entity.fields.find((f) => f.field === field);
   if (!held || !agrees(held)) return null;
   return held.readings[0].value;

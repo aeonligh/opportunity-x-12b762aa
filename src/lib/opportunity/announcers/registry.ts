@@ -48,12 +48,7 @@ import type { SourceClass } from "../observation/types";
  * not a measurement of how large it is. **Unmeasured is not small.**
  */
 
-export type AnnouncerKind =
-  | "university"
-  | "ministry"
-  | "agency"
-  | "fund"
-  | "corporate-newsroom";
+export type AnnouncerKind = "university" | "ministry" | "agency" | "fund" | "corporate-newsroom";
 
 export interface Announcer {
   id: string;
@@ -212,7 +207,11 @@ export function announcerFor(url: string): Announcer | null {
  * much of the corpus arrives only through aggregators — into an unmeasurable
  * one.
  */
-export function classify(url: string): { sourceId: string; label: string; sourceClass: SourceClass } {
+export function classify(url: string): {
+  sourceId: string;
+  label: string;
+  sourceClass: SourceClass;
+} {
   const announcer = announcerFor(url);
   if (announcer) {
     return {
