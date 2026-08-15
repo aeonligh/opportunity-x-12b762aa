@@ -572,3 +572,76 @@ than implied.
 two connectors in this chat; failing that, apply the migrations by hand from
 `docs/APPLYING_THE_MIGRATIONS.md`; the egress policy blocks real discovery
 regardless.
+
+---
+
+## The Supabase project mismatch, and the production deployment's real state
+
+**Feature.** With both connectors enabled, sections 2 and 3 of Phase 10 were
+executed as far as they can go. Neither completed, but both now have an exact
+cause rather than an unknown.
+
+**Finding 1 — the connected Supabase account does not own this project.**
+`list_organizations` returns one organisation, *Aeon X Technnology*, containing
+one project: `fbqufjvkzbifklxtouol`. The repository points at
+`anfiojmbgonrtympzjch`, which returns "You do not have permission to perform
+this action" on every call because it belongs to a **different Supabase
+account**. The connector toggle was never the blocker; it only made the real one
+legible.
+
+**Finding 2 — the reachable project is AEON X's, and already has these
+migrations.** `fbqufjvkzbifklxtouol` carries `ledger_commitments`,
+`ledger_accountings`, `profile_facts`, the digest engine and the radar
+watchlist — and all three Opportunity X migrations, applied as `20260810185329`,
+`20260810185407`, `20260810185431`. One of its column comments still reads
+*"What AEON X actually told someone"*, i.e. it was applied from the pre-rename
+text.
+
+**Decision, put to the founder rather than assumed.** Three paths existed and
+each had a consequence the other two did not: apply to the AEON X project
+(already applied, and the wrong product's database), repoint `.env` at it
+(re-couples the two products at the data layer the standalone reset separated),
+or treat `anfiojmbgonrtympzjch` as canonical and wait for access to the account
+that owns it. **The founder chose the third.** Nothing was applied to
+`fbqufjvkzbifklxtouol` and nothing was repointed.
+
+**What was verified on it anyway, and what was deliberately not.** Its structure
+was read with catalog queries and matches this repository's migrations exactly:
+RLS on all four tables; `observations`, `verification_events` and `deliveries`
+refusing `UPDATE`, `DELETE` and `TRUNCATE`; `pursuits` refusing `UPDATE` and
+`TRUNCATE` while allowing `DELETE`, which is the designed asymmetry.
+
+No rows were written. Verifying append-only behaviourally requires inserting a
+row and then attempting to mutate it — and `opportunity_observations` is
+append-only, so a fabricated observation could never have been removed from
+another product's production record. The structural read was taken instead, and
+the difference is stated rather than blurred.
+
+**Finding 3 — production is stale, and by more than a version.** The production
+deployment is `dpl_9Ufdj7PX2XF5Uvw8D2hPBTfZ9yhX`, commit `8a2090d` on `main`,
+created 2026-07-28. That is fifteen commits and roughly three weeks behind, and
+it predates the standalone reset, the AEON X removal, the palette, `/lab` and
+every defect fix since. The branch's own build (`a620fa9`) is READY but carries
+`target: null` — a preview, never promoted.
+
+**Decision.** Not promoted. Promoting now would ship an application pointing at a
+database this session cannot verify, producing a deployment that is current and
+still unverifiable — the precise condition this phase exists to end. Deferred
+until the database question is settled.
+
+**Finding 4 — the Vercel project still declares a Lovable framework preset.**
+`framework: "tanstack-start-lovable"`. Builds succeed, so it is not urgent and
+was not changed unilaterally; but the repository was unwound from Lovable at
+real cost and the deployment configuration still names it.
+
+**Production facts, for the record.** Project `prj_FZEGLp6uU9d7iFDfiWLgDcSivDmC`,
+team `aeonlighs-projects`, URL `opportunity-x-12b762aa.vercel.app`, Node 24.x,
+`live: false`.
+
+**Gates.** Unchanged and re-run: ESLint 0 errors, TypeScript 0, tests 215/215,
+build clean.
+
+**What this leaves.** Sections 4–9 (real auth, real surface, real opportunity,
+real pursuit, real journey, real discovery) remain BLOCKED, now on one specific
+thing: access to the Supabase account owning `anfiojmbgonrtympzjch`. Real
+discovery additionally needs the egress policy lifted.

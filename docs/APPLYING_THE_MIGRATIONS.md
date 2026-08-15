@@ -8,17 +8,46 @@ getting them onto your project, not a debugging exercise.
 
 ## Why this is a manual procedure
 
-Two independent paths are blocked from the environment this was written in:
+**The connected Supabase account does not contain this project.** That is the
+whole blocker, and it is not a permissions toggle.
 
-- **The Supabase MCP connector is not enabled for this session.** It is
-  connected at the organisation level and authenticated, but `enabledInChat` is
-  false, so its tools are not loaded and no migration can be applied through it.
-  You can turn it on in this chat's connector settings; that would remove the
-  need for the manual steps entirely.
-- **Outbound HTTPS to `anfiojmbgonrtympzjch.supabase.co` and `api.supabase.com`
-  is refused by egress policy** (`403` to `CONNECT`). That is an organisation
-  network rule, not a credential problem, and it cannot be worked around from
-  inside the session.
+With the Supabase connector enabled, `list_organizations` returns exactly one
+organisation — *Aeon X Technnology* (`jgdiwxdbmpoqyuxwvwih`) — containing exactly
+one project:
+
+| | |
+|---|---|
+| Reachable | `fbqufjvkzbifklxtouol` — "aeonxtechnnologies@gmail.com's Project" |
+| Wanted | `anfiojmbgonrtympzjch` — what `.env` points at |
+
+Every call against `anfiojmbgonrtympzjch` returns *"You do not have permission to
+perform this action"*, because it belongs to a **different Supabase account**.
+
+Outbound HTTPS to `anfiojmbgonrtympzjch.supabase.co` and `api.supabase.com` is
+also refused by egress policy (`403` to `CONNECT`), so neither path reaches it.
+
+### What is already on the reachable project, and why it was left alone
+
+`fbqufjvkzbifklxtouol` is the **AEON X** database — it carries
+`ledger_commitments`, `ledger_accountings`, `profile_facts`, the digest engine
+and the radar watchlist. It also already has all three Opportunity X migrations
+applied, as `20260810185329`, `20260810185407` and `20260810185431`.
+
+Nothing was applied to it and nothing was repointed at it. Confirmed with the
+founder: `anfiojmbgonrtympzjch` is Opportunity X's database. Using the AEON X
+project would put the two products back on one database at exactly the layer the
+standalone reset separated them.
+
+Its structure *was* read, non-destructively, and it matches this repository's
+migrations exactly — see "Verified against the live AEON X project" below. No
+rows were written: `opportunity_observations` is append-only, so a test
+observation could never have been deleted again.
+
+### To unblock
+
+Connect the Supabase account that owns `anfiojmbgonrtympzjch`. Then the three
+migrations can be applied through the connector directly and this manual
+procedure is unnecessary.
 
 ## The three files, in order
 
@@ -90,6 +119,27 @@ Until `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are both present,
 `opportunityRecord()` returns null and every surface correctly resolves to
 Unknown — "I have no record of anything I have observed" — rather than to an
 empty list.
+
+## Verified against the live AEON X project (structure only, read-only)
+
+Read from `fbqufjvkzbifklxtouol` with catalog queries. This does not verify
+Opportunity X's own database — it verifies that these exact migrations, applied
+to a real Supabase project, produce the intended structure.
+
+| Table | RLS | Triggers | Policies | Check constraints |
+|---|---|---|---|---|
+| `opportunity_observations` | on | 2 | 1 | 10 |
+| `opportunity_verification_events` | on | 2 | 1 | 5 |
+| `opportunity_pursuits` | on | 2 | 3 | 2 |
+| `opportunity_deliveries` | on | 2 | 1 | 3 |
+
+Trigger coverage, which is the part that matters:
+
+- `observations`, `verification_events`, `deliveries` — refuse `UPDATE`,
+  `DELETE` and `TRUNCATE`.
+- `pursuits` — refuse `UPDATE` and `TRUNCATE`, and **allow `DELETE`**, which is
+  the designed asymmetry: changing your mind is a new declaration, withdrawing
+  is the person's own right.
 
 ## What was already verified, and what that does and does not prove
 
