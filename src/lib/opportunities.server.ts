@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { AuthedContext } from "@/integrations/supabase/context";
 
 /**
  * Opportunity X's server boundary.
@@ -23,14 +24,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 
 const authed = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]);
-type Ctx = { userId: string; supabase: unknown };
+type Ctx = AuthedContext;
 
 /** Everything currently worth showing, or the honest reason there is nothing. */
 export const listOpportunities = authed.handler(async ({ context }) => {
   const { userId, supabase } = context as Ctx;
   const { resolveCards, pursuitsFor } = await import("@/lib/opportunity/surface/service");
-  const saved = await pursuitsFor(userId, supabase as never);
-  return resolveCards(userId, supabase as never, { pursuits: saved });
+  const saved = await pursuitsFor(userId, supabase);
+  return resolveCards(userId, supabase, { pursuits: saved });
 });
 
 /** One opportunity, with everything underneath it. */
@@ -40,14 +41,14 @@ export const getOpportunity = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const { userId, supabase } = context as Ctx;
     const { resolveInspection } = await import("@/lib/opportunity/surface/service");
-    return resolveInspection(userId, data.id, supabase as never);
+    return resolveInspection(userId, data.id, supabase);
   });
 
 /** What the person has said they care about. */
 export const listSaved = authed.handler(async ({ context }) => {
   const { userId, supabase } = context as Ctx;
   const { resolveDeclarations } = await import("@/lib/opportunity/surface/service");
-  return resolveDeclarations(userId, supabase as never);
+  return resolveDeclarations(userId, supabase);
 });
 
 /**
@@ -82,7 +83,7 @@ export const saveOpportunity = createServerFn({ method: "POST" })
     const { pursuitLogFor } = await import("@/lib/opportunity/pursuit/provider");
     const { declaration } = await import("@/lib/opportunity/pursuit/types");
 
-    const log = pursuitLogFor(supabase as never);
+    const log = pursuitLogFor(supabase);
     if (log === null) {
       return {
         saved: false as const,
@@ -107,7 +108,7 @@ export const unsaveOpportunity = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { userId, supabase } = context as Ctx;
     const { pursuitLogFor } = await import("@/lib/opportunity/pursuit/provider");
-    const log = pursuitLogFor(supabase as never);
+    const log = pursuitLogFor(supabase);
     if (log === null)
       return { saved: false as const, because: "Nothing durable to remove it from." };
     await log.withdraw(userId, data.id);

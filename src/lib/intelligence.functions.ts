@@ -170,7 +170,10 @@ Return ${count} verifiable opportunities now, biased toward open/upcoming deadli
     { role: "system", content: system },
     { role: "user", content: user },
   ]);
-  return (parsed.opportunities ?? []).slice(0, count);
+  /* A model asked for a list can return an object, a string, or nothing. Only
+     an actual array is a list of opportunities. */
+  const opportunities = Array.isArray(parsed.opportunities) ? parsed.opportunities : [];
+  return opportunities.slice(0, count);
 }
 
 // ───────── Stage 2 — Verification ─────────

@@ -8,7 +8,27 @@ const MODEL = "claude-haiku-4-5";
 
 type ChatMessage = { role: string; content: string };
 
-export async function callClaude(messages: ChatMessage[], jsonMode = true): Promise<any> {
+/**
+ * What a model returned, before anything has been checked about it.
+ *
+ * This was `Promise<any>`, which let `result.score` typecheck as a number all
+ * the way into a database write — for a value that arrives over the network
+ * from a generative model and is under no obligation to be there at all. The
+ * shape is not a contract; it is a hope.
+ *
+ * `Record<string, unknown>` keeps property access legal and makes every read
+ * `unknown`, so a caller has to say what it expects before it can use it. The
+ * call sites already did this in places (`typeof result.score === "number"`);
+ * the type now requires it everywhere rather than rewarding whoever remembered.
+ */
+export type ModelJson = Record<string, unknown>;
+
+export async function callClaude(messages: ChatMessage[], jsonMode?: true): Promise<ModelJson>;
+export async function callClaude(messages: ChatMessage[], jsonMode: false): Promise<string>;
+export async function callClaude(
+  messages: ChatMessage[],
+  jsonMode = true,
+): Promise<ModelJson | string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import Header from "@/components/Header";
 import {
   FileText,
@@ -18,6 +19,16 @@ import {
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { optimizeCV, getLatestCVOptimization } from "@/lib/execution.functions";
+
+/**
+ * A stored document, exactly as the table defines it.
+ *
+ * The Supabase client is already generic over `Database`, so this row was
+ * correctly typed at the query and then thrown away by an `any` annotation on
+ * every function that received it — the type information existed and was being
+ * discarded on the way in.
+ */
+type UserDocument = Database["public"]["Tables"]["user_documents"]["Row"];
 
 export const Route = createFileRoute("/_authenticated/dashboard/documents")({
   head: () => ({ meta: [{ title: "My Document Vault — Opportunity X" }] }),
@@ -104,8 +115,8 @@ function DocumentVault() {
 
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       toast.success(`${docType} uploaded successfully`);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to upload document");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload document");
     } finally {
       setUploading(false);
     }
@@ -113,7 +124,7 @@ function DocumentVault() {
 
   // Delete document mutation
   const deleteDoc = useMutation({
-    mutationFn: async (doc: any) => {
+    mutationFn: async (doc: UserDocument) => {
       // 1. Delete from storage
       const { error: storageErr } = await supabase.storage.from("documents").remove([doc.file_url]);
       if (storageErr) throw storageErr;
@@ -126,11 +137,11 @@ function DocumentVault() {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       toast.success("Document deleted");
     },
-    onError: (err: any) => toast.error(err.message || "Delete failed"),
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Delete failed"),
   });
 
   // Download document helper
-  const handleDownload = async (doc: any) => {
+  const handleDownload = async (doc: UserDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from("documents")
@@ -140,8 +151,8 @@ function DocumentVault() {
       if (data?.signedUrl) {
         window.open(data.signedUrl, "_blank");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Could not retrieve document url");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not retrieve document url");
     }
   };
 
@@ -159,8 +170,8 @@ function DocumentVault() {
       queryClient.invalidateQueries({ queryKey: ["latestCV"] });
       setCvText("");
       toast.success("CV Optimization complete!");
-    } catch (err: any) {
-      toast.error(err.message || "AI Analysis failed");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "AI Analysis failed");
     } finally {
       setAnalyzing(false);
     }
@@ -243,7 +254,7 @@ function DocumentVault() {
               </div>
             ) : (
               <div className="space-y-2.5">
-                {documents.map((doc: any) => (
+                {documents.map((doc) => (
                   <div
                     key={doc.id}
                     className="p-4 rounded-xl border border-border bg-surface flex items-center justify-between hover:border-accent/20 transition"

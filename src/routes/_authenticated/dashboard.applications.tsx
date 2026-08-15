@@ -59,13 +59,24 @@ const STATUS_COLUMNS = [
 
 type ApplicationStatus = (typeof STATUS_COLUMNS)[number]["key"];
 
+/**
+ * One row as the server function actually returns it.
+ *
+ * Derived from the handler rather than written out, because the shape is a
+ * join — `applications` plus a selected subset of `opportunities` — and a
+ * hand-copied interface would drift the first time that select list changed
+ * without anyone noticing. This was `any`, which is how the drift stayed
+ * invisible.
+ */
+type TrackedApplication = Awaited<ReturnType<typeof getUserApplications>>[number];
+
 function ApplicationsPipeline() {
   const queryClient = useQueryClient();
   const getAppsFn = useServerFn(getUserApplications);
   const trackAppFn = useServerFn(trackApplication);
   const deleteAppFn = useServerFn(deleteApplication);
 
-  const [selectedApp, setSelectedApp] = useState<any | null>(null);
+  const [selectedApp, setSelectedApp] = useState<TrackedApplication | null>(null);
   const [notesInput, setNotesInput] = useState("");
   const [isUpdatingNotes, setIsUpdatingNotes] = useState(false);
 
@@ -115,16 +126,16 @@ function ApplicationsPipeline() {
         },
       });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
-      setSelectedApp((prev: any) => ({ ...prev, notes: notesInput }));
+      setSelectedApp((prev) => (prev === null ? prev : { ...prev, notes: notesInput }));
       toast.success("Notes saved");
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update notes");
     } finally {
       setIsUpdatingNotes(false);
     }
   };
 
-  const handleShareProgress = (app: any) => {
+  const handleShareProgress = (app: TrackedApplication) => {
     const opp = app.opportunity;
     const COMMUNITY_INVITE = "https://chat.whatsapp.com/JGZehs9fzCfEsLmXZYCXej";
     const msg = [
@@ -142,7 +153,7 @@ function ApplicationsPipeline() {
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 
-  const handleShareSuccess = (app: any) => {
+  const handleShareSuccess = (app: TrackedApplication) => {
     const opp = app.opportunity;
     const COMMUNITY_INVITE = "https://chat.whatsapp.com/JGZehs9fzCfEsLmXZYCXej";
     const msg = [
@@ -163,10 +174,10 @@ function ApplicationsPipeline() {
   // Group applications by status
   const groupedApps = STATUS_COLUMNS.reduce(
     (acc, col) => {
-      acc[col.key] = applications.filter((app: any) => app.status === col.key);
+      acc[col.key] = applications.filter((app) => app.status === col.key);
       return acc;
     },
-    {} as Record<ApplicationStatus, any[]>,
+    {} as Record<ApplicationStatus, TrackedApplication[]>,
   );
 
   return (

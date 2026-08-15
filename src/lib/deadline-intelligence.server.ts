@@ -1,6 +1,10 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { parseDeadline } from "./deadline";
 import { sendDeadlineEmail } from "./email.server";
+import type { Database } from "@/integrations/supabase/types";
+
+/** The joined `opportunity:opportunities(*)` row, which is the whole table row. */
+type OpportunityRow = Database["public"]["Tables"]["opportunities"]["Row"];
 
 export async function runDeadlineIntelligenceCheck() {
   console.log("[Deadline Intelligence] Starting periodic scan...");
@@ -28,7 +32,10 @@ export async function runDeadlineIntelligenceCheck() {
         .select("opportunity_id, status, opportunity:opportunities(*)")
         .eq("user_id", user.id);
 
-      const itemsMap = new Map<string, { opportunity: any; source: "saved" | "tracked" }>();
+      const itemsMap = new Map<
+        string,
+        { opportunity: OpportunityRow; source: "saved" | "tracked" }
+      >();
 
       if (saved) {
         for (const s of saved) {
@@ -103,7 +110,12 @@ export async function runDeadlineIntelligenceCheck() {
       // 4. Scan deadlines
       for (const [oppId, item] of itemsMap.entries()) {
         const { opportunity, source } = item;
-        const deadlineDate = parseDeadline(opportunity.deadline);
+        /* Held separately so the non-null case is a fact rather than an
+           inference: the email takes the publisher's own string, and a row with
+           no deadline at all is a different skip from one that failed to parse. */
+        const deadlineStr = opportunity.deadline;
+        if (deadlineStr === null) continue;
+        const deadlineDate = parseDeadline(deadlineStr);
         if (!deadlineDate) continue;
 
         const ms = deadlineDate.getTime() - now.getTime();
@@ -143,7 +155,7 @@ export async function runDeadlineIntelligenceCheck() {
             userEmail,
             displayName: user.display_name ?? "",
             opportunityTitle: opportunity.title,
-            deadlineStr: opportunity.deadline,
+            deadlineStr,
             savedOrTracked: source,
             missingDocs,
             matchingDocs,

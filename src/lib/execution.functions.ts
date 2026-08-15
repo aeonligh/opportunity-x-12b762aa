@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { callClaude } from "./ai.server";
+import type { Json } from "@/integrations/supabase/types";
 
 // ============ APPLICATIONS ============
 
@@ -305,7 +306,7 @@ Generate the ${type} now.`;
       true,
     );
 
-    const content = result.content || "Failed to generate SOP";
+    const content = typeof result.content === "string" ? result.content : "Failed to generate SOP";
 
     const { data: inserted, error } = await supabase
       .from("generated_sops")
@@ -415,12 +416,18 @@ Please evaluate and score it.`;
     );
 
     const score = typeof result.score === "number" ? result.score : 70;
-    const suggestions = result.suggestions ?? {
-      formatting: [],
-      keywords: [],
-      achievements: [],
-      relevance: [],
-    };
+    /* An object, or the empty shape. `??` alone let a string or a number
+       through into a jsonb column typed as structured suggestions. */
+    /* An object, or the empty shape. `??` alone let a string or a number
+       through into a jsonb column typed as structured suggestions. The cast is
+       sound because `result` is `JSON.parse` output, so every value in it is
+       already Json by construction — what was missing was the object check. */
+    const suggestions: Json =
+      result.suggestions !== null &&
+      typeof result.suggestions === "object" &&
+      !Array.isArray(result.suggestions)
+        ? (result.suggestions as Json)
+        : { formatting: [], keywords: [], achievements: [], relevance: [] };
 
     const { data: inserted, error } = await supabase
       .from("cv_optimizations")
