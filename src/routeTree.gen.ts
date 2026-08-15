@@ -13,7 +13,10 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LabIndexRouteImport } from './routes/lab.index'
 import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
+import { Route as LabSavedRouteImport } from './routes/lab.saved'
+import { Route as LabIdRouteImport } from './routes/lab.$id'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
@@ -49,9 +52,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LabIndexRoute = LabIndexRouteImport.update({
+  id: '/lab/',
+  path: '/lab/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OpportunityIdRoute = OpportunityIdRouteImport.update({
   id: '/opportunity/$id',
   path: '/opportunity/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabSavedRoute = LabSavedRouteImport.update({
+  id: '/lab/saved',
+  path: '/lab/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabIdRoute = LabIdRouteImport.update({
+  id: '/lab/$id',
+  path: '/lab/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedVaultRoute = AuthenticatedVaultRouteImport.update({
@@ -149,7 +167,10 @@ export interface FileRoutesByFullPath {
   '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
   '/saved': typeof AuthenticatedSavedRoute
   '/vault': typeof AuthenticatedVaultRoute
+  '/lab/$id': typeof LabIdRoute
+  '/lab/saved': typeof LabSavedRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/lab/': typeof LabIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/featured': typeof AuthenticatedAdminFeaturedRoute
   '/admin/queue': typeof AuthenticatedAdminQueueRoute
@@ -170,7 +191,10 @@ export interface FileRoutesByTo {
   '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
   '/saved': typeof AuthenticatedSavedRoute
   '/vault': typeof AuthenticatedVaultRoute
+  '/lab/$id': typeof LabIdRoute
+  '/lab/saved': typeof LabSavedRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/lab': typeof LabIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/featured': typeof AuthenticatedAdminFeaturedRoute
   '/admin/queue': typeof AuthenticatedAdminQueueRoute
@@ -193,7 +217,10 @@ export interface FileRoutesById {
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
+  '/lab/$id': typeof LabIdRoute
+  '/lab/saved': typeof LabSavedRoute
   '/opportunity/$id': typeof OpportunityIdRoute
+  '/lab/': typeof LabIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/featured': typeof AuthenticatedAdminFeaturedRoute
   '/_authenticated/admin/queue': typeof AuthenticatedAdminQueueRoute
@@ -216,7 +243,10 @@ export interface FileRouteTypes {
     | '/opportunities'
     | '/saved'
     | '/vault'
+    | '/lab/$id'
+    | '/lab/saved'
     | '/opportunity/$id'
+    | '/lab/'
     | '/admin/analytics'
     | '/admin/featured'
     | '/admin/queue'
@@ -237,7 +267,10 @@ export interface FileRouteTypes {
     | '/opportunities'
     | '/saved'
     | '/vault'
+    | '/lab/$id'
+    | '/lab/saved'
     | '/opportunity/$id'
+    | '/lab'
     | '/admin/analytics'
     | '/admin/featured'
     | '/admin/queue'
@@ -259,7 +292,10 @@ export interface FileRouteTypes {
     | '/_authenticated/opportunities'
     | '/_authenticated/saved'
     | '/_authenticated/vault'
+    | '/lab/$id'
+    | '/lab/saved'
     | '/opportunity/$id'
+    | '/lab/'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/featured'
     | '/_authenticated/admin/queue'
@@ -276,7 +312,10 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SearchRoute: typeof SearchRoute
+  LabIdRoute: typeof LabIdRoute
+  LabSavedRoute: typeof LabSavedRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
+  LabIndexRoute: typeof LabIndexRoute
   ApiPublicHooksCrawlOpportunitiesRoute: typeof ApiPublicHooksCrawlOpportunitiesRoute
   ApiPublicHooksDeadlineRemindersRoute: typeof ApiPublicHooksDeadlineRemindersRoute
 }
@@ -311,11 +350,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lab/': {
+      id: '/lab/'
+      path: '/lab'
+      fullPath: '/lab/'
+      preLoaderRoute: typeof LabIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/opportunity/$id': {
       id: '/opportunity/$id'
       path: '/opportunity/$id'
       fullPath: '/opportunity/$id'
       preLoaderRoute: typeof OpportunityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/saved': {
+      id: '/lab/saved'
+      path: '/lab/saved'
+      fullPath: '/lab/saved'
+      preLoaderRoute: typeof LabSavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/$id': {
+      id: '/lab/$id'
+      path: '/lab/$id'
+      fullPath: '/lab/$id'
+      preLoaderRoute: typeof LabIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/vault': {
@@ -504,7 +564,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SearchRoute: SearchRoute,
+  LabIdRoute: LabIdRoute,
+  LabSavedRoute: LabSavedRoute,
   OpportunityIdRoute: OpportunityIdRoute,
+  LabIndexRoute: LabIndexRoute,
   ApiPublicHooksCrawlOpportunitiesRoute: ApiPublicHooksCrawlOpportunitiesRoute,
   ApiPublicHooksDeadlineRemindersRoute: ApiPublicHooksDeadlineRemindersRoute,
 }

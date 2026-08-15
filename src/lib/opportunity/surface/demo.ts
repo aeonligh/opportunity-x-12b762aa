@@ -383,7 +383,27 @@ export interface DemoCorpus {
   stepUndeclared: StepResolution;
 }
 
-export async function demoCorpus(now: string = new Date().toISOString()): Promise<DemoCorpus> {
+/**
+ * A position taken while looking at the laboratory, overriding the specimen's.
+ *
+ * `null` means withdrawn — distinct from absent, which means "the specimen's own
+ * declaration stands". Collapsing the two would make withdrawal impossible to
+ * express, since removing the key would simply restore the fixture position.
+ *
+ * This exists so the laboratory can be *walked* rather than only read. Declaring
+ * interest, seeing it on a saved list, and coming back to find the opportunity's
+ * facts unchanged is the single most important behaviour in the product, and it
+ * cannot be demonstrated by a corpus whose declarations are frozen at build
+ * time. The override still goes through the real `InMemoryPursuitLog` and the
+ * real projection, so what is shown is produced the way the live surface
+ * produces it — nothing here is a mock of a declaration.
+ */
+export type DeclarationOverrides = ReadonlyMap<string, PursuitState | null>;
+
+export async function demoCorpus(
+  now: string = new Date().toISOString(),
+  overrides: DeclarationOverrides = new Map(),
+): Promise<DemoCorpus> {
   const store = new InMemoryObservationStore();
   const verifications = new InMemoryVerificationLog();
   const pursuits = new InMemoryPursuitLog();
@@ -440,15 +460,19 @@ export async function demoCorpus(now: string = new Date().toISOString()): Promis
 
   /* The fixture person's positions, declared through the real log. */
   for (const { entity } of resolved) {
-    const state = specimenFor.get(entity.id)?.declared;
+    const overridden = overrides.has(entity.id);
+    /* An override wins, and an explicit `null` withdraws rather than falls back
+       to the specimen's own position. */
+    const state = overridden ? overrides.get(entity.id) : specimenFor.get(entity.id)?.declared;
     if (!state) continue;
     await pursuits.declare(
       declaration({
         personId: PERSON,
         entityId: entity.id,
         state,
-        /* Said a few days ago, so "since you said that" has somewhere to point. */
-        declaredAt: new Date(new Date(now).getTime() - 3 * DAY).toISOString(),
+        /* A position taken just now reads as just now; the specimen's own was
+           said a few days ago, so "since you said that" has somewhere to point. */
+        declaredAt: overridden ? now : new Date(new Date(now).getTime() - 3 * DAY).toISOString(),
       }),
     );
   }

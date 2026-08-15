@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { Link } from "@tanstack/react-router";
 import { EntityFact } from "./EntityFact";
 import { VerificationSeal } from "./VerificationSeal";
@@ -62,12 +63,18 @@ export function OpportunityCard({
   inspectHref,
   /** Whether a declaration can actually be kept. Read before it is offered. */
   canPersistPursuit = false,
+  /** Passed straight to the control. See `InterestedControl` for why. */
+  pursuitActions,
+  /** Whose position the card should say this is. Defaults to following evidence. */
+  pursuitVoice,
   className = "",
 }: {
   card: Card;
   evidence?: "live" | "fixture";
   inspectHref?: string;
   canPersistPursuit?: boolean;
+  pursuitActions?: ComponentProps<typeof InterestedControl>["actions"];
+  pursuitVoice?: ComponentProps<typeof InterestedControl>["voice"];
   className?: string;
 }) {
   const inspect = inspectHref ?? `/opportunity/${card.entityId}`;
@@ -173,6 +180,8 @@ export function OpportunityCard({
         pursuit={card.pursuit}
         canPersist={canPersistPursuit}
         evidence={evidence}
+        voice={pursuitVoice}
+        {...(pursuitActions ? { actions: pursuitActions } : {})}
       />
 
       <div className="flex flex-wrap items-center gap-3">

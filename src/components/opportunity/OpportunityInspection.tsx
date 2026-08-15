@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { EntityFact } from "./EntityFact";
 import { VerificationSeal } from "./VerificationSeal";
 import { PairingInference } from "./PairingInference";
@@ -55,11 +56,16 @@ export function OpportunityInspection({
   inspection,
   evidence = "live",
   canPersistPursuit = false,
+  /** Both passed straight to the control. See `InterestedControl` for why. */
+  pursuitActions,
+  pursuitVoice,
 }: {
   inspection: Inspection;
   evidence?: "live" | "fixture";
   /** Whether a declaration can actually be kept. Read before it is offered. */
   canPersistPursuit?: boolean;
+  pursuitActions?: ComponentProps<typeof InterestedControl>["actions"];
+  pursuitVoice?: ComponentProps<typeof InterestedControl>["voice"];
 }) {
   const { card } = inspection;
 
@@ -315,6 +321,8 @@ export function OpportunityInspection({
         pursuit={card.pursuit}
         canPersist={canPersistPursuit}
         evidence={evidence}
+        voice={pursuitVoice}
+        {...(pursuitActions ? { actions: pursuitActions } : {})}
       />
 
       {/*

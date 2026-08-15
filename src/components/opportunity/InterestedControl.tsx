@@ -60,11 +60,46 @@ export function InterestedControl({
    * about "this person" instead.
    */
   evidence = "live",
+  /**
+   * Whose position the surface should say this is.
+   *
+   * Defaults to following `evidence`, which is right for the two original
+   * cases: a live card is the reader's, a fixture card's position was written
+   * into the scenario. The laboratory is the case that broke the equivalence —
+   * its cards are fixtures whose positions the visitor really does take, one
+   * card at a time — so the two questions are now asked separately instead of
+   * one standing in for the other.
+   */
+  voice,
+  /**
+   * Where a position gets written.
+   *
+   * Defaults to the authenticated server functions, which is what every product
+   * surface uses. The fixture laboratory passes its own pair so that pressing
+   * Interested there exercises this component's real write-then-read-back path
+   * against its own store, instead of the laboratory reimplementing the control
+   * with a mock behind it.
+   *
+   * Injected rather than branched on `evidence`, because a branch would put a
+   * second, dormant code path inside the component every authenticated person
+   * uses — and the wrong branch taken in production is a declaration written
+   * somewhere it cannot be read back from.
+   */
+  actions = { declare: declarePursuit, withdraw: withdrawPursuit },
 }: {
   entityId: string;
   pursuit: PursuitResolution;
   canPersist?: boolean;
   evidence?: "live" | "fixture";
+  voice?: "you" | "this-person";
+  actions?: {
+    declare: (args: {
+      data: { entityId: string; state: "interested" | "not-interested" };
+    }) => Promise<{ recorded: boolean; limit?: string }>;
+    withdraw: (args: {
+      data: { entityId: string };
+    }) => Promise<{ recorded: boolean; limit?: string }>;
+  };
 }) {
   const [pending, startTransition] = useTransition();
   const [limit, setLimit] = useState<string | null>(null);
@@ -72,32 +107,34 @@ export function InterestedControl({
   const declared = pursuit.state === "declared" ? pursuit.declaration.state : null;
   const disabled = pending || !canPersist;
   const fixture = evidence === "fixture";
+  /* Who is speaking, which is not always who the evidence belongs to. */
+  const theirs = (voice ?? (fixture ? "this-person" : "you")) === "this-person";
 
   function declare(state: "interested" | "not-interested") {
     setLimit(null);
     startTransition(async () => {
-      const result = await declarePursuit({ data: { entityId, state } });
-      if (!result.recorded) setLimit(result.limit);
+      const result = await actions.declare({ data: { entityId, state } });
+      if (!result.recorded) setLimit(result.limit ?? null);
     });
   }
 
   function withdraw() {
     setLimit(null);
     startTransition(async () => {
-      const result = await withdrawPursuit({ data: { entityId } });
-      if (!result.recorded) setLimit(result.limit);
+      const result = await actions.withdraw({ data: { entityId } });
+      if (!result.recorded) setLimit(result.limit ?? null);
     });
   }
 
   return (
     <div className="flex flex-col gap-2">
       <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s">
-        {fixture ? "This person’s position" : "Your position"}
+        {theirs ? "This person’s position" : "Your position"}
       </span>
 
       {declared !== null ? (
         <p className="text-[15px] leading-snug text-foreground">
-          {fixture ? "In this scenario, they have said they are " : "You said you are "}
+          {theirs ? "In this scenario, they have said they are " : "You said you are "}
           {declared === "interested" ? "interested" : "not interested"}
           {pursuit.state === "declared" ? (
             <>
@@ -118,7 +155,7 @@ export function InterestedControl({
       ) : (
         /* Undeclared, said aloud. Not an unchecked box. */
         <p className="text-[15px] leading-snug text-text-s">
-          {fixture
+          {theirs
             ? "In this scenario, they haven’t said either way."
             : "You haven’t said either way."}
         </p>
