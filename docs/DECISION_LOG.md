@@ -801,3 +801,71 @@ production auth system.
 
 **Gates.** ESLint 0 errors, TypeScript 0, tests 215/215, build clean, local
 migration verifier **40/40**, routes 8/8, browser 26/26 and 14/14.
+
+---
+
+## Phase 10 integrity audit, and the boundary that did not move
+
+**Feature.** Section 7's repository audit and section 8's gates. Sections 1–6
+could not be attempted; the reason is environmental and is recorded rather than
+worked around.
+
+**Why the authenticated walk could not run, even with an account.** Two
+independent blockers, both re-measured rather than carried forward:
+
+- The Supabase MCP connector **disconnected** from this session. `ToolSearch`
+  finds no Supabase tools, so the live database cannot be read or written.
+- Outbound HTTPS is **still `403` at the proxy** for
+  `anfiojmbgonrtympzjch.supabase.co`, `api.supabase.com`,
+  `opportunity-x-12b762aa.vercel.app` and the announcers.
+
+The second is the decisive one for the browser walk, and it is worth stating
+plainly because it is easy to mistake for a missing account: **Playwright runs
+inside this sandbox**, so the browser's own request to Supabase is refused by
+the same egress policy. An account existing changes nothing about that. Signing
+in requires a machine that can reach `*.supabase.co`.
+
+**Audit findings — three real, each traced before being touched.**
+
+1. **A comment pointed at a deleted file.** `foundation/claim.ts` said
+   "`src/lib/core/tier0/evidence.ts` performs the single assertion that mints
+   one" — a path removed when the AEON X namespace was eliminated. Repointed to
+   `foundation/evidence.ts`, where that code actually lives. Same class as the
+   `demo.ts` route reference: a claim that reads as though someone checked.
+2. **A claim in `lab.server.ts` was not true of the build.** It said the guard
+   worked two ways — "the route hides in the client, and this refuses on the
+   server". The route does not hide. A production build was grepped: the
+   laboratory's *chrome* is a lazily-loaded chunk and does ship, while
+   `demoCorpus`, `assertDevelopment` and every fixture opportunity do **not**.
+   Navigating to `/lab` in production renders a frame whose loader immediately
+   fails with the refusal. The comment now says exactly that.
+3. **`.env.production` and `.env.development` were committable.** `.gitignore`
+   carried `*.local`, which covers `.env.local` and nothing else, while
+   `.env.example` promised secrets were ignored. A service-role key placed in
+   either variant would have been stageable. Added `.env.*` with
+   `!.env.example`, verified per file: `.env` and `.env.example` remain tracked,
+   the three secret-bearing variants are ignored.
+
+**Audit findings — clean, by trace rather than by pattern.** No AEON X names,
+URLs, domains or database references in shipped code. No `@/lib/core` imports.
+No `/workspace` route or reference outside two historical comments. The
+Opportunity X journey makes no dashboard assumption. The one Next.js hit is a
+doc comment describing prior behaviour, not an import; `package.json` contains
+neither `next` nor anything Lovable. No hardcoded production URLs.
+
+**The two security questions, answered against the built artifact.** Not the
+import graph — the bundle:
+
+- **Service-role material in the browser: none.** `SERVICE_ROLE` appears nowhere
+  under `.vercel/output/static/`. The publishable key does appear, which is
+  correct: it is the browser-safe anon key.
+- **Fixture data in the browser: none.** No `demoCorpus`, no specimen, none of
+  the fixture opportunities. Only the banner string.
+- **Secrets in git: none.** `.env` is tracked and holds the project id, URL and
+  publishable key only. No service-role, Anthropic, Firecrawl or Resend value
+  appears in any commit reachable from any ref.
+
+**Gates.** TypeScript 0 · ESLint 0 errors (9 warnings) · tests 215/215 · build
+clean · migration verifier 40/40 · routes 8/8 · deep-link structural 14/14 ·
+fixture journey 26/26. Authenticated browser, live database, deployment and real
+discovery: all **BLOCKED**, none attempted by proxy.

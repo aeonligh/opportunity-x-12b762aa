@@ -35,8 +35,16 @@ import { assertDevelopment } from "@/lib/lab-guard";
  * reachable by anyone who can post to its endpoint.
  *
  * `process.env.NODE_ENV` is read inside the handler, on the server, per request
- * — which is the thing an attacker would have to defeat. Both are used: the
- * route hides in the client, and this refuses on the server.
+ * — which is the thing an attacker would have to defeat.
+ *
+ * To be exact about what a production build actually ships, since an earlier
+ * version of this paragraph claimed the route "hides in the client" and it does
+ * not: the laboratory's *chrome* is a lazily-loaded chunk and is present in the
+ * browser bundle. Its **data is not** — a production build was grepped and
+ * contains no `demoCorpus`, no specimen, and none of the fixture opportunities.
+ * Navigating to `/lab` in production therefore renders a frame whose loader
+ * immediately fails with the refusal below. The banner is the only thing that
+ * ships, and no fixture has anywhere to come from.
  *
  * ══════════════════════════════════════════════════════════════════════════
  * WHAT THIS CAN AND CANNOT TOUCH

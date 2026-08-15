@@ -128,7 +128,7 @@ interface EvidenceBase {
  * can bypass it with an object literal — that would leave the rule as a
  * convention, and CS §14 and IA §18 both say conventions do not hold. This
  * private symbol is not exported, so no other module can satisfy the type by
- * hand. `src/lib/core/tier0/evidence.ts` performs the single assertion that
+ * hand. `foundation/evidence.ts` performs the single assertion that
  * mints one, from a `ProfileFact`, with provenance computed rather than passed.
  *
  * The brand is a type-level marker only. It does not exist at runtime, costs
