@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * ══════════════════════════════════════════════════════════════════════════
@@ -24,6 +25,17 @@ import { readFileSync, readdirSync } from "node:fs";
  */
 
 const LAB_SERVER = "src/lib/lab.server.ts";
+
+/** Every `.ts`/`.tsx` under `src/`, generated route tree excluded. */
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) return sourceFiles(path);
+    if (!/\.tsx?$/.test(entry.name)) return [];
+    if (entry.name === "routeTree.gen.ts") return [];
+    return [path];
+  });
+}
 
 test("the laboratory refuses to run in production", async () => {
   const { assertDevelopment } = await import("@/lib/lab-guard");
@@ -154,4 +166,72 @@ test("the laboratory does not invent product concepts", async () => {
       assert.doesNotMatch(code, invented, `the laboratory invented ${invented}`);
     }
   }
+});
+
+test("the fixture corpus is reachable from exactly the surfaces that label it", () => {
+  /*
+    The safety invariant, enforced rather than described.
+
+    `demo.ts` carried this rule in prose and named two routes —
+    `/opportunity/preview` and `/opportunity/preview/[entityId]` — for a long
+    time after both were deleted. Nobody noticed, because a comment cannot fail.
+    A safety claim documented against routes that do not exist is worse than no
+    claim at all: it reads as though someone checked.
+
+    So the rule is a test now. If a new caller imports the fixture corpus, this
+    fails and whoever added it has to say which surface labels the result.
+  */
+  const importers = sourceFiles("src").filter((f) =>
+    /surface\/demo|demoCorpus/.test(readFileSync(f, "utf8")),
+  );
+
+  assert.deepEqual(
+    importers.sort(),
+    [
+      "src/lib/lab.server.ts",
+      "src/lib/opportunities.server.ts",
+      "src/lib/opportunity/surface/demo.ts",
+    ],
+    "something new can reach the fixture corpus",
+  );
+
+  /* And every route that renders it says so on the card itself. */
+  for (const route of [
+    "src/routes/lab.index.tsx",
+    "src/routes/lab.$id.tsx",
+    "src/routes/_authenticated/opportunities.examples.tsx",
+  ]) {
+    assert.match(
+      readFileSync(route, "utf8"),
+      /evidence="fixture"/,
+      `${route} renders fixture data without marking it`,
+    );
+  }
+});
+
+test("no shipped route reference points at a route that does not exist", () => {
+  /*
+    `AUTH_LANDING_PATH` once pointed at `/workspace` after those routes were
+    deleted — a 404 at the moment someone had just proved who they are. That is
+    already pinned in `standalone.test.ts`; this widens it to every literal
+    in-app path a component navigates to.
+
+    Only `to="/…"` and `to: "/…"` are checked: those are router destinations,
+    which is where a dead path becomes a dead end. Hrefs to other origins,
+    anchors and API paths are not router destinations and are left alone.
+  */
+  const tree = readFileSync("src/routeTree.gen.ts", "utf8");
+  const dead: string[] = [];
+
+  for (const file of sourceFiles("src")) {
+    const source = readFileSync(file, "utf8");
+    for (const m of source.matchAll(/\bto[=:]\s*"(\/[^"{}$]*)"/g)) {
+      const path = m[1].replace(/\/$/, "") || "/";
+      if (path.startsWith("/api")) continue;
+      if (tree.includes(`'${path}'`) || tree.includes(`"${path}"`)) continue;
+      dead.push(`${file}  →  ${path}`);
+    }
+  }
+
+  assert.deepEqual(dead, [], `router destinations with no route:\n${dead.join("\n")}`);
 });

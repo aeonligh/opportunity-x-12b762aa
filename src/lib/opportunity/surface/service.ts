@@ -25,7 +25,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * functions already return when nothing durable is configured.
  */
 export type PersonClient = SupabaseClient | null;
-import { pursuitLogFor } from "../pursuit/provider";
+import { pursuitLogFor, NO_PURSUIT_LOG_REASON } from "../pursuit/provider";
 import type { PursuitResolution } from "../pursuit/types";
 import { opportunityRecord } from "../store";
 import { projectCard, type OpportunityCard } from "./card";
@@ -72,17 +72,66 @@ const UNDECLARED: PursuitResolution = { state: "undeclared" };
  * being led to believe it was checked.
  */
 /** Everything the person has said, in one read. */
+/**
+ * What this person has declared, and whether that could be read at all.
+ *
+ * ── Why `readable` exists ─────────────────────────────────────────────────
+ *
+ * This used to return a bare map and swallow every failure into an empty one,
+ * which made three different situations identical to the caller: this person has
+ * declared nothing, the table has not been migrated, and the query failed. The
+ * first is a fact about them; the other two are facts about the deployment.
+ *
+ * The consequence reached the surface. `canPersistPursuit` was passed as a
+ * literal `true` by every route, so the Interested control was offered
+ * unconditionally — and `InterestedControl`'s own contract says the opposite:
+ * "Read before the control is offered, not discovered when it fails. Letting
+ * someone press Interested and then telling them it could not be recorded is a
+ * refusal disguised as an interaction."
+ *
+ * No extra round trip buys this. The route already reads declarations once per
+ * page; this reports whether that read worked.
+ */
+export interface DeclarationsRead {
+  pursuits: ReadonlyMap<string, PursuitResolution>;
+  /** False when there is nowhere to keep a declaration, or the read failed. */
+  readable: boolean;
+  /** Why not, in the surface's own voice. Null when readable. */
+  because: string | null;
+}
+
 export async function pursuitsFor(
   personId: string,
   client: PersonClient,
-): Promise<ReadonlyMap<string, PursuitResolution>> {
+): Promise<DeclarationsRead> {
+  const nothingKept = {
+    pursuits: new Map<string, PursuitResolution>(),
+    readable: false,
+  };
+
+  if (client === null) {
+    return { ...nothingKept, because: NO_PURSUIT_LOG_REASON };
+  }
+
+  const log = pursuitLogFor(client);
+  if (log === null) {
+    return { ...nothingKept, because: NO_PURSUIT_LOG_REASON };
+  }
+
   try {
-    if (client === null) return new Map();
-    const log = pursuitLogFor(client);
-    if (log === null) return new Map();
-    return await log.readAll(personId);
+    return { pursuits: await log.readAll(personId), readable: true, because: null };
   } catch {
-    return new Map();
+    /*
+      Most often the migration has not been applied. Not distinguished from any
+      other read failure, because the person cannot act on the difference and
+      guessing at the cause would be a claim about the deployment this code is
+      in no position to make.
+    */
+    return {
+      ...nothingKept,
+      because:
+        "I could not reach the place your declarations are kept, so I won’t offer to record one I might lose.",
+    };
   }
 }
 

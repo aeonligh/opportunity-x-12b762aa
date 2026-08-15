@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/opportunities/$id")({
 });
 
 function OneOpportunity() {
-  const resolution = Route.useLoaderData();
+  const { resolution, canKeepDeclarations, whyNot } = Route.useLoaderData();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
@@ -37,7 +37,11 @@ function OneOpportunity() {
       </Link>
 
       {resolution?.state === "inspection" ? (
-        <OpportunityInspection inspection={resolution.inspection} canPersistPursuit />
+        <OpportunityInspection
+          inspection={resolution.inspection}
+          canPersistPursuit={canKeepDeclarations}
+          pursuitWhyNot={whyNot}
+        />
       ) : resolution?.state === "not-found" ? (
         /*
           A reference that resolves to nothing, and an unreadable record, are

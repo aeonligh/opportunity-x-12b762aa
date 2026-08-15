@@ -2,7 +2,7 @@
 
 **Status:** Phase 1 ratified by the founder. Law.
 **Ratified:** 2026-08-08
-**Scope:** AEON X and Opportunity X, its first product.
+**Scope:** Opportunity X. See Amendment A-01.
 
 ---
 
@@ -1089,3 +1089,47 @@ product, architecture, brand, UX, database — may not override this document.
 Where an implementation conflicts with it, the implementation is wrong.
 
 Resolved contradictions move to the table above. Nothing is deleted silently.
+
+---
+
+## Amendments
+
+Recorded here rather than applied silently, per the procedure above.
+
+### A-01 — Opportunity X is a standalone product, not AEON X's first product
+
+**Amends:** the Scope line, which read
+*"AEON X and Opportunity X, its first product."*
+
+**Now reads:** *"Opportunity X."*
+
+**Ratified by the founder**, in the directive opening
+*"OPPORTUNITY X — STANDALONE PRODUCT RESET"*:
+
+> There are TWO SEPARATE PRODUCTS. […] OPPORTUNITY X IS NOT A FEATURE OF AEON X.
+> OPPORTUNITY X MUST NOT BECOME AN AEON X FRONT END. […] AEON X and Opportunity X
+> are siblings, not parent and child.
+
+and reaffirmed in the subsequent build directive:
+
+> We are now building Opportunity X as a STANDALONE PRODUCT. This is NOT AEON X.
+
+**Why this is an amendment and not a correction.** The old line was not a typo.
+It described a real arrangement: the engine was built inside the AEON X
+repository, and this constitution was written while that was true. The founder
+changed the arrangement. Editing the line without recording why would erase the
+fact that the relationship was once different — and the rest of this document
+only makes sense to a future reader if that history is legible.
+
+**What it does not change.** Nothing else. No principle, no CR, no resolved
+contradiction, and no open research question depends on the parent/child
+framing; the scope line was its only occurrence in this document. Principle Zero
+already made the constitution portable — *"it names no framework, no vendor, and
+no file path"* — so removing the parent product removes nothing it relied on.
+
+**Consequences already carried out in the implementation**, recorded in
+`DECISION_LOG.md`: the engine's user-facing voice, the crawler's identity and
+contact URL, the entity-id hash namespace, and the `comment on` metadata in the
+three unapplied migrations were all moved off AEON X. A test,
+`test/standalone.test.ts`, now fails the build if another product's name reaches
+a shipped string.

@@ -37,17 +37,30 @@ export function pursuitLogFor(db: SupabaseClient | null): PursuitLog | null {
 }
 
 /**
- * Whether this deployment has anywhere to keep a declaration.
+ * Whether this deployment is configured to keep a declaration at all.
  *
- * Read by the surface *before* the control is offered. Does not prove the
- * migration has been applied — nothing short of a query does, and the honest
- * error covers that case.
+ * ── What was wrong with this ──────────────────────────────────────────────
+ *
+ * It read `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+ * — Next.js names, carried across with the engine. This application is built on
+ * TanStack Start over Vite, which never sets them, so the function returned
+ * `false` on every deployment including a correctly configured one.
+ *
+ * It was also never called: the routes passed `canPersistPursuit` as a literal
+ * `true`. So the dead default was harmless only by accident, and the surface
+ * offered the control without checking anything.
+ *
+ * The names now match what `requireSupabaseAuth` actually requires, so this
+ * agrees with the middleware rather than with a different framework.
+ *
+ * ── What it still does not establish ──────────────────────────────────────
+ *
+ * That the migration has been applied. Nothing short of a query does. The
+ * surface therefore prefers `pursuitsFor`'s `readable`, which is derived from a
+ * read it performs anyway; this remains the answer where no read has happened.
  */
 export function canKeepDeclarations(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-  );
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY);
 }
 
 export const NO_PURSUIT_LOG_REASON =

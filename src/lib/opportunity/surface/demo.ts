@@ -24,11 +24,19 @@ import { projectInspection, type OpportunityInspection } from "./inspection";
  * THE RULE THIS FILE LIVES UNDER
  * ══════════════════════════════════════════════════════════════════════════
  *
- * **Nothing here may ever reach a live surface.** It is reachable from exactly
- * two routes, `/opportunity/preview` and `/opportunity/preview/[entityId]`,
- * every card it produces is rendered with `evidence="fixture"`, and the marker
- * is on the card itself rather than on the page around it — so a component
- * reused elsewhere carries the label with it.
+ * **Nothing here may ever reach a live surface.** It is reachable from four
+ * routes and no others — `/lab`, `/lab/$id`, `/lab/saved`, and the signed-in
+ * `/opportunities/examples` — every card any of them produces is rendered with
+ * `evidence="fixture"`, and the marker is on the card itself rather than on the
+ * page around it, so a component reused elsewhere carries the label with it.
+ *
+ * The `/lab` routes additionally refuse to answer at all when
+ * `NODE_ENV=production`; see `lab-guard.ts` for why that check is a server-side
+ * runtime one rather than a bundler constant.
+ *
+ * (This paragraph named `/opportunity/preview` and `/opportunity/preview/[entityId]`
+ * long after both were deleted. A safety invariant documented against routes
+ * that do not exist is worse than none: it reads as though someone checked.)
  *
  * Seeding this into the real store would be the fabricated movement the
  * constitution forbids by name, and it would be undetectable afterwards: a

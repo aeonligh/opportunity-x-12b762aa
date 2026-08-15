@@ -59,6 +59,8 @@ export function OpportunityInspection({
   /** Both passed straight to the control. See `InterestedControl` for why. */
   pursuitActions,
   pursuitVoice,
+  /** Why a declaration cannot be kept. See `InterestedControl`. */
+  pursuitWhyNot,
 }: {
   inspection: Inspection;
   evidence?: "live" | "fixture";
@@ -66,6 +68,7 @@ export function OpportunityInspection({
   canPersistPursuit?: boolean;
   pursuitActions?: ComponentProps<typeof InterestedControl>["actions"];
   pursuitVoice?: ComponentProps<typeof InterestedControl>["voice"];
+  pursuitWhyNot?: string | null;
 }) {
   const { card } = inspection;
 
@@ -322,6 +325,7 @@ export function OpportunityInspection({
         canPersist={canPersistPursuit}
         evidence={evidence}
         voice={pursuitVoice}
+        whyNot={pursuitWhyNot}
         {...(pursuitActions ? { actions: pursuitActions } : {})}
       />
 

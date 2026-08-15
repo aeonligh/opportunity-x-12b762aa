@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { listOpportunities, listSaved } from "@/lib/opportunities.server";
+import { listOpportunities } from "@/lib/opportunities.server";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
 
@@ -19,15 +19,22 @@ import { UnknownState } from "@/components/ui/absence/UnknownState";
  * itself, which this product does not have and will not invent.
  */
 export const Route = createFileRoute("/_authenticated/opportunities")({
-  loader: async () => ({
-    result: await listOpportunities(),
-    saved: await listSaved(),
-  }),
+  /*
+    One read. This also awaited `listSaved()` and never used the result: the
+    component destructures `result`, `canKeepDeclarations` and `whyNot`, and
+    nothing referenced `saved`. That was not a spare field — `resolveDeclarations`
+    runs a second full `deriveCorpus` over the whole observation record, serially
+    after the first, and the page threw it away.
+
+    The declarations this page does need are already inside `listOpportunities`,
+    which reads them once and projects them onto the cards.
+  */
+  loader: () => listOpportunities(),
   component: Opportunities,
 });
 
 function Opportunities() {
-  const { result } = Route.useLoaderData();
+  const { result, canKeepDeclarations, whyNot } = Route.useLoaderData();
 
   const all = result.state === "cards" ? result.cards : [];
   const cared = all.filter((c) => c.stance.declaration === "interested");
@@ -63,7 +70,8 @@ function Opportunities() {
                   key={card.entityId}
                   card={card}
                   inspectHref={`/opportunities/${card.entityId}`}
-                  canPersistPursuit
+                  canPersistPursuit={canKeepDeclarations}
+                  pursuitWhyNot={whyNot}
                 />
               ))}
             </section>
@@ -80,7 +88,8 @@ function Opportunities() {
                 key={card.entityId}
                 card={card}
                 inspectHref={`/opportunities/${card.entityId}`}
-                canPersistPursuit
+                canPersistPursuit={canKeepDeclarations}
+                pursuitWhyNot={whyNot}
               />
             ))}
           </section>

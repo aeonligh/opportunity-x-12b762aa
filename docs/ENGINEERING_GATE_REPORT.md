@@ -1,5 +1,25 @@
 # Engineering Gate Report — Phase 3 & Phase 4
 
+> **Superseded, 2026-08-15. Historical record — do not act on the steps below.**
+>
+> This report was written while the Opportunity X engine still lived inside the
+> AEON X repository. Its measurements were true on 2026-07-30 and are kept
+> unedited for that reason, but two things in it are now actively misleading:
+>
+> - **The redirect URLs in step 4 name `aeon-x-technologies-9kzz.vercel.app`,**
+>   which is a different product's deployment. Allowlisting it would configure
+>   authentication for the wrong origin. Opportunity X's own production URL has
+>   not been verified from any session so far — see `DECISION_LOG.md` — so the
+>   correct value is whatever Vercel reports for *this* project, and it must be
+>   read there rather than copied from here.
+> - **The branch and commit references** predate the standalone reset.
+>
+> The Supabase callback in step 5 (`https://anfiojmbgonrtympzjch.supabase.co/auth/v1/callback`)
+> remains correct: it is a property of the Supabase project, not of the app's
+> hosting.
+>
+> For the current migration procedure, see `docs/APPLYING_THE_MIGRATIONS.md`.
+
 **Date:** 2026-07-30
 **Branch:** `claude/project-analysis-review-9h7hly` @ `76ce752`
 **Base:** `origin/main` @ `8a2090d`

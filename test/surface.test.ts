@@ -856,3 +856,73 @@ test("with nothing configured, the surface says so — not that it could not rea
     else process.env.SUPABASE_SERVICE_ROLE_KEY = key;
   }
 });
+
+test("the Interested control is not offered when a declaration cannot be kept", async () => {
+  /*
+    Two defects met here, and neither could fail a test before this one existed.
+
+    `canKeepDeclarations()` read `NEXT_PUBLIC_SUPABASE_URL` and
+    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — Next.js names carried across with
+    the engine, which Vite never sets. It therefore returned false on every
+    deployment, including a correct one.
+
+    It was also never called. Every route passed `canPersistPursuit` as a
+    literal `true`, so the control was offered unconditionally and the refusal
+    was discovered on press — the exact thing `InterestedControl` documents
+    itself as existing to prevent: "Letting someone press Interested and then
+    telling them it could not be recorded is a refusal disguised as an
+    interaction."
+  */
+  const { pursuitsFor } = await import("@/lib/opportunity/surface/service");
+
+  /* No client at all: nowhere to keep anything, and it says so up front. */
+  const none = await pursuitsFor("p1", null);
+  assert.equal(none.readable, false);
+  assert.equal(none.pursuits.size, 0);
+  assert.ok(none.because && none.because.length > 0, "a refusal must say why");
+
+  /* A client whose read throws — the shape of an unapplied migration. It must
+     not come back as "this person has declared nothing". */
+  const broken = {
+    from() {
+      throw new Error('relation "opportunity_pursuits" does not exist');
+    },
+  } as never;
+  const failed = await pursuitsFor("p1", broken);
+  assert.equal(failed.readable, false, "a failed read is not an empty one");
+  assert.equal(failed.pursuits.size, 0);
+  assert.match(failed.because ?? "", /could not reach/);
+});
+
+test("the capability check agrees with what the middleware actually requires", async () => {
+  const { canKeepDeclarations } = await import("@/lib/opportunity/pursuit/provider");
+  const middleware = readFileSync("src/integrations/supabase/auth-middleware.ts", "utf8");
+
+  const saved = { ...process.env };
+  try {
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_PUBLISHABLE_KEY;
+    assert.equal(canKeepDeclarations(), false);
+
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    process.env.SUPABASE_PUBLISHABLE_KEY = "public-key";
+    assert.equal(
+      canKeepDeclarations(),
+      true,
+      "a configured deployment must not read as unconfigured",
+    );
+  } finally {
+    process.env = saved;
+  }
+
+  /* And the names are the middleware's, not another framework's. Comments are
+     stripped first: the fix's own explanation names the variable it removed,
+     and that history is worth keeping. */
+  const provider = readFileSync("src/lib/opportunity/pursuit/provider.ts", "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/.*$/gm, "");
+  assert.doesNotMatch(provider, /NEXT_PUBLIC_/, "a Next.js variable name reached a Vite app");
+  for (const name of ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY"]) {
+    assert.ok(middleware.includes(name), `${name} is not what the middleware requires`);
+  }
+});

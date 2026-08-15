@@ -67,6 +67,8 @@ export function OpportunityCard({
   pursuitActions,
   /** Whose position the card should say this is. Defaults to following evidence. */
   pursuitVoice,
+  /** Why a declaration cannot be kept. See `InterestedControl`. */
+  pursuitWhyNot,
   className = "",
 }: {
   card: Card;
@@ -75,6 +77,7 @@ export function OpportunityCard({
   canPersistPursuit?: boolean;
   pursuitActions?: ComponentProps<typeof InterestedControl>["actions"];
   pursuitVoice?: ComponentProps<typeof InterestedControl>["voice"];
+  pursuitWhyNot?: string | null;
   className?: string;
 }) {
   const inspect = inspectHref ?? `/opportunity/${card.entityId}`;
@@ -181,6 +184,7 @@ export function OpportunityCard({
         canPersist={canPersistPursuit}
         evidence={evidence}
         voice={pursuitVoice}
+        whyNot={pursuitWhyNot}
         {...(pursuitActions ? { actions: pursuitActions } : {})}
       />
 

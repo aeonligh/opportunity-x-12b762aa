@@ -485,3 +485,90 @@ is why the report separates DATABASE-SQL from DATABASE-PRODUCTION.
 apply the migrations by hand. Everything downstream — real auth, real
 `/opportunities`, real pursuit, one real sweep, the first real opportunity, the
 user journey — is blocked behind that and the egress policy, in that order.
+
+---
+
+## Phase 10 — Foundation lock: what could be ratified, and four defects closed
+
+**Feature.** Baseline re-verification, constitutional Amendment A-01, and the
+removal of real foundation debt. No new product feature.
+
+**Purpose.** Establish the strongest truthful final state before moving on.
+Sections 2–9 of the phase (Supabase, Vercel, real auth, real surface, real
+opportunity, real pursuit, real journey, real discovery) are all externally
+blocked and are reported as BLOCKED rather than attempted by proxy.
+
+**The boundary, re-measured rather than carried forward.** Both connectors were
+re-checked: Supabase and Vercel are still `connected: true`, `enabledInChat:
+false`, and `ToolSearch` finds no tools for either. Every host was re-probed and
+still returns `403` to `CONNECT`. Nothing was assumed from the previous phase's
+report.
+
+**Amendment A-01, recorded in `CONSTITUTION.md`.** The Scope line read *"AEON X
+and Opportunity X, its first product."* — the parent/child framing the founder
+overturned twice in writing. Amended to *"Opportunity X."*, with the ratifying
+quotations and the reason it is an amendment rather than a correction: the old
+line described a real arrangement that has since changed, and erasing it would
+make the rest of the document unreadable to someone asking why the engine's
+history looks the way it does. It was the only occurrence in the document; no
+principle, CR or open question depended on it.
+
+**Four defects, each with a test.**
+
+1. **The Interested control was offered without checking anything.** Every route
+   passed `canPersistPursuit` as a literal `true`. `InterestedControl`'s own
+   contract says the opposite — "Read before the control is offered, not
+   discovered when it fails" — so the product was violating a standard it states
+   in its own source.
+2. **`canKeepDeclarations()` read `NEXT_PUBLIC_*` variables.** Next.js names,
+   carried across with the engine, which Vite never sets. It returned `false` on
+   every deployment including a correct one. It was also never called, so the
+   dead default was harmless only by accident. Now reads the two variables
+   `requireSupabaseAuth` actually requires.
+3. **A failed declarations read was indistinguishable from having none.**
+   `pursuitsFor` swallowed every failure into an empty map, so an unapplied
+   migration looked exactly like a person who has declared nothing. It now
+   returns `{ pursuits, readable, because }`, and the surface renders the
+   specific reason instead of the generic one — "nothing is configured" and "I
+   could not reach it" are different facts.
+4. **`/opportunities` fetched and discarded a second full corpus derivation.**
+   The loader awaited `listSaved()` serially and the component never referenced
+   it. `resolveDeclarations` runs its own `deriveCorpus` over the whole
+   observation record; the page paid for it on every load and threw it away.
+
+**Two stale documents corrected without rewriting history.**
+`demo.ts` stated its central safety invariant — "nothing here may ever reach a
+live surface" — against `/opportunity/preview` and `/opportunity/preview/[entityId]`,
+both deleted long ago. A safety claim naming routes that do not exist is worse
+than none, because it reads as though someone checked; it now names the four
+real surfaces and is enforced by a test that fails if a fifth importer appears.
+`ENGINEERING_GATE_REPORT.md` told the operator to allowlist
+`aeon-x-technologies-9kzz.vercel.app` — a different product's deployment. The
+body is a dated snapshot and was left unedited; a superseding header now marks
+the action items stale and says which one would misconfigure authentication.
+
+**`.env.example` omitted two variables the app cannot boot without.**
+`SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` are read by the auth middleware on
+every server function. Locally they come from the committed `.env`; a deployment
+does not read `.env`, so anyone configuring production from the example file
+would have had every authenticated request fail.
+
+**Measured gates.** ESLint 0 errors (9 warnings, all `react-refresh`, 6 of them
+shadcn vendor files). TypeScript 0. Tests **215/215**, from 211. Build clean.
+Browser: 7/7 routes serve, 26/26 journey, 14/14 deep-link.
+
+**A new invariant worth keeping.** `test/lab.test.ts` now asserts that no
+literal router destination in `src/` points at a route absent from
+`routeTree.gen.ts`. It passes today, which means there are no dead deep links —
+and `AUTH_LANDING_PATH` pointing at the deleted `/workspace` is the kind of
+thing it exists to catch.
+
+**Risks.** The persistence-capability signal is derived from a read the page
+already performs, so it is accurate about *reachability* and still cannot prove
+the migration is applied — only a write does. That is stated in the code rather
+than implied.
+
+**Future work.** Everything in sections 2–9. In order of leverage: enable the
+two connectors in this chat; failing that, apply the migrations by hand from
+`docs/APPLYING_THE_MIGRATIONS.md`; the egress policy blocks real discovery
+regardless.

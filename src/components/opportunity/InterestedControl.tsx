@@ -72,6 +72,15 @@ export function InterestedControl({
    */
   voice,
   /**
+   * Why a declaration cannot be kept, when it cannot.
+   *
+   * The generic sentence below is true but coarse: "nothing is configured" and
+   * "the place your declarations live could not be reached" are different facts
+   * about the deployment, and this product's standard is to say which. Supplied
+   * by the surface, which learns it from the read it already performs.
+   */
+  whyNot,
+  /**
    * Where a position gets written.
    *
    * Defaults to the authenticated server functions, which is what every product
@@ -92,6 +101,7 @@ export function InterestedControl({
   canPersist?: boolean;
   evidence?: "live" | "fixture";
   voice?: "you" | "this-person";
+  whyNot?: string | null;
   actions?: {
     declare: (args: {
       data: { entityId: string; state: "interested" | "not-interested" };
@@ -217,7 +227,8 @@ export function InterestedControl({
         <p className="max-w-[58ch] text-[14px] leading-relaxed text-text-s">
           {fixture
             ? "These buttons do nothing here. This is a fixture opportunity, so there is no real record to write a position into."
-            : "I can’t keep this yet. Nowhere durable is configured to record what you tell me about an opportunity, so I won’t pretend to remember it."}
+            : (whyNot ??
+              "I can’t keep this yet. Nowhere durable is configured to record what you tell me about an opportunity, so I won’t pretend to remember it.")}
         </p>
       ) : null}
 

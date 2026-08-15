@@ -26,12 +26,19 @@ import type { AuthedContext } from "@/integrations/supabase/context";
 const authed = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]);
 type Ctx = AuthedContext;
 
-/** Everything currently worth showing, or the honest reason there is nothing. */
+/**
+ * Everything currently worth showing, or the honest reason there is nothing.
+ *
+ * `canKeepDeclarations` rides along because the surface has to know it *before*
+ * offering the Interested control. It costs nothing extra: the declarations are
+ * read once here for the cards, and whether that read worked is the answer.
+ */
 export const listOpportunities = authed.handler(async ({ context }) => {
   const { userId, supabase } = context as Ctx;
   const { resolveCards, pursuitsFor } = await import("@/lib/opportunity/surface/service");
   const saved = await pursuitsFor(userId, supabase);
-  return resolveCards(userId, supabase, { pursuits: saved });
+  const result = await resolveCards(userId, supabase, { pursuits: saved.pursuits });
+  return { result, canKeepDeclarations: saved.readable, whyNot: saved.because };
 });
 
 /** One opportunity, with everything underneath it. */
@@ -40,8 +47,13 @@ export const getOpportunity = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
   .handler(async ({ context, data }) => {
     const { userId, supabase } = context as Ctx;
-    const { resolveInspection } = await import("@/lib/opportunity/surface/service");
-    return resolveInspection(userId, data.id, supabase);
+    const { resolveInspection, pursuitsFor } = await import("@/lib/opportunity/surface/service");
+    /* Same question as the list, asked the same way: can a declaration actually
+       be kept, established before the control is offered rather than when it
+       is pressed. */
+    const saved = await pursuitsFor(userId, supabase);
+    const resolution = await resolveInspection(userId, data.id, supabase);
+    return { resolution, canKeepDeclarations: saved.readable, whyNot: saved.because };
   });
 
 /** What the person has said they care about. */
