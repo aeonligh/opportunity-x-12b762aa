@@ -7,6 +7,7 @@ import { establishVerification } from "@/lib/opportunity/verification/service";
 import { judge, judgeAll, NO_ASSESSOR } from "@/lib/opportunity/judgment/service";
 import type { PairingJudgments, RankingInput } from "@/lib/opportunity/judgment/types";
 import { measureDivergence } from "@/lib/opportunity/monitors";
+import { deriveStakes } from "@/lib/opportunity/corpus";
 import {
   confirmedFact,
   inferredFact,
@@ -417,4 +418,64 @@ test("a judgment set never renders a person's facts into the entity", () => {
 
   assert.deepEqual(j.verification, forSomeoneElse.verification);
   assert.equal("personId" in j.verification, false);
+});
+
+test("on the last day, the ranking says so rather than counting backwards", () => {
+  /*
+    This shipped, and only a rendered page caught it.
+
+    `deriveOpenState` reports the instant the publisher denoted — the *start* of
+    a day-precision deadline — while deciding open-or-closed against the end of
+    that day. So on the final day the state is legitimately `open` and the raw
+    subtraction is already negative.
+
+    `deriveUrgency` clamped at zero. This did not. The result was a card whose
+    stance read "today is the last day" directly above a ranking that read
+    "There are -1 days until the deadline" — about the same opportunity, from
+    the same deadline, in the same paragraph.
+
+    Nothing failed, because no test rendered the ranking criterion and no test
+    asserted the two agreed.
+  */
+  const CLOSES = "2026-09-30";
+  /* Mid-afternoon on the closing day: past the stored instant, inside the day. */
+  const NOW_ON_THE_DAY = "2026-09-30T15:00:00.000Z";
+
+  const observations = [observe(UNN, pageWith(CLOSES), T0), observe(UNILAG, pageWith(CLOSES), T1)];
+  const resolved = resolveEntity({
+    members: membersOf(observations),
+    identity: { method: "canonical-url", key: UNN },
+    rationale: "Two announcers, one programme.",
+    stakes: deriveStakes(),
+    decidedAt: T1,
+  });
+  assert.ok("entity" in resolved);
+
+  const j = judge({
+    personId: "p1",
+    entity: resolved.entity,
+    verification: establishVerification(resolved.entity, observations, T1),
+    facts: [],
+    now: NOW_ON_THE_DAY,
+    ranking: { position: 1, outOf: 1 },
+  });
+
+  const proximity = j.ranking.inputs.find((i) => i.kind === "deadline-proximity");
+  assert.ok(proximity, "the ranking must state the deadline it ordered on");
+
+  assert.doesNotMatch(
+    proximity.criterion,
+    /-\d/,
+    `a negative day count reached a reader: ${proximity.criterion}`,
+  );
+  assert.equal(proximity.criterion, "Today is the last day.");
+
+  /* And the opportunity really is still open, which is the whole reason the
+     subtraction went negative in the first place. */
+  assert.equal(proximity.status, "met");
+
+  /* No ranking sentence anywhere may count below zero. */
+  for (const input of j.ranking.inputs) {
+    assert.doesNotMatch(input.criterion, /-\d+ days/, input.criterion);
+  }
 });

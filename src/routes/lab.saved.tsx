@@ -36,13 +36,26 @@ function LabSaved() {
             >
               <p className="max-w-[62ch] text-[15px] leading-snug text-foreground">
                 {row.state === "interested" ? "Interested in " : "Not for you: "}
-                <Link
-                  to="/lab/$id"
-                  params={{ id: row.entityId }}
-                  className="font-bold underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:decoration-accent"
-                >
-                  {row.title}
-                </Link>
+                {row.title === null ? (
+                  /*
+                    The declaration outlived the opportunity it pointed at. Kept
+                    and said plainly, exactly as `/saved` does: dropping the row
+                    would quietly edit what the person told us, and they would
+                    have no way to notice it had gone.
+                  */
+                  <span className="text-text-s">
+                    something that can no longer be resolved. What you said is still here; the
+                    opportunity it pointed at is not.
+                  </span>
+                ) : (
+                  <Link
+                    to="/lab/$id"
+                    params={{ id: row.entityId }}
+                    className="font-bold underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:decoration-accent"
+                  >
+                    {row.title}
+                  </Link>
+                )}
               </p>
               <FreshnessStamp at={row.declaredAt} verb="saved" decay="slow" />
               {row.yours ? null : (

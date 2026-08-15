@@ -290,3 +290,104 @@ runtime and none contains "AEON X".
 outstanding gate is ESLint, which wants a repo-wide `--fix` as its own commit
 rather than mixed into a copy change. Real discovery remains blocked on egress
 and on the unapplied migrations.
+
+---
+
+## Product testability: a door into the product that is not a hole in the auth
+
+**Feature.** The ESLint gate closed; a development-only fixture laboratory at
+`/lab`, `/lab/$id`, `/lab/saved` and `/lab/states`; the full product journey
+walked in a real browser; and four defects found by walking it.
+
+**Purpose.** Opportunity X could not be looked at. Its three surfaces read one
+person's declarations under row-level security, so seeing the product required
+a reachable Supabase and a real account, and neither has been available.
+
+**Measured gates.** ESLint **0 errors**, from 274. TypeScript 0. Tests
+**210/210**, from 200. `bun run build` clean. Browser: 26/26 journey steps,
+14/14 deep-link cases.
+
+**Decisions.**
+
+- **The lint gate closed in two commits, deliberately separate.** 250 of the 267
+  errors were `prettier/prettier` and all were autofixable; that pass ran with
+  `no-explicit-any` suppressed so it could not smuggle a type change in beside
+  the whitespace, and is reviewable as pure formatting. The remaining 17 were
+  real type debt and went in on their own.
+- **Most of the `any`s were discarded types, not missing ones.** The Supabase
+  client is generic over the generated `Database`, so `user_documents` rows were
+  correctly typed at the query and annotated back to `any` on the way in. Two
+  were load-bearing: `callClaude` returned `Promise<any>`, letting `result.score`
+  typecheck as a number into a database write for a value a generative model is
+  under no obligation to return; and typing the deadline map surfaced a
+  `string | null` reaching an email that requires a string.
+- **The laboratory got its own door rather than an exemption.** Dropping
+  `_authenticated` from a route would be a production auth change made for a
+  development convenience — the kind that survives into a deployment because it
+  reads as a routing tidy-up. The guard is `process.env.NODE_ENV`, read on the
+  server as the first statement of every handler, **not** `import.meta.env.DEV`:
+  that is a bundler fact protecting the client bundle, and a route hidden only in
+  the browser still leaves its endpoint postable. The laboratory also constructs
+  no Supabase client and takes no user id, so there is nothing to reach even if
+  the guard were defeated.
+- **Its declarations are real, not simulated.** `demoCorpus` takes overrides, so
+  pressing Interested writes through the same `InMemoryPursuitLog` and returns
+  through the same projection the live surface uses. They live in the dev
+  server's memory and die with it, which the page says out loud.
+
+**Four defects, all found by rendering rather than by testing.**
+
+1. **A fixture card told the reader they had taken a position they had not.**
+   The card's heading was already voice-aware — "Since they said that" — while
+   the sentence beneath it was hardcoded to "You said you were interested". Two
+   voices in one paragraph, the wrong one asserting a position on the reader's
+   behalf. Both halves were individually well-formed, which is why no test
+   caught it. `deriveStance` now takes a voice.
+2. **"There are -1 days until the deadline."** `deriveOpenState` reports the
+   instant the publisher denoted — the *start* of a day-precision deadline —
+   while deciding open-or-closed against the end of that day, so on the final
+   day the state is legitimately open and the raw subtraction is negative.
+   `deriveUrgency` clamped at zero; the ranking criterion did not. The card read
+   "today is the last day" directly above a ranking reading -1, about the same
+   deadline.
+3. **Unexplained ranking language.** The card rendered "Ranked 3 of 9
+   considered" and the judgment's own sentence said "on the inputs listed" —
+   which the card never listed. A position with no stated basis asks the reader
+   to assume the system knows something it has not said. The criteria are now
+   read off the actual inputs, so the sentence cannot drift from what decided
+   the order.
+4. **The laboratory's saved list dropped unresolvable declarations.** Built from
+   the scenarios alone, a declaration whose opportunity is no longer in the
+   corpus silently vanished — precisely the failure the live
+   `resolveDeclarations` exists to avoid.
+
+**A methodology note worth keeping.** The first version of the browser walk
+asserted the declaration-invariant with three regexes, one of which matched
+nothing and compared `""` to `""`. It passed, and reported that verification was
+unchanged without ever having read it. It now compares the rendered text of
+every evidence section — requirements, timing, verification, sources, unsettled
+— before and after declaring; each is byte-identical, and a silent extraction
+failure can no longer masquerade as a passing invariant. The same lesson applied
+to the `-1 days` fix, which was re-verified by reverting the clamp and watching
+the new test fail.
+
+**Risks.**
+- The laboratory's store is process-global and unkeyed, so every visitor to a
+  dev server shares one set of declarations. Correct for one developer, wrong
+  for anything else, and another reason it refuses to run in production.
+- 9 `react-refresh` warnings remain, 6 of them shadcn/ui primitives exporting
+  cva variants beside their component — the upstream convention. Splitting
+  vendor files to quiet a hot-reload warning would diverge them from
+  `shadcn add`.
+
+**Testing.** `test/lab.test.ts` asserts the laboratory refuses in production,
+that every endpoint opens with that refusal, that it reaches for no client, that
+the three product surfaces are still inside `_authenticated`, and that it has
+invented no Ledger, commitment, preparation or score. `test/stance.test.ts`
+pins the voice fix; `test/judgment.test.ts` pins the negative-day fix.
+
+**Future work.** Straight apostrophes remain in user-facing strings elsewhere in
+the engine (`can't`, `won't`, `didn't` in `surface/service.ts`,
+`surface/delivery.ts`, `discovery/crawl.ts`) while the components and
+`stance.ts` use typographic ones. A typography pass, on its own, not mixed into
+behavioural work. Database and real discovery remain externally blocked.

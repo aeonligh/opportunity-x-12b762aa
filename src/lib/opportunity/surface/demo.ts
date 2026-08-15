@@ -506,6 +506,13 @@ export async function demoCorpus(
       judgments: judgments.find((j) => j.entityId === entity.id) ?? null,
       pursuit: await pursuits.read(PERSON, entity.id),
       now,
+      /*
+        A position the visitor took is theirs and is addressed as such; one the
+        specimen shipped with belongs to the fixture person. Saying "you" about
+        the latter attributes a statement to a reader who never made it, which
+        is the one lie this whole arrangement exists to avoid.
+      */
+      voice: (overrides.has(entity.id) ? "you" : "this-person") as "you" | "this-person",
     };
 
     const inspection = projectInspection({

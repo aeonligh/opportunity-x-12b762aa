@@ -54,17 +54,38 @@ function Lab() {
       title="Opportunities"
       lede="What has been found, what is actually known about it, and what is still uncertain. Every claim here can be traced back to the page it came from."
     >
-      <Link
-        to="/lab/saved"
-        className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
-      >
-        What you&rsquo;ve saved
-      </Link>
+      <nav className="flex flex-wrap gap-x-6 gap-y-2">
+        <Link
+          to="/lab/saved"
+          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          What you&rsquo;ve saved
+        </Link>
+        {/*
+          The absences need their own page: every specimen below exists, so the
+          corpus is never unreadable and the saved list is never new. The states
+          the product is most likely to get wrong are the ones this list cannot
+          display.
+        */}
+        <Link
+          to="/lab/states"
+          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          The three absences
+        </Link>
+      </nav>
 
       {cared.length > 0 ? (
         <section className="flex flex-col gap-6">
+          {/*
+            Neutral on purpose. `/opportunities` says "You said you were
+            interested" and is right to, because every declaration there is the
+            reader's. This list can hold both — a position the visitor took and
+            one the specimen shipped with — so a heading claiming either owner
+            would be wrong for half the rows. Each card says whose it is.
+          */}
           <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s">
-            You said you were interested
+            Marked interested
           </h2>
           {cared.map((s) => (
             <Specimen key={s.id} specimen={s} actions={actions} />

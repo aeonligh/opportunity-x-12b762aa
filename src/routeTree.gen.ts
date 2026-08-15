@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LabIndexRouteImport } from './routes/lab.index'
 import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
+import { Route as LabStatesRouteImport } from './routes/lab.states'
 import { Route as LabSavedRouteImport } from './routes/lab.saved'
 import { Route as LabIdRouteImport } from './routes/lab.$id'
 import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
@@ -60,6 +61,11 @@ const LabIndexRoute = LabIndexRouteImport.update({
 const OpportunityIdRoute = OpportunityIdRouteImport.update({
   id: '/opportunity/$id',
   path: '/opportunity/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabStatesRoute = LabStatesRouteImport.update({
+  id: '/lab/states',
+  path: '/lab/states',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabSavedRoute = LabSavedRouteImport.update({
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/vault': typeof AuthenticatedVaultRoute
   '/lab/$id': typeof LabIdRoute
   '/lab/saved': typeof LabSavedRoute
+  '/lab/states': typeof LabStatesRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/lab/': typeof LabIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/vault': typeof AuthenticatedVaultRoute
   '/lab/$id': typeof LabIdRoute
   '/lab/saved': typeof LabSavedRoute
+  '/lab/states': typeof LabStatesRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/lab': typeof LabIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/_authenticated/vault': typeof AuthenticatedVaultRoute
   '/lab/$id': typeof LabIdRoute
   '/lab/saved': typeof LabSavedRoute
+  '/lab/states': typeof LabStatesRoute
   '/opportunity/$id': typeof OpportunityIdRoute
   '/lab/': typeof LabIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/lab/$id'
     | '/lab/saved'
+    | '/lab/states'
     | '/opportunity/$id'
     | '/lab/'
     | '/admin/analytics'
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/lab/$id'
     | '/lab/saved'
+    | '/lab/states'
     | '/opportunity/$id'
     | '/lab'
     | '/admin/analytics'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vault'
     | '/lab/$id'
     | '/lab/saved'
+    | '/lab/states'
     | '/opportunity/$id'
     | '/lab/'
     | '/_authenticated/admin/analytics'
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   LabIdRoute: typeof LabIdRoute
   LabSavedRoute: typeof LabSavedRoute
+  LabStatesRoute: typeof LabStatesRoute
   OpportunityIdRoute: typeof OpportunityIdRoute
   LabIndexRoute: typeof LabIndexRoute
   ApiPublicHooksCrawlOpportunitiesRoute: typeof ApiPublicHooksCrawlOpportunitiesRoute
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       path: '/opportunity/$id'
       fullPath: '/opportunity/$id'
       preLoaderRoute: typeof OpportunityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/states': {
+      id: '/lab/states'
+      path: '/lab/states'
+      fullPath: '/lab/states'
+      preLoaderRoute: typeof LabStatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/saved': {
@@ -566,6 +586,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   LabIdRoute: LabIdRoute,
   LabSavedRoute: LabSavedRoute,
+  LabStatesRoute: LabStatesRoute,
   OpportunityIdRoute: OpportunityIdRoute,
   LabIndexRoute: LabIndexRoute,
   ApiPublicHooksCrawlOpportunitiesRoute: ApiPublicHooksCrawlOpportunitiesRoute,

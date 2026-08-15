@@ -124,7 +124,13 @@ export const labSaved = createServerFn({ method: "GET" }).handler(async () => {
   assertDevelopment();
   const { scenarios } = await corpus();
 
-  const rows = scenarios.flatMap((s) => {
+  const rows: {
+    entityId: string;
+    state: "interested" | "not-interested";
+    declaredAt: string;
+    title: string | null;
+    yours: boolean;
+  }[] = scenarios.flatMap((s) => {
     const pursuit = s.card.pursuit;
     if (pursuit.state !== "declared") return [];
     return [
@@ -137,6 +143,27 @@ export const labSaved = createServerFn({ method: "GET" }).handler(async () => {
       },
     ];
   });
+
+  /*
+    Declarations whose opportunity is not in the corpus.
+
+    Built from the scenarios alone, this list silently dropped them — which is
+    exactly the failure the live `resolveDeclarations` is written to avoid. A
+    person's statement is theirs and does not stop existing because the thing it
+    pointed at did; removing the row would quietly edit what they said, and they
+    would have no way to tell it had happened.
+  */
+  const resolvable = new Set(scenarios.map((s) => s.card.entityId));
+  for (const [entityId, state] of declarations) {
+    if (state === null || resolvable.has(entityId)) continue;
+    rows.push({
+      entityId,
+      state,
+      declaredAt: new Date().toISOString(),
+      title: null,
+      yours: true,
+    });
+  }
 
   rows.sort((a, b) => b.declaredAt.localeCompare(a.declaredAt));
 

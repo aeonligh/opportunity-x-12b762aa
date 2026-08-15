@@ -105,13 +105,18 @@ export function PairingInference({
           </dl>
 
           {/*
-            Position among what was considered, with the denominator. "Ranked 1"
-            alone is a boast; "1 of 3" is a fact a person can weigh. There is no
-            score here and nowhere for one to go.
+            Position among what was considered, with the denominator *and* the
+            basis. "Ranked 1" alone is a boast; "1 of 3" is a fact a person can
+            weigh; "1 of 3, on: the opportunity is verified; there are 34 days
+            until the deadline" is a fact they can check.
+
+            The sentence comes from the ranking judgment rather than being
+            composed here, so it cannot claim an ordering the engine did not
+            perform. There is no score anywhere in it and nowhere for one to go.
           */}
           {pairing.position !== null ? (
-            <p className="font-mono text-[11px] text-text-s">
-              Ranked {pairing.position} of {pairing.outOf} considered
+            <p className="max-w-[58ch] text-[11px] leading-relaxed text-text-s">
+              {pairing.rankedOn}
             </p>
           ) : null}
         </>

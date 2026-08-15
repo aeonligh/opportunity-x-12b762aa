@@ -246,6 +246,8 @@ export interface OpportunityCard {
     decidedBy: PairingJudgments["recommendation"]["decidedBy"];
     position: number | null;
     outOf: number;
+    /** Why this order, in the ranking judgment's own words. */
+    rankedOn: string;
   } | null;
 
   /** ── The person's own words. Never inferred. ──────────────────────────── */
@@ -269,6 +271,14 @@ export interface CardInput {
   judgments: PairingJudgments | null;
   pursuit: PursuitResolution;
   now: string;
+  /**
+   * Whose position the stance sentence describes. Defaults to the reader's.
+   *
+   * Only the fixture laboratory passes anything else: its cards carry positions
+   * the reader did not take, and the sentence has to say so rather than
+   * addressing them as though they had.
+   */
+  voice?: "you" | "this-person";
 }
 
 export function projectCard(input: CardInput): OpportunityCard {
@@ -301,6 +311,10 @@ export function projectCard(input: CardInput): OpportunityCard {
           decidedBy: input.judgments.recommendation.decidedBy,
           position: input.judgments.ranking.position,
           outOf: input.judgments.ranking.outOf,
+          /* The ordering's own sentence, which names what it ordered on. The
+             card used to compose "Ranked N of M considered" itself, which is a
+             position with no stated basis. */
+          rankedOn: input.judgments.ranking.because,
         }
       : null,
     pursuit: input.pursuit,
@@ -310,6 +324,7 @@ export function projectCard(input: CardInput): OpportunityCard {
       judgments: input.judgments,
       pursuit: input.pursuit,
       now,
+      voice: input.voice,
     }),
     action: terminalAction(entity),
     shown: explain({ entity, title, organiser, timing, verification, judgments: input.judgments }),

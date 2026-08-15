@@ -220,7 +220,7 @@ test("6 · declined — respected, and not re-argued", () => {
   const { stance } = stanceFor(built, declinedOn(built.entity.id), { assessed: true });
 
   assert.equal(stance.next.kind, "declined");
-  assert.match(stance.statement, /isn't for you/);
+  assert.match(stance.statement, /isn[’']t for you/);
   /* Not softened into "are you sure?" and not re-pitched. */
   assert.equal(/reconsider|are you sure|but/i.test(stance.statement), false);
 });
@@ -453,4 +453,81 @@ test("no surface renders a preparation checklist", () => {
       `"${phrase}" is preparation UX the corpus does not establish`,
     );
   }
+});
+
+test("a fixture card does not put words in the reader's mouth", () => {
+  /*
+    The bug this pins down shipped, and was invisible to every test here.
+
+    The card's heading was already voice-aware — "Since they said that" on a
+    fixture — while the sentence directly beneath it, produced by `say()`, was
+    hardcoded to "You said you were interested". So a laboratory card told a
+    reader they had taken a position they had never taken, in the paragraph
+    immediately under a heading saying somebody else had taken it.
+
+    Both halves were individually well-formed, which is exactly why nothing
+    caught it: it is wrong only in combination, and only visible to someone
+    reading the rendered page.
+  */
+  const built = verified(IN_FOUR_DAYS);
+  const pursuit = interestedOn(built.entity.id);
+
+  const common = {
+    entity: built.entity,
+    verification: resolveVerification(built.verification, NOW),
+    judgments: null,
+    pursuit,
+    now: NOW,
+  };
+
+  const mine = deriveStance(common);
+  assert.match(mine.statement, /^You said you were interested/);
+
+  const theirs = deriveStance({ ...common, voice: "this-person" });
+  assert.match(theirs.statement, /^They said they were interested/);
+  assert.doesNotMatch(
+    theirs.statement,
+    /\byou\b|\byour\b/i,
+    "a fixture sentence must not address the reader",
+  );
+
+  /* And they differ only in who is being described. */
+  assert.equal(
+    theirs.statement.replace(/^They said they were interested/, "X"),
+    mine.statement.replace(/^You said you were interested/, "X"),
+    "the voices diverged in more than their subject",
+  );
+});
+
+test("declining, in the fixture voice, is also about them", () => {
+  const built = verified(IN_FOUR_DAYS);
+  const common = {
+    entity: built.entity,
+    verification: resolveVerification(built.verification, NOW),
+    judgments: null,
+    pursuit: declinedOn(built.entity.id),
+    now: NOW,
+  };
+
+  assert.match(deriveStance(common).statement, /^You said this one/);
+
+  const theirs = deriveStance({ ...common, voice: "this-person" });
+  assert.match(theirs.statement, /^They said this one/);
+  assert.doesNotMatch(theirs.statement, /\byou\b|\byour\b/i);
+});
+
+test("an undeclared fixture card does not offer the reader's time", () => {
+  /* "worth your time" is the same attribution problem in a sentence that has
+     no declaration in it at all. */
+  const built = verified(IN_SIX_MONTHS);
+  const common = {
+    entity: built.entity,
+    verification: resolveVerification(built.verification, NOW),
+    judgments: null,
+    pursuit: UNDECLARED,
+    now: NOW,
+  };
+
+  assert.match(deriveStance(common).statement, /your time/);
+  assert.match(deriveStance({ ...common, voice: "this-person" }).statement, /their time/);
 });

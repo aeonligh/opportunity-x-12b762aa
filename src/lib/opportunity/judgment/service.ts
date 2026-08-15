@@ -266,13 +266,28 @@ export function judge(input: JudgeInput): PairingJudgments {
       entityField: "deadline",
     });
   } else {
-    const days = daysUntil(openState.deadline, now);
+    /*
+      Zero is the floor, for the same reason it is in `deriveUrgency`.
+
+      `deriveOpenState` reports the instant the publisher denoted — the *start*
+      of a day-precision deadline — while deciding open-or-closed against the
+      end of that day. So on the final day the state is legitimately `open` and
+      the raw subtraction is already negative, and this read "There are -1 days
+      until the deadline" on an opportunity that was still open.
+
+      `deriveUrgency` clamped and this did not, which is why the card said
+      "today is the last day" and the ranking underneath it said -1. The state
+      is authoritative: if it says open, the remaining time is not negative.
+    */
+    const days = Math.max(0, Math.floor(daysUntil(openState.deadline, now)));
     inputs.push({
       kind: "deadline-proximity",
       criterion:
         openState.state === "closed"
           ? "The deadline has passed."
-          : `There are ${Math.floor(days)} days until the deadline.`,
+          : days === 0
+            ? "Today is the last day."
+            : `There ${days === 1 ? "is 1 day" : `are ${days} days`} until the deadline.`,
       status: openState.state === "open" ? "met" : "unmet",
       provenance: "inferred",
       entityField: "deadline",
@@ -299,10 +314,24 @@ export function judge(input: JudgeInput): PairingJudgments {
     position: input.ranking.position,
     outOf: input.ranking.outOf,
     inputs: [...inputs, ...requirements, ...fitInputs],
+    /*
+      The ordering has to name what it ordered on.
+
+      This said "on the inputs listed", and the card rendered a bare "Ranked 3
+      of 9 considered" — a position with no stated basis, which is the one thing
+      a ranking must never be here. A reader shown a number and no criterion has
+      to assume the system knows something it has not said, and this product's
+      whole argument is that it says what it knows.
+
+      The criteria are read off the inputs rather than described, so this
+      sentence cannot drift from what actually decided the order.
+    */
     because:
       input.ranking.position === null
         ? "Not ranked: nothing distinguishes it from the alternatives yet."
-        : `Ranked ${input.ranking.position} of ${input.ranking.outOf} on the inputs listed.`,
+        : `Ranked ${input.ranking.position} of ${input.ranking.outOf}, on: ${inputs
+            .map((i) => i.criterion.replace(/\.$/, ""))
+            .join("; ")}.`,
   };
 
   /* ── Recommendation ───────────────────────────────────────────────────── */

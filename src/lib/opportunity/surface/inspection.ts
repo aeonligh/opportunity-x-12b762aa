@@ -148,6 +148,8 @@ export function projectInspection(input: {
   /** Every observation the entity's resolution references. */
   observations: readonly SourceObservation[];
   now: string;
+  /** Whose position the stance sentence describes. See `projectCard`. */
+  voice?: "you" | "this-person";
 }): OpportunityInspection {
   const card = projectCard({
     entity: input.entity,
@@ -155,6 +157,7 @@ export function projectInspection(input: {
     judgments: input.judgments,
     pursuit: input.pursuit,
     now: input.now,
+    voice: input.voice,
   });
 
   const ALL_FIELDS: readonly ObservedField[] = [

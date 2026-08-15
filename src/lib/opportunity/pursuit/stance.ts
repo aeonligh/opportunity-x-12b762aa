@@ -221,6 +221,11 @@ export interface StanceInput {
   judgments: PairingJudgments | null;
   pursuit: PursuitResolution;
   now: string;
+  /**
+   * Whose position the sentence should describe. Defaults to the reader's,
+   * which is right everywhere except a fixture surface. See `Voice`.
+   */
+  voice?: "you" | "this-person";
 }
 
 export function deriveStance(input: StanceInput): PursuitStance {
@@ -242,7 +247,7 @@ export function deriveStance(input: StanceInput): PursuitStance {
     urgency,
     outstanding,
     next,
-    statement: say({ next, urgency, since, outstanding }),
+    statement: say({ next, urgency, since, outstanding, voice: VOICES[input.voice ?? "you"] }),
   };
 }
 
@@ -297,34 +302,82 @@ function decide(input: {
  * as the delivered explanation has to be the thing that was rendered, and a
  * component composing its own wording makes the record a reconstruction.
  */
+/**
+ * Who the sentence is about.
+ *
+ * ── Why this is a parameter and not a hardcoded "you" ─────────────────────
+ *
+ * Because the same projection renders two different situations. On a live card
+ * the position belongs to whoever is reading, and "you" is correct. On a
+ * fixture card the position was written into the scenario, and "you" is a
+ * statement attributed to a reader who never made it.
+ *
+ * That mismatch shipped: the card's heading was already voice-aware and read
+ * "Since they said that", while the sentence underneath it — this one — said
+ * "You said you were interested". Two voices in one paragraph, and the wrong
+ * one asserting a position on the reader's behalf. It was invisible in every
+ * test, because both halves were individually well-formed.
+ *
+ * The subject is carried here rather than fixed by string surgery in a
+ * component: rewriting "You" to "They" downstream would have to re-conjugate
+ * the verbs, and a projection whose prose is patched afterwards is no longer
+ * the thing that was retained as the delivered explanation.
+ */
+interface Voice {
+  /** "You said you were interested" / "They said they were interested" */
+  said: string;
+  /** The whole declined sentence, which re-conjugates too much to compose. */
+  declined: string;
+  /** "your time" / "their time" */
+  theirTime: string;
+  /** "you spend" / "they spend" */
+  theySpend: string;
+}
+
+const VOICES: Record<"you" | "this-person", Voice> = {
+  you: {
+    said: "You said you were interested",
+    declined: "You said this one isn’t for you. I’ve left it alone.",
+    theirTime: "your time",
+    theySpend: "you spend",
+  },
+  "this-person": {
+    said: "They said they were interested",
+    declined: "They said this one isn’t for them. I’ve left it alone.",
+    theirTime: "their time",
+    theySpend: "they spend",
+  },
+};
+
 function say(input: {
   next: NextMove;
   urgency: Urgency;
   since: string | null;
   outstanding: Outstanding[];
+  voice: Voice;
 }): string {
-  const { next, urgency } = input;
+  const { next, urgency, voice } = input;
 
   switch (next.kind) {
     case "review":
-      return "Look at this and decide whether it is worth your time.";
+      return `Look at this and decide whether it is worth ${voice.theirTime}.`;
 
     case "declined":
-      return "You said this one isn't for you. I've left it alone.";
+      return voice.declined;
 
     case "closed":
-      return "You said you were interested, and the deadline has passed.";
+      return `${voice.said}, and the deadline has passed.`;
 
     case "watch":
       return urgency.kind === "undated"
-        ? "You said you were interested. Nothing I know stands in the way, but no source gave a closing date, so I can't tell you when to move."
-        : "You said you were interested. Nothing I know stands in the way, and there is time.";
+        ? `${voice.said}. Nothing I know stands in the way, but no source gave a closing date, so I can’t tell you when to move.`
+        : `${voice.said}. Nothing I know stands in the way, and there is time.`;
 
     case "act":
       if (urgency.kind === "closing") {
         return urgency.daysLeft === 0
-          ? "You said you were interested, and today is the last day."
-          : `You said you were interested, and there ${remaining(urgency.daysLeft)} left.`;
+          ? `${voice.said}, and today is the last day.`
+          : `${voice.said}, and there ${remaining(urgency.daysLeft)} left.`;
       }
       /*
         Undated has to be said even when everything else is clear. Dropping it
@@ -333,9 +386,9 @@ function say(input: {
         which is the omission that lets a person assume there is time.
       */
       if (urgency.kind === "undated") {
-        return "You said you were interested. Nothing I know stands in the way, but no source gave a closing date, so I can't tell you when to move.";
+        return `${voice.said}. Nothing I know stands in the way, but no source gave a closing date, so I can’t tell you when to move.`;
       }
-      return "You said you were interested, and nothing I know stands in the way.";
+      return `${voice.said}, and nothing I know stands in the way.`;
 
     case "resolve-unknowns": {
       const count = next.outstanding.length;
@@ -348,13 +401,13 @@ function say(input: {
       */
       if (urgency.kind === "closing") {
         return urgency.daysLeft === 0
-          ? `You said you were interested. Today is the last day, and ${things} I still don't know.`
-          : `You said you were interested. There ${remaining(urgency.daysLeft)} left, and ${things} I still don't know.`;
+          ? `${voice.said}. Today is the last day, and ${things} I still don’t know.`
+          : `${voice.said}. There ${remaining(urgency.daysLeft)} left, and ${things} I still don’t know.`;
       }
       if (urgency.kind === "undated") {
-        return `You said you were interested. ${things.charAt(0).toUpperCase()}${things.slice(1)} I don't know, and no source gave a closing date.`;
+        return `${voice.said}. ${things.charAt(0).toUpperCase()}${things.slice(1)} I don’t know, and no source gave a closing date.`;
       }
-      return `You said you were interested. Before you spend time on this, ${things} I don't know.`;
+      return `${voice.said}. Before ${voice.theySpend} time on this, ${things} I don’t know.`;
     }
   }
 }
