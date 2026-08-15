@@ -187,7 +187,7 @@ export function judge(input: JudgeInput): PairingJudgments {
           : "undetermined",
     because:
       requirements.length === 0
-        ? "I have not read this opportunity's requirements against what I know about you."
+        ? "I have not read this opportunity’s requirements against what I know about you."
         : hasConfirmedUnmet(requirements)
           ? "You told me something that rules this out."
           : requirements.every((r) => r.status === "met")

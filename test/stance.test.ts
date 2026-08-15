@@ -177,7 +177,7 @@ test("3 · declared interest and the deadline is close — the days are stated o
   assert.match(stance.statement, /3 days left/);
   /* A number of days, derived from an observed date and the clock. Not a
      colour, not a countdown, not "hurry". */
-  assert.equal(/hurry|act now|don't miss|last chance/i.test(stance.statement), false);
+  assert.equal(/hurry|act now|don[’']t miss|last chance/i.test(stance.statement), false);
 });
 
 test("4 · declared interest but something is unknown — the uncertainty leads", () => {
@@ -210,7 +210,7 @@ test("5 · declared interest, nothing unknown — the concrete action surfaces",
   assert.equal(stance.outstanding.length, 0);
   assert.equal(stance.next.kind, "act");
   if (stance.next.kind !== "act") return;
-  /* The publisher's verb, not one the product chose. */
+  /* The publisher’s verb, not one the product chose. */
   assert.equal(stance.next.action.verb, "Apply");
   assert.equal(stance.next.action.href, APPLY);
 });
@@ -280,7 +280,7 @@ test("no stance ever tells the person they will win, fit, or are ready", () => {
         const { stance } = stanceFor(built, pursuit, { assessed });
         const text = [stance.statement, ...stance.outstanding.map((o) => o.because)].join(" ");
         assert.equal(
-          /you will win|good fit for you|you should apply|you're ready|you are ready|likely to succeed|strong candidate/i.test(
+          /you will win|good fit for you|you should apply|you[’']re ready|you are ready|likely to succeed|strong candidate/i.test(
             text,
           ),
           false,

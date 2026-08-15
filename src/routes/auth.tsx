@@ -242,7 +242,7 @@ function AuthPage() {
             className="block mx-auto mt-4 text-xs text-text-s hover:text-foreground transition"
           >
             {mode === "signin"
-              ? "Don't have an account? Sign up"
+              ? "Don’t have an account? Sign up"
               : "Already have an account? Sign in"}
           </button>
         </div>

@@ -170,7 +170,7 @@ test("without an assessor, eligibility fit and risk are undetermined — never e
   assert.equal(j.eligibility.verdict, "undetermined");
   assert.equal(j.fit.verdict, "undetermined");
   assert.equal(j.risk.verdict, "undetermined");
-  assert.match(j.eligibility.because, /have not read this opportunity's requirements/);
+  assert.match(j.eligibility.because, /have not read this opportunity[’']s requirements/);
 });
 
 test("missing evidence is never negative evidence — an unchecked requirement does not disqualify", () => {
@@ -333,7 +333,7 @@ test("a closed opportunity is still judged and still explains itself", () => {
     joined with commas — and it reached the card as
     "Not recommended. Withheld on verification."
   */
-  assert.match(j.recommendation.because, /I won’t recommend this yet:/);
+  assert.match(j.recommendation.because, /I won[’']t recommend this yet:/);
   assert.match(j.recommendation.because, /deadline has passed/);
   assert.doesNotMatch(
     j.recommendation.because,

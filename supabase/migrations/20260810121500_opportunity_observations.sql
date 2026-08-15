@@ -51,7 +51,7 @@ create type public.observation_outcome as enum (
 create table public.opportunity_observations (
   id uuid primary key default gen_random_uuid(),
 
-  -- When AEON X looked. NOT a date read off the page: a deadline written in the
+  -- When Opportunity X looked. NOT a date read off the page: a deadline written in the
   -- content is a claim like any other and lives in `claims`. Conflating the two
   -- is how a system starts believing a page was checked because it mentions a
   -- date.
@@ -179,7 +179,7 @@ comment on table public.opportunity_observations is
   'Layer 1 of the Opportunity engine. Append-only, immutable, undeletable. Every other layer is derived from this one.';
 
 comment on column public.opportunity_observations.retrieved_at is
-  'When AEON X retrieved the source. Never a date stated inside the content.';
+  'When Opportunity X retrieved the source. Never a date stated inside the content.';
 
 comment on column public.opportunity_observations.content_body is
   'The bytes as received, decoded for text and base64 for everything else. Retained because a hash proves change but cannot reconstruct what was claimed.';

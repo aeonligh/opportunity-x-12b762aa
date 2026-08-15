@@ -150,7 +150,7 @@ function fromRow(row: ObservationRow): SourceObservation {
 function required<T>(value: T | null, id: string, column: string): T {
   if (value === null) {
     throw new Error(
-      `Observation ${id} is stored as ${column}-null, which the table's CHECK constraints forbid. The schema and the engine disagree; do not read past this.`,
+      `Observation ${id} is stored as ${column}-null, which the table’s CHECK constraints forbid. The schema and the engine disagree; do not read past this.`,
     );
   }
   return value;

@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "The world's opportunities already exist. Opportunity X helps you find them — verified, personalized, and ready to apply.",
+          "The world’s opportunities already exist. Opportunity X helps you find them — verified, personalized, and ready to apply.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/")({
 const PLACEHOLDERS = [
   "Scholarships for Pharmacy students",
   "Research internships in Germany",
-  "Fully funded Master's programs",
+  "Fully funded Master’s programs",
   "No IELTS scholarships",
   "Healthcare fellowships in Europe",
   "AI research grants for undergrads",
@@ -467,7 +467,7 @@ function SectionDiscovery() {
               {
                 org: "Chevening",
                 country: "United Kingdom",
-                title: "Chevening Master's Scholarships",
+                title: "Chevening Master’s Scholarships",
               },
               { org: "MEXT", country: "Japan", title: "MEXT Research Student Program" },
               { org: "Fulbright", country: "United States", title: "Foreign Student Program" },
@@ -531,7 +531,7 @@ function SectionVerification() {
           Trust is not optional. <span className="text-gradient">It's the product.</span>
         </>
       }
-      subtitle="Opportunity X is built on a verification-first pipeline. If we can't confirm it, we don't publish it."
+      subtitle="Opportunity X is built on a verification-first pipeline. If we can’t confirm it, we don’t publish it."
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((it, i) => (
@@ -623,7 +623,7 @@ function SectionPersonalization() {
 
         <div className="space-y-3">
           {[
-            { p: 92, t: "Chevening Master's Scholarship", s: "UK · Fully Funded" },
+            { p: 92, t: "Chevening Master’s Scholarship", s: "UK · Fully Funded" },
             { p: 88, t: "DAAD EPOS Postgraduate", s: "Germany · Fully Funded" },
             { p: 84, t: "MEXT Research Student", s: "Japan · Research" },
           ].map((r, i) => (
@@ -692,7 +692,7 @@ function SectionExecution() {
           <span className="text-gradient">We take you the rest of the way.</span>
         </>
       }
-      subtitle="Opportunity X doesn't stop at finding the opportunity. It helps you actually secure it."
+      subtitle="Opportunity X doesn’t stop at finding the opportunity. It helps you actually secure it."
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((it, i) => (

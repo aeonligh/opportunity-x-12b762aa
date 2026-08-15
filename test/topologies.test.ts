@@ -45,7 +45,7 @@ const UNN = "https://www.unn.edu.ng/bea-scholarship/";
 const UNILAG = "https://unilag.edu.ng/news/bea-scholarship";
 const APPLY = "https://portal.education.gov.ng/bea/apply";
 
-/** The publisher's own name for the thing. The only signal strong enough to merge. */
+/** The publisher’s own name for the thing. The only signal strong enough to merge. */
 const BEA_ID = "FMOE-BEA-2026";
 
 function beaAt(url: string, opts: { deadline?: string; title?: string; cycle?: string } = {}) {
@@ -156,7 +156,7 @@ test("the same advert at three URLs resolves to one entity", () => {
   assert.equal(groups.length, 1, "three announcements of one scholarship are one opportunity");
   assert.equal(groups[0].identity.method, "declared-identifier");
   assert.equal(groups[0].members.length, 3);
-  assert.match(groups[0].rationale, /publisher's own identifier/);
+  assert.match(groups[0].rationale, /publisher[’']s own identifier/);
 });
 
 test("merging across URLs is what lets corroboration verify an opportunity", () => {

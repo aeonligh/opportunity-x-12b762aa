@@ -38,7 +38,7 @@ import type { OpportunityCard } from "@/lib/opportunity/surface/card";
 const ELIGIBILITY: Record<NonNullable<OpportunityCard["pairing"]>["eligibility"], string> = {
   eligible: "Everything I could check, you meet.",
   ineligible: "You told me something that rules this out.",
-  undetermined: "I have not read this opportunity's requirements against what I know about you.",
+  undetermined: "I have not read this opportunity’s requirements against what I know about you.",
 };
 
 const FIT: Record<NonNullable<OpportunityCard["pairing"]>["fit"], string> = {

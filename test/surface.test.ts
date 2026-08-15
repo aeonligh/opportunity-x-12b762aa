@@ -519,8 +519,8 @@ test("a withheld recommendation says why, and does not hide the opportunity", ()
     sentence that carries the verdict, so the prefix is gone and saying it twice
     would be the defect.
   */
-  assert.match(card.shown.whySurfaced, /I won’t recommend this yet:/);
-  assert.match(card.shown.whySurfaced, /haven’t established that this is real/);
+  assert.match(card.shown.whySurfaced, /I won[’']t recommend this yet:/);
+  assert.match(card.shown.whySurfaced, /haven[’']t established that this is real/);
   /* And it is still a complete card — withholding is not hiding. */
   assert.equal(card.title.state, "agreed");
 });
@@ -805,4 +805,54 @@ test("the delivery schema refuses a row that does not carry its sentences", () =
   assert.match(PURSUIT_SQL, /shown \? 'statement'/);
   assert.match(PURSUIT_SQL, /shown \? 'verification'/);
   assert.match(PURSUIT_SQL, /shown \? 'whySurfaced'/);
+});
+
+test("with nothing configured, the surface says so — not that it could not read", async () => {
+  /*
+    `supabaseAdmin` is a lazy Proxy that builds its client on first property
+    access and throws when the credentials are missing. It is never null, so
+    `const db = supabaseAdmin; if (db === null) return null;` touched no
+    property, never fired, and left the null branch unreachable.
+
+    What a reader got instead: the store was constructed around a Proxy, the
+    first query threw, the catch caught it, and the page said "I could not read
+    what I have observed" — which asserts a record exists and could not be read.
+    Nothing was configured at all.
+
+    Both are Unknown. This product's argument is that it says *which* Unknown,
+    and `resolveDeclarations` was already distinguishing the two while this path
+    silently was not.
+  */
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  try {
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    const { opportunityRecord } = await import("@/lib/opportunity/store");
+    assert.equal(opportunityRecord(), null, "no credentials must mean no record");
+
+    const { resolveCards } = await import("@/lib/opportunity/surface/service");
+    const resolution = await resolveCards("p1", null);
+
+    assert.equal(resolution.state, "unknown");
+    if (resolution.state !== "unknown") return;
+
+    assert.match(
+      resolution.gap,
+      /no record of anything I have observed/,
+      `said the wrong Unknown: ${resolution.gap}`,
+    );
+    assert.doesNotMatch(
+      resolution.gap,
+      /could not read/,
+      "claimed a read failure when nothing was configured",
+    );
+  } finally {
+    if (url === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = url;
+    if (key === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    else process.env.SUPABASE_SERVICE_ROLE_KEY = key;
+  }
 });

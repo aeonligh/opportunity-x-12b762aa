@@ -87,7 +87,7 @@ export const saveOpportunity = createServerFn({ method: "POST" })
     if (log === null) {
       return {
         saved: false as const,
-        because: "There is nowhere durable to keep this yet, so I won't pretend to remember it.",
+        because: "There is nowhere durable to keep this yet, so I won’t pretend to remember it.",
       };
     }
     await log.declare(

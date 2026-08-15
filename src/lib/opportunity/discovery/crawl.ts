@@ -102,8 +102,8 @@ export async function visit(
     report.skipped.push({
       url,
       reason: robots.known
-        ? "Disallowed by the site's robots.txt."
-        : "The site's robots.txt could not be read, so its preferences are unknown.",
+        ? "Disallowed by the site’s robots.txt."
+        : "The site’s robots.txt could not be read, so its preferences are unknown.",
     });
     return null;
   }

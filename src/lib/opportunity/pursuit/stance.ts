@@ -208,7 +208,7 @@ export function outstandingFor(
       kind: "eligibility-unread",
       because:
         judgments?.eligibility.because ??
-        "I have not read this opportunity's requirements against what I know about you.",
+        "I have not read this opportunity’s requirements against what I know about you.",
     });
   }
 

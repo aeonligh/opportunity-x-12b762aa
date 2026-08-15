@@ -313,7 +313,7 @@ function specimens(now: string): Specimen[] {
       id: "interested-uncertain",
       label: "Interested, and something is genuinely in the way",
       demonstrates:
-        "Enthusiasm does not upgrade a verdict. The unsettled things are listed as Opportunity X's own gaps, and none of them is an invented preparation task.",
+        "Enthusiasm does not upgrade a verdict. The unsettled things are listed as Opportunity X’s own gaps, and none of them is an invented preparation task.",
       declared: "interested",
       observations: [
         observe(

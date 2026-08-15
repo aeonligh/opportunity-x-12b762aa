@@ -141,7 +141,7 @@ function ApplicationsPipeline() {
     const msg = [
       "🚀 APPLICATION UPDATE",
       "",
-      `I'm currently tracking my application to "${opp.title}" on Opportunity X!`,
+      `I’m currently tracking my application to "${opp.title}" on Opportunity X!`,
       `📍 Status: ${app.status}`,
       "",
       "📣 Shared via Opportunity X",
@@ -159,7 +159,7 @@ function ApplicationsPipeline() {
     const msg = [
       "🎉 APPLICATION WIN!",
       "",
-      `I'm thrilled to share that I have been ACCEPTED to "${opp.title}"! 🏆`,
+      `I’m thrilled to share that I have been ACCEPTED to "${opp.title}"! 🏆`,
       "Prepared, tracked, and won using Opportunity X!",
       "",
       "📣 Shared via Opportunity X",

@@ -313,7 +313,7 @@ test("change detection re-checks a page the announcer no longer links to", async
     mechanisms: [institutionalChannels({ announcers: [TEST_ANNOUNCER] }), changeDetection()],
     transport: withoutLink,
     politenessMs: 0,
-    /* Zero, so the first run's observations are already outside the window. */
+    /* Zero, so the first run’s observations are already outside the window. */
     recheckAfterHours: 0,
     wait: noWait,
   });

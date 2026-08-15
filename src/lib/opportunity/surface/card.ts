@@ -426,7 +426,7 @@ function explain(input: {
              The reason alone, either way.
 
              The withheld branch prefixed "Not recommended." to a sentence that
-             now begins "I won't recommend this yet", so the card read "Not
+             now begins "I won’t recommend this yet", so the card read "Not
              recommended. I won't recommend this yet: I haven't established that
              this is real." The prefix existed because the reason used to be a
              fragment — "Withheld on verification." — and it is a whole sentence

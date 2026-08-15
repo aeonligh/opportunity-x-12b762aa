@@ -391,3 +391,97 @@ the engine (`can't`, `won't`, `didn't` in `surface/service.ts`,
 `surface/delivery.ts`, `discovery/crawl.ts`) while the components and
 `stance.ts` use typographic ones. A typography pass, on its own, not mixed into
 behavioural work. Database and real discovery remain externally blocked.
+
+---
+
+## Real environment: what could be verified, and the exact boundary
+
+**Feature.** Verification of the deployment, database and discovery paths
+against the real world — plus three defects found while doing it, and the
+typography pass.
+
+**Purpose.** Move from lab-verified to product-verified. Most of that turned out
+to be externally blocked, so the deliverable is an exact boundary rather than a
+claim.
+
+**The boundary, measured rather than assumed.** Every host this phase needs is
+refused by organisation egress policy — `403` to `CONNECT`, recorded by the
+proxy's own status endpoint:
+
+`anfiojmbgonrtympzjch.supabase.co`, `api.supabase.com`, `vercel.com`,
+`api.vercel.com`, `opportunity-x-12b762aa.vercel.app`, `education.gov.ng`,
+`www.unn.edu.ng`, `unilag.edu.ng`, `ptdf.gov.ng`, `api.firecrawl.dev`.
+
+Separately, and more usefully: **the Supabase and Vercel MCP connectors are
+connected and authenticated at the organisation level but `enabledInChat` is
+false**, so their tools are not loaded in this session. That is a per-chat
+toggle, not a permissions wall — the single highest-value thing the operator can
+change.
+
+Tavily and Nimble *are* connected. They were deliberately not used: substituting
+a search index for real acquisition is the one thing this engine's design
+forbids, and a cached third-party summary entering an append-only record with a
+publisher's authority attached could never be taken back.
+
+**What was verified anyway.** PostgreSQL 16.13 is present locally, so all three
+migrations were applied to a real database with Supabase's roles and a minimal
+`auth` schema shimmed — shimmed only as far as the migrations reference it, so
+the shim cannot make a migration pass that would fail on the real project.
+
+Verified by execution: clean apply in filename order; four tables with RLS
+enabled; `UPDATE`, `DELETE` and `TRUNCATE CASCADE` all refused by trigger on
+observations; the three check constraints refusing a future retrieval, a
+retrieved row with no items and no reason, and an unreachable row carrying
+content; pursuit `UPDATE` refused while `DELETE` is allowed; and RLS isolating
+two people's declarations in all three directions.
+
+That proves the SQL. It does not prove the schema exists on
+`anfiojmbgonrtympzjch`, and the log does not claim it does. `docs/APPLYING_THE_MIGRATIONS.md`
+carries the manual procedure.
+
+**A near-miss worth recording.** The first RLS run reported person A seeing both
+people's rows, which read as a serious read-isolation defect. It was dirty state
+from a re-run — the table held four rows, two of them A's duplicates. Re-running
+from a clean state showed A seeing exactly their own. The finding was withdrawn
+before it was reported. `SET LOCAL` outside a transaction had also silently not
+applied the role in the first attempt, so that run was measuring nothing at all.
+
+**Three defects found.**
+
+1. **The store's null check was dead code, and a reader saw the wrong sentence.**
+   `supabaseAdmin` is a lazy `Proxy` that constructs its client on first property
+   access and throws when credentials are missing — it is never `null`. So
+   `const db = supabaseAdmin; if (db === null) return null;` touched no property
+   and never fired. With nothing configured, the surface fell through to its
+   catch and said *"I could not read what I have observed"*, which asserts a
+   record exists and could not be read. The truth was that none is configured.
+   Both are Unknown; this product's argument is that it says *which* Unknown,
+   and `resolveDeclarations` was already distinguishing them while this path was
+   not. Now decided from the environment, read per request.
+2. **The migrations shipped "AEON X" into the database.** Two of the four
+   occurrences were `comment on` statements, which become column and table
+   metadata in Postgres. Fixed at the only free moment: after application,
+   changing a comment needs a second migration.
+3. **The extractor's honesty was confirmed, not assumed.** A page with no
+   JSON-LD records `unreadable: {reason: "json-ld: No JSON-LD on the page."}`
+   and extracts nothing — no guessed dates, eligibility or funding. This is what
+   item 7 of the phase asked for and it holds.
+
+**Typography.** Straight apostrophes in shipped strings were normalised to
+typographic ones across 12 files, 19 string literals; comments were left alone.
+The mechanical pass over-reached twice and both were caught by the suite: it
+rewrote a regex inside a test that strips SQL string literals, breaking a schema
+assertion, and it double-applied to an already-fixed pattern. It also leaked
+into four test comments, which read as `Firecrawl[’']s` until restored.
+
+**Measured gates.** ESLint 0 errors, TypeScript 0, tests **211/211**, build
+clean. Browser: 26/26 journey, 14/14 deep-link.
+
+**Risks.** The local database verification is of the SQL, not of the project.
+Anyone reading "database verified" without the qualifier would be misled, which
+is why the report separates DATABASE-SQL from DATABASE-PRODUCTION.
+
+**Future work.** Enable the Supabase and Vercel connectors in this chat, or
+apply the migrations by hand. Everything downstream — real auth, real
+`/opportunities`, real pursuit, one real sweep, the first real opportunity, the
+user journey — is blocked behind that and the egress policy, in that order.

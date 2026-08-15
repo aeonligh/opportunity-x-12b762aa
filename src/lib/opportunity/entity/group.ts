@@ -110,7 +110,7 @@ const METHOD_FOR: Record<IdentitySignal["kind"], EntityIdentity["method"]> = {
 };
 
 const STRENGTH_LABEL: Record<IdentitySignal["kind"], string> = {
-  "declared-identifier": "the publisher's own identifier",
+  "declared-identifier": "the publisher’s own identifier",
   "canonical-url": "a declared canonical URL",
   "page-url": "the page URL alone, which is the weakest identity there is",
 };

@@ -26,7 +26,7 @@ import { isRetrieved } from "@/lib/opportunity/observation/types";
 
 const KEY = "test-key-not-a-secret";
 
-/** A stand-in for Firecrawl's HTTP endpoint. */
+/** A stand-in for Firecrawl’s HTTP endpoint. */
 function stubFirecrawl(handler: (body: Record<string, unknown>) => Response) {
   const original = globalThis.fetch;
   globalThis.fetch = (async (_input: unknown, init?: RequestInit) =>

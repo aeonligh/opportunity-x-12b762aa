@@ -24,8 +24,8 @@ import { SupabaseVerificationLog, type VerificationLog } from "./verification/lo
  *
  * ── Why null is a real answer ─────────────────────────────────────────────
  *
- * `supabaseAdmin` returns null when `SUPABASE_SERVICE_ROLE_KEY` is unset,
- * and this returns null in turn rather than substituting an in-memory store.
+ * When the service-role credentials are unset this returns null rather than
+ * substituting an in-memory store.
  * An ephemeral store in a request handler would report "no observations" on
  * every invocation while *looking* configured to anyone reading the code, and a
  * component that appears wired and is not is worse than one that is plainly
@@ -40,13 +40,36 @@ export interface OpportunityRecord {
   verification: VerificationLog;
 }
 
+/**
+ * Whether this deployment has service-role credentials at all.
+ *
+ * Read from the environment rather than by testing `supabaseAdmin` against
+ * null, because `supabaseAdmin` is a lazy Proxy and is *never* null: it
+ * constructs its client — and throws, when the variables are missing — on first
+ * property access. `const db = supabaseAdmin; if (db === null)` touches no
+ * property, so the check was dead code and the null branch below was
+ * unreachable.
+ *
+ * The consequence reached a reader. With nothing configured, the surface fell
+ * through to its catch and said "I could not read what I have observed", which
+ * claims a record exists and could not be read. The truth was that no record is
+ * configured at all. Both resolve to Unknown, and this product's whole argument
+ * is that it says *which* Unknown — `resolveDeclarations` already distinguished
+ * the two, and this path silently did not.
+ *
+ * Read inside the function, never at module scope: Workers bind environment
+ * per request, and a module-scope read is evaluated once at cold start.
+ */
+function hasServiceRoleCredentials(): boolean {
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 export function opportunityRecord(): OpportunityRecord | null {
-  const db = supabaseAdmin;
-  if (db === null) return null;
+  if (!hasServiceRoleCredentials()) return null;
 
   return {
-    store: new SupabaseObservationStore(db),
-    verification: new SupabaseVerificationLog(db),
+    store: new SupabaseObservationStore(supabaseAdmin),
+    verification: new SupabaseVerificationLog(supabaseAdmin),
   };
 }
 

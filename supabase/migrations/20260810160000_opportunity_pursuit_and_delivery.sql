@@ -11,7 +11,7 @@
 --
 -- A declaration is different. It is the person's statement about their own
 -- intentions, and the Ownership Principle gives them the truth of their own
--- life. Someone who wants AEON X to forget they ever considered something is
+-- life. Someone who wants Opportunity X to forget they ever considered something is
 -- entitled to that, and leaving a tombstone reading "declined" would keep the
 -- record they asked to be rid of.
 --
@@ -123,7 +123,7 @@ create table public.opportunity_deliveries (
 );
 
 comment on table public.opportunity_deliveries is
-  'What AEON X actually told someone, kept verbatim. Judgments are recomputed; a re-derived explanation is not the explanation that was given.';
+  'What Opportunity X actually told someone, kept verbatim. Judgments are recomputed; a re-derived explanation is not the explanation that was given.';
 
 create index opportunity_deliveries_person
   on public.opportunity_deliveries (person_id, entity_id, delivered_at desc);
