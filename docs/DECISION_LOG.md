@@ -6,6 +6,90 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-17 — Phase 11: state, loading, error and graceful degradation
+
+**Feature.** A state system for every surface: loading placeholders, route-local
+error boundaries, a truthful mutation sequence, and a session gate that can say
+"I could not check" without claiming "you are signed out".
+
+**Purpose.** Apply the engine's `UNKNOWN ≠ ABSENT ≠ EMPTY` discipline to time and
+system state. Until now all three collapsed the moment a request was in flight,
+because a page that is loading, a page that has failed and a page that found
+nothing all rendered as a page with nothing on it.
+
+**The three defects that motivated it**, each confirmed by command:
+
+1. All four canonical routes had a `loader` and neither a `pendingComponent` nor
+   an `errorComponent`. Failures fell through to the root's _"something went
+   wrong on our end"_ — wording a reader cannot tell apart from "there is nothing
+   here".
+2. `grep -n "pursuitActions" src/routes/_authenticated/*.tsx` returned nothing, so
+   no product route ever refreshed after a declaration. **A successful write left
+   the control reading "You haven't said either way."**
+3. `if (error || !data.user) throw redirect({ to: "/auth" })` reported an
+   unreachable auth service as being signed out — a false claim about someone's
+   account, followed by a sign-in that fails identically.
+
+**Architectural decisions.**
+
+- _The write and the read that reveals it are two operations._ Separating them
+  produced a fourth outcome — `stale`, written-but-unshown — that both its
+  neighbours misreport. `performWrite` lives in `src/lib/opportunity/pursuit/write.ts`
+  rather than inside the component, because the interesting behaviour of a
+  mutation is entirely in its failure branches and reaching those from React
+  needs a DOM this suite does not have.
+- _Only the record may assert._ `aria-pressed` and the position sentence read
+  `pursuit` and nothing else. There is no code path on which a pressed button can
+  mean "a request was sent".
+- _`stillTrue` is a required prop on `SurfaceError`._ Structural enforcement that
+  an error cannot be rendered without the half that stops it reading as an
+  absence.
+- _The session gate throws rather than redirecting when it cannot verify._
+  Nothing was relaxed — the protected surface still does not render. Only what
+  the person is told changed.
+
+**Files.** New: `src/components/ui/state/{Skeleton,SurfaceError}.tsx`,
+`src/components/opportunity/{OpportunityCardSkeleton,InspectionSkeleton}.tsx`,
+`src/lib/opportunity/pursuit/write.ts`, `src/lib/session-verification.ts`,
+`src/routes/lab.mutations.tsx`, `test/state.test.ts`, `test/render-component.ts`,
+`docs/PHASE_11_RATIFICATION.md`. Modified: the four canonical routes,
+`_authenticated/route.tsx`, `InterestedControl.tsx`, `OpportunityCard.tsx`,
+`OpportunityInspection.tsx`, `lab.{index,$id,states}.tsx`, `test/hook.mjs`.
+
+**Dependencies.** None added. esbuild (already Vite's transformer) is used by the
+test resolve hook to transform `.tsx`, which Node 22's native type stripper does
+not do.
+
+**Risks.**
+
+- `useRouter({ warn: false })` inside `InterestedControl` returns `undefined`
+  outside a `RouterProvider`. Handled: `performWrite` treats a null read-back as
+  `stale`, not as success, so a control rendered without a router cannot claim a
+  write landed.
+- The route-level retry re-runs the whole loader. Coarse but correct; finer
+  recovery needs the reads to return partial results, which is engine work.
+
+**Testing.** 25 new tests, 240 total, 0 failing. Behavioural wherever behaviour
+exists: `performWrite` and `classifySessionCheck` are run directly, and the
+components are genuinely rendered. **Every assertion was mutation-tested** — six
+regressions were introduced one at a time and each was observed to fail the suite
+before being reverted. A Chromium walk verified the pending, failed, refused and
+stale states end to end, at three viewport widths in both themes.
+
+**Two defects found in the browser that no test would have caught:** a hydration
+mismatch from `Date.now()`-derived timestamps on both laboratory pages, and a
+declared-vs-hovered styling collision on the _Not for me_ button, where an
+undeclared button under the cursor was pixel-identical to a declared one.
+
+**Future work.** Partial degradation has a shape and a specimen but no production
+call site; reporting "three of four sources answered" requires the reads
+themselves to return partial results. `__root.tsx`'s generic error page is
+unchanged and is now a genuine last resort. No performance measurement was taken.
+Nothing in this phase has been seen against live data — Phase 10's external
+blockers are unchanged.
+
+---
+
 ## 2026-07-29 — ARB: deployment target — Vercel
 
 **Decision.** Deploy to **Vercel**. Nitro `defaultPreset` changed
@@ -17,13 +101,14 @@ redirect URL (Phase 2), the discovery cron endpoint (Phase 8, deliberately
 unscheduled during the migration), and any live testing of Phases 4/5.
 
 **ARB review.**
-- *Consistent with vision?* Yes — deployment target is orthogonal to the
+
+- _Consistent with vision?_ Yes — deployment target is orthogonal to the
   Opportunity Intelligence architecture.
-- *Duplicates existing?* No.
-- *Scales?* Yes, serverless with automatic scaling.
-- *Secure?* Equivalent to the alternative; secrets move to Vercel's encrypted
+- _Duplicates existing?_ No.
+- _Scales?_ Yes, serverless with automatic scaling.
+- _Secure?_ Equivalent to the alternative; secrets move to Vercel's encrypted
   env store rather than living in the repo.
-- *Lock-in (per CLAUDE.md vendor rule)?* **Low, and deliberately kept low.** The
+- _Lock-in (per CLAUDE.md vendor rule)?_ **Low, and deliberately kept low.** The
   only coupling is one Nitro preset string. Nothing in application code is
   Vercel-specific. `defaultPreset` (not `preset`) was used specifically so
   `NITRO_PRESET=cloudflare-module bun run build` still works — reversing this
@@ -37,6 +122,7 @@ this a cheap decision to revisit.
 **Files.** `vite.config.ts` (preset), `.gitignore` (ignore `.vercel/`).
 
 **Risks.**
+
 - Runtime changes from V8 isolates to Node.js serverless. `node:crypto` in
   `intelligence.functions.ts` previously relied on Cloudflare `nodeCompat`; it
   is native on Node, so this direction is strictly safer.
@@ -65,6 +151,7 @@ with phase gates, quality gates, and explicit stop conditions.
 `docs/ROADMAP.md` (phases + verified status), `docs/DECISION_LOG.md` (this file).
 
 **Decisions.**
+
 - Governance written to `CLAUDE.md` rather than kept as a chat prompt, so it
   survives session boundaries. A pasted prompt governs one session; this governs
   the repository.
@@ -104,6 +191,7 @@ Deleted: `src/integrations/lovable/`, `src/lib/lovable-error-reporting.ts`,
 `.lovable/`, `package-lock.json`.
 
 **Decisions.**
+
 - **AI:** replaced the metered Lovable AI Gateway (`ai.gateway.lovable.dev`,
   Gemini 2.5 Flash) with direct Anthropic Claude calls via a shared
   `callClaude()` helper. `claude-haiku-4-5` chosen to match the previous model's
@@ -122,6 +210,7 @@ Deleted: `src/integrations/lovable/`, `src/lib/lovable-error-reporting.ts`,
   impossible outside their sandbox.
 
 **Risks.**
+
 - Migration `20260614054040_*.sql` duplicates tables created by the migration
   before it; running the set in order fails on "relation already exists". The
   duplicate section must be skipped on a fresh database. **Not yet fixed in the
@@ -158,6 +247,7 @@ emits `.vercel/output`. ESLint 26 problems / 17 errors, all
 exist anywhere in the repo.
 
 **Decisions.**
+
 - **Both phases held open.** Code is complete and type-clean; verification is
   impossible from this environment. Phase 4's discovery pipeline has still never
   executed once. Closing on unmeasured gates was rejected.
@@ -175,6 +265,7 @@ exist anywhere in the repo.
 existing RLS conventions.
 
 **Risks.**
+
 - The `api_keys` table would be created with nothing reading it. If the feature
   changes shape, it needs a second migration.
 - Pre-existing and still unfixed: `20260614054040_*.sql` duplicates tables from
@@ -204,13 +295,13 @@ namespace, and the post-sign-in landing route.
 
 **Purpose.** Opportunity X and AEON X are sibling products, and this repository
 is the whole of Opportunity X. The engine was written inside AEON X and carried
-its voice across the transfer. A rendered `/opportunities` page read *"AEON X
-has not read this opportunity's requirements against what it knows about you"* —
+its voice across the transfer. A rendered `/opportunities` page read _"AEON X
+has not read this opportunity's requirements against what it knows about you"_ —
 correct reasoning, wrong product, in the sentence a person actually reads.
 
 **How it was found, and why that matters.** Not by grep. An earlier vocabulary
 sweep covering routes, the server boundary and components reported clean,
-because the strings live in the *engine's* projection layer. It surfaced only
+because the strings live in the _engine's_ projection layer. It surfaced only
 when a page was rendered and read. That is the worst available detection
 mechanism — the copy is wrong for exactly as long as nobody looks — which is
 why the check is now an assertion rather than a habit.
@@ -226,6 +317,7 @@ why the check is now an assertion rather than a habit.
 renamed for readability, which is cosmetic and carries no behavioural risk.
 
 **Decisions.**
+
 - **First person, not a renamed third person.** The strings became "I have not
   established whether this is real", not "Opportunity X has not…". This was not
   a style choice: `pursuit/stance.ts` already shipped that exact sentence in the
@@ -270,6 +362,7 @@ pre-existing `prettier/prettier` formatting; the gate still fails repo-wide and
 is not claimed as passing.
 
 **Risks.**
+
 - The renamed crawler token and entity-id namespace are only safe while nothing
   has been discovered. If any sweep has written observations against a database
   this session could not see, entity ids will not match. Both were verified
@@ -344,7 +437,7 @@ a reachable Supabase and a real account, and neither has been available.
    behalf. Both halves were individually well-formed, which is why no test
    caught it. `deriveStance` now takes a voice.
 2. **"There are -1 days until the deadline."** `deriveOpenState` reports the
-   instant the publisher denoted — the *start* of a day-precision deadline —
+   instant the publisher denoted — the _start_ of a day-precision deadline —
    while deciding open-or-closed against the end of that day, so on the final
    day the state is legitimately open and the raw subtraction is negative.
    `deriveUrgency` clamped at zero; the ranking criterion did not. The card read
@@ -372,6 +465,7 @@ to the `-1 days` fix, which was re-verified by reverting the clamp and watching
 the new test fail.
 
 **Risks.**
+
 - The laboratory's store is process-global and unkeyed, so every visitor to a
   dev server shares one set of declarations. Correct for one developer, wrong
   for anything else, and another reason it refuses to run in production.
@@ -418,7 +512,7 @@ false**, so their tools are not loaded in this session. That is a per-chat
 toggle, not a permissions wall — the single highest-value thing the operator can
 change.
 
-Tavily and Nimble *are* connected. They were deliberately not used: substituting
+Tavily and Nimble _are_ connected. They were deliberately not used: substituting
 a search index for real acquisition is the one thing this engine's design
 forbids, and a cached third-party summary entering an append-only record with a
 publisher's authority attached could never be taken back.
@@ -453,9 +547,9 @@ applied the role in the first attempt, so that run was measuring nothing at all.
    access and throws when credentials are missing — it is never `null`. So
    `const db = supabaseAdmin; if (db === null) return null;` touched no property
    and never fired. With nothing configured, the surface fell through to its
-   catch and said *"I could not read what I have observed"*, which asserts a
+   catch and said _"I could not read what I have observed"_, which asserts a
    record exists and could not be read. The truth was that none is configured.
-   Both are Unknown; this product's argument is that it says *which* Unknown,
+   Both are Unknown; this product's argument is that it says _which_ Unknown,
    and `resolveDeclarations` was already distinguishing them while this path was
    not. Now decided from the environment, read per request.
 2. **The migrations shipped "AEON X" into the database.** Two of the four
@@ -504,9 +598,9 @@ false`, and `ToolSearch` finds no tools for either. Every host was re-probed and
 still returns `403` to `CONNECT`. Nothing was assumed from the previous phase's
 report.
 
-**Amendment A-01, recorded in `CONSTITUTION.md`.** The Scope line read *"AEON X
-and Opportunity X, its first product."* — the parent/child framing the founder
-overturned twice in writing. Amended to *"Opportunity X."*, with the ratifying
+**Amendment A-01, recorded in `CONSTITUTION.md`.** The Scope line read _"AEON X
+and Opportunity X, its first product."_ — the parent/child framing the founder
+overturned twice in writing. Amended to _"Opportunity X."_, with the ratifying
 quotations and the reason it is an amendment rather than a correction: the old
 line described a real arrangement that has since changed, and erasing it would
 make the rest of the document unreadable to someone asking why the engine's
@@ -564,7 +658,7 @@ and `AUTH_LANDING_PATH` pointing at the deleted `/workspace` is the kind of
 thing it exists to catch.
 
 **Risks.** The persistence-capability signal is derived from a read the page
-already performs, so it is accurate about *reachability* and still cannot prove
+already performs, so it is accurate about _reachability_ and still cannot prove
 the migration is applied — only a write does. That is stated in the code rather
 than implied.
 
@@ -582,7 +676,7 @@ executed as far as they can go. Neither completed, but both now have an exact
 cause rather than an unknown.
 
 **Finding 1 — the connected Supabase account does not own this project.**
-`list_organizations` returns one organisation, *Aeon X Technnology*, containing
+`list_organizations` returns one organisation, _Aeon X Technnology_, containing
 one project: `fbqufjvkzbifklxtouol`. The repository points at
 `anfiojmbgonrtympzjch`, which returns "You do not have permission to perform
 this action" on every call because it belongs to a **different Supabase
@@ -594,7 +688,7 @@ migrations.** `fbqufjvkzbifklxtouol` carries `ledger_commitments`,
 `ledger_accountings`, `profile_facts`, the digest engine and the radar
 watchlist — and all three Opportunity X migrations, applied as `20260810185329`,
 `20260810185407`, `20260810185431`. One of its column comments still reads
-*"What AEON X actually told someone"*, i.e. it was applied from the pre-rename
+_"What AEON X actually told someone"_, i.e. it was applied from the pre-rename
 text.
 
 **Decision, put to the founder rather than assumed.** Three paths existed and
@@ -675,11 +769,11 @@ forbidden operations required to raise, not to affect zero rows.
 
 **It caught its own first version.** Four assertions failed on the opening run:
 `UPDATE` and `DELETE` against `opportunity_verification_events` and
-`opportunity_deliveries` were reported as *allowed*. Both tables were empty, and
+`opportunity_deliveries` were reported as _allowed_. Both tables were empty, and
 a row-level `BEFORE` trigger never fires when a statement matches no rows — so
 the script was measuring nothing and correctly said so rather than passing
-vacuously. This is the exact failure the phase brief names: *"Do not report
-'UPDATE 0 rows' as equivalent to a denied UPDATE."* Every table is now seeded
+vacuously. This is the exact failure the phase brief names: _"Do not report
+'UPDATE 0 rows' as equivalent to a denied UPDATE."_ Every table is now seeded
 before its guarantee is tested.
 
 Seeding then failed twice more, both times because the schema refused a
@@ -725,7 +819,7 @@ plus a fourth hardening one, and every guarantee proved against the live
 database rather than read from the SQL.
 
 **Identity confirmed before anything was written.** The newly connected account
-holds one organisation, *aeonligh's Org*, with two projects. The canonical one
+holds one organisation, _aeonligh's Org_, with two projects. The canonical one
 identifies itself as **`opportunity-x-12b762aa`** — the same name as the GitHub
 repository and the Vercel project. The other, `ammxjzievfwcwmecacma`
 ("aeonligh's Project", February, different region), was left alone. Nothing was
@@ -757,22 +851,22 @@ migration system; the four Opportunity X migrations are the first tracked ones.
 the live canonical database inside a transaction that ends in `raise`, so the
 probe rows never commit:
 
-| Guarantee | Result |
-|---|---|
-| observation UPDATE / DELETE / TRUNCATE | refused |
-| verification event UPDATE / DELETE | refused |
-| delivery UPDATE / DELETE | refused |
-| delivery missing one of its four sentences | refused |
-| delivery on an unknown surface | refused |
-| retrieval dated in the future | refused |
-| retrieved row with no items and no reason | refused |
-| unreachable row carrying content | refused |
-| malformed content digest | refused |
-| pursuit UPDATE / TRUNCATE | refused |
-| pursuit DELETE (withdrawal) | allowed |
-| person A reading B's declarations | 0 of B's rows visible |
-| person A writing a declaration owned by B | refused |
-| person A deleting B's declaration | 0 rows affected |
+| Guarantee                                  | Result                |
+| ------------------------------------------ | --------------------- |
+| observation UPDATE / DELETE / TRUNCATE     | refused               |
+| verification event UPDATE / DELETE         | refused               |
+| delivery UPDATE / DELETE                   | refused               |
+| delivery missing one of its four sentences | refused               |
+| delivery on an unknown surface             | refused               |
+| retrieval dated in the future              | refused               |
+| retrieved row with no items and no reason  | refused               |
+| unreachable row carrying content           | refused               |
+| malformed content digest                   | refused               |
+| pursuit UPDATE / TRUNCATE                  | refused               |
+| pursuit DELETE (withdrawal)                | allowed               |
+| person A reading B's declarations          | 0 of B's rows visible |
+| person A writing a declaration owned by B  | refused               |
+| person A deleting B's declaration          | 0 rows affected       |
 
 **Nothing was fabricated, and the Unknown signal is intact.** Behavioural proof
 required rows, and `opportunity_observations` is append-only — a probe row could
@@ -835,7 +929,7 @@ in requires a machine that can reach `*.supabase.co`.
 2. **A claim in `lab.server.ts` was not true of the build.** It said the guard
    worked two ways — "the route hides in the client, and this refuses on the
    server". The route does not hide. A production build was grepped: the
-   laboratory's *chrome* is a lazily-loaded chunk and does ship, while
+   laboratory's _chrome_ is a lazily-loaded chunk and does ship, while
    `demoCorpus`, `assertDevelopment` and every fixture opportunity do **not**.
    Navigating to `/lab` in production renders a frame whose loader immediately
    fails with the refusal. The comment now says exactly that.
@@ -910,7 +1004,7 @@ pass, and the bounded discovery procedure for a machine with ordinary outbound
 HTTPS.
 
 Two things it states plainly because they are the likeliest misreadings: an
-empty `/opportunities` showing *"I have not looked at any source yet"* is a
+empty `/opportunities` showing _"I have not looked at any source yet"_ is a
 **pass**, not a defect; and a sweep that retrieves nothing is a **valid result**,
 because several government sites refuse automated requests. The wrong outcome in
 both cases is a fabricated one.

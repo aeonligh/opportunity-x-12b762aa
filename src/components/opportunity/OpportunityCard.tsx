@@ -69,6 +69,15 @@ export function OpportunityCard({
   pursuitVoice,
   /** Why a declaration cannot be kept. See `InterestedControl`. */
   pursuitWhyNot,
+  /**
+   * How the surface learns what was written. See `InterestedControl`.
+   *
+   * Left undefined on every product surface, where re-running the route's
+   * loader is right. The state laboratory passes one that fails, because
+   * "written but not shown" is a state the product has to be able to say and
+   * therefore a state that has to be reachable on demand.
+   */
+  pursuitOnWritten,
   className = "",
 }: {
   card: Card;
@@ -78,6 +87,7 @@ export function OpportunityCard({
   pursuitActions?: ComponentProps<typeof InterestedControl>["actions"];
   pursuitVoice?: ComponentProps<typeof InterestedControl>["voice"];
   pursuitWhyNot?: string | null;
+  pursuitOnWritten?: ComponentProps<typeof InterestedControl>["onWritten"];
   className?: string;
 }) {
   const inspect = inspectHref ?? `/opportunity/${card.entityId}`;
@@ -185,6 +195,7 @@ export function OpportunityCard({
         evidence={evidence}
         voice={pursuitVoice}
         whyNot={pursuitWhyNot}
+        {...(pursuitOnWritten ? { onWritten: pursuitOnWritten } : {})}
         {...(pursuitActions ? { actions: pursuitActions } : {})}
       />
 

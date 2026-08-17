@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { listSaved } from "@/lib/opportunities.server";
 import { EmptyState } from "@/components/ui/absence/EmptyState";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { FreshnessStamp } from "@/components/ui/FreshnessStamp";
+import { Skeleton } from "@/components/ui/state/Skeleton";
+import { SurfaceError } from "@/components/ui/state/SurfaceError";
 
 /**
  * Saved — what you told Opportunity X you care about.
@@ -14,29 +16,90 @@ import { FreshnessStamp } from "@/components/ui/FreshnessStamp";
  */
 export const Route = createFileRoute("/_authenticated/saved")({
   loader: () => listSaved(),
+  pendingComponent: Pending,
+  errorComponent: Failed,
   component: Saved,
 });
+
+function Masthead() {
+  return (
+    <header className="flex flex-col gap-3">
+      <Link
+        to="/opportunities"
+        className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s transition-colors duration-[120ms] hover:text-accent"
+      >
+        &larr; Opportunities
+      </Link>
+      <h1 className="text-3xl font-black leading-[1.1] tracking-tighter text-foreground sm:text-4xl">
+        Saved
+      </h1>
+      <p className="max-w-[62ch] text-[15px] leading-relaxed text-text-s">
+        What you&rsquo;ve said you care about, most recent first. Saying so keeps it in view — it
+        doesn&rsquo;t apply to anything on your behalf.
+      </p>
+    </header>
+  );
+}
+
+/**
+ * Waiting for the saved list.
+ *
+ * Three rows, matching the list's own `border-b` rhythm, and no card geometry —
+ * this page renders one line per declaration, not an opportunity card, and a
+ * placeholder shaped like the wrong thing is a layout shift dressed as a
+ * courtesy.
+ */
+function Pending() {
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
+      <Masthead />
+      <div className="flex flex-col">
+        <p role="status" className="sr-only">
+          Loading what you&rsquo;ve saved.
+        </p>
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            aria-hidden
+            className="flex flex-col gap-2 border-b border-border py-5 last:border-b-0"
+          >
+            <Skeleton className="h-4 w-4/5" />
+            <Skeleton className="h-2.5 w-32" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Failed() {
+  const router = useRouter();
+
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
+      <Masthead />
+      <SurfaceError
+        what="I couldn’t read what you’ve saved."
+        /*
+          The strongest form of the rule on this page. These are the person's own
+          statements; an unreadable list rendered as an empty one would tell them
+          they had never said anything — about their own record, which is exactly
+          the claim they have no way to check from here.
+        */
+        stillTrue="Nothing has been lost. Everything you’ve told me is still recorded — this is a failure to read it, not an empty list."
+        whatYouCanDo="Try again. Your positions are kept in the database, not in this page."
+        onRetry={() => void router.invalidate()}
+      />
+    </div>
+  );
+}
 
 function Saved() {
   const saved = Route.useLoaderData();
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
-      <header className="flex flex-col gap-3">
-        <Link
-          to="/opportunities"
-          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s transition-colors duration-[120ms] hover:text-accent"
-        >
-          &larr; Opportunities
-        </Link>
-        <h1 className="text-3xl font-black leading-[1.1] tracking-tighter text-foreground sm:text-4xl">
-          Saved
-        </h1>
-        <p className="max-w-[62ch] text-[15px] leading-relaxed text-text-s">
-          What you&rsquo;ve said you care about, most recent first. Saying so keeps it in view — it
-          doesn&rsquo;t apply to anything on your behalf.
-        </p>
-      </header>
+      <Masthead />
 
       {saved?.state === "unknown" ? <UnknownState gap={saved.gap} /> : null}
 

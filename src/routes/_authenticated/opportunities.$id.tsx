@@ -1,7 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { getOpportunity } from "@/lib/opportunities.server";
 import { OpportunityInspection } from "@/components/opportunity/OpportunityInspection";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
+import { InspectionSkeleton } from "@/components/opportunity/InspectionSkeleton";
+import { SurfaceError } from "@/components/ui/state/SurfaceError";
 
 /**
  * One opportunity, in full.
@@ -19,22 +21,66 @@ import { UnknownState } from "@/components/ui/absence/UnknownState";
  */
 export const Route = createFileRoute("/_authenticated/opportunities/$id")({
   loader: ({ params }) => getOpportunity({ data: { id: params.id } }),
+  pendingComponent: Pending,
+  errorComponent: Failed,
   component: OneOpportunity,
 });
+
+/**
+ * The way back, on every branch.
+ *
+ * Loading, failing, not-found and succeeding all render it. Someone arriving
+ * from a shared link has no history to fall back on, and a failure that also
+ * removes their only exit has made one unreadable page into a trap.
+ */
+function Back() {
+  return (
+    <Link
+      to="/opportunities"
+      className="mb-8 inline-block font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s transition-colors duration-[120ms] hover:text-accent"
+    >
+      &larr; Opportunities
+    </Link>
+  );
+}
+
+function Pending() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <Back />
+      <InspectionSkeleton />
+    </div>
+  );
+}
+
+function Failed() {
+  const router = useRouter();
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <Back />
+      <SurfaceError
+        what="I couldn’t read this opportunity."
+        /*
+          The distinction the whole page exists to hold, restated for the case
+          where the page could not be built. "I could not read it" must not be
+          allowed to read as "it is not there" — the route already has a separate,
+          differently worded branch for that, and this one is not it.
+        */
+        stillTrue="That doesn’t mean it isn’t there, and it isn’t a judgement about the opportunity. Nothing I had already established about it has changed — I just can’t assemble the page right now."
+        whatYouCanDo="Try again, or go back to the list and come at it from there."
+        onRetry={() => void router.invalidate()}
+      />
+    </div>
+  );
+}
 
 function OneOpportunity() {
   const { resolution, canKeepDeclarations, whyNot } = Route.useLoaderData();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-      {/* A way back on every branch: someone arriving from a shared link has no
-          history to fall back on. */}
-      <Link
-        to="/opportunities"
-        className="mb-8 inline-block font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s transition-colors duration-[120ms] hover:text-accent"
-      >
-        &larr; Opportunities
-      </Link>
+      <Back />
 
       {resolution?.state === "inspection" ? (
         <OpportunityInspection

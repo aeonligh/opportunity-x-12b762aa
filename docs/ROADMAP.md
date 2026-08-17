@@ -3,31 +3,33 @@
 Canonical roadmap and honest current status. Update this file whenever a phase
 materially changes. Governance rules live in `CLAUDE.md`.
 
-**Assessed:** 2026-07-29, against branch `claude/project-analysis-review-9h7hly`.
+**Assessed:** 2026-08-17, against branch `claude/project-analysis-review-9h7hly`.
 Status claims below were verified by running commands and reading code, not by
-assuming the roadmap was followed.
+assuming the roadmap was followed. Phase headings below §9 date from 2026-07-29
+and have not been re-measured since.
 
 ---
 
-## Quality Gate Status — FAILING repo-wide
+## Quality Gate Status — PASSING in this environment
 
-These block closing *any* phase, regardless of feature completeness:
+Re-measured 2026-08-17. The July assessment (4 TypeScript errors, ~28,540 lint
+errors, no tests) is superseded.
 
-| Gate | Status | Detail |
-|---|---|---|
-| TypeScript | ❌ **4 errors** | `/admin/*` route paths not in generated route tree — `Header.tsx:125`, `_admin/route.tsx:28,31,34` |
-| ESLint | ❌ **~28,540 errors** | 28,514 auto-fixable (Prettier formatting). Never had a formatting pass. |
-| Build | ✅ passes | `bun run build` → Cloudflare Workers output |
-| Dev server | ✅ passes | serves on :5173, verified via screenshots |
-| Tests | ❌ **none exist** | no test script, no test directory, no framework installed |
-| Light/dark mode | ⚠️ unverified | `ThemeProvider` + `ThemeToggle` exist; light mode never visually checked |
-| Responsive | ⚠️ unverified | only desktop (1440px) has been rendered |
-| Accessibility | ⚠️ unverified | no audit performed |
-| Performance | ⚠️ unverified | no measurement taken |
+| Gate            | Status                   | Detail                                                                                             |
+| --------------- | ------------------------ | -------------------------------------------------------------------------------------------------- |
+| TypeScript      | ✅ **0 errors**          | `bunx tsc --noEmit -p .`                                                                           |
+| ESLint          | ✅ **0 errors**          | 9 warnings remain, all pre-existing `react-refresh/only-export-components` in `src/components/ui/` |
+| Build           | ✅ passes                | `bun run build` → Vercel Build Output v3 via Nitro                                                 |
+| Dev server      | ✅ passes                | serves on :5173                                                                                    |
+| Tests           | ✅ **240 pass / 0 fail** | `npm test` — Node test runner, no framework dependency                                             |
+| Console errors  | ✅ none                  | Chromium walk of `/lab/*` and the signed-out gate                                                  |
+| Light/dark mode | ✅ both verified         | driven through the real `ThemeProvider`, not `prefers-color-scheme`                                |
+| Responsive      | ✅ 375 / 768 / 1280      | no horizontal overflow at any width                                                                |
+| Accessibility   | ⚠️ partial               | keyboard reachability and live-region roles verified on the state surfaces; no full audit          |
+| Performance     | ⚠️ unverified            | no measurement taken                                                                               |
 
-**Recommended first action:** run `bunx eslint . --fix` (clears ~28,514
-mechanically), fix the 4 TS errors, then introduce a test framework. Until then
-every phase below is provisional.
+**The gates are no longer what blocks phase closure.** What blocks it is live
+verification — see Phase 10 below.
 
 ---
 
@@ -59,6 +61,7 @@ auto profile creation (`handle_new_user` trigger), sign-out, error handling.
 Google OAuth migrated off the Lovable proxy to native `supabase.auth.signInWithOAuth`.
 
 **Blockers:**
+
 1. **Google OAuth is non-functional** — needs a Google OAuth client configured
    in Supabase Dashboard → Authentication → Providers, plus redirect URLs
    allowlisted. Code is ready; the provider is not. **Never tested end-to-end.**
@@ -120,7 +123,7 @@ application status value, not a feature. Timeline view not built.
 `deadline-intelligence.server.ts` runs deadline checks and sends reminders;
 `sent_reminders` prevents duplicates; cron hook route exists.
 
-Gaps: no persistent agent, no continuous monitoring, no deadline *prediction*
+Gaps: no persistent agent, no continuous monitoring, no deadline _prediction_
 (current logic is threshold-based, not predictive), no proactive
 recommendations. The cron schedule was deliberately removed during the Lovable
 migration (pointed at a dead preview URL) and must be re-created against the
@@ -138,13 +141,55 @@ replacement), enterprise readiness.
 
 ---
 
+## Phase 10 — Production Ratification + Foundation Lock ⚠️ frozen, externally blocked
+
+Migrations applied and behaviourally verified against the canonical Supabase
+project (`anfiojmbgonrtympzjch`): 4 engine tables, 8 append-only triggers, RLS on
+every table, 40/40 assertions in `scripts/verify-migrations.sh`. Standalone
+separation from AEON X proved. Client bundle audited for secrets and fixtures.
+Deep links 14/14, fixture journey 26/26.
+
+**Frozen, not closed.** Three things cannot be verified from this environment and
+are handed off in `docs/PHASE_10_EXTERNAL_VERIFICATION.md`:
+
+- `auth.users = 0` — no account exists, so no authenticated walk has been run
+- announcer egress is `403` here, so **no observation has ever been acquired**
+- production still serves a pre-Phase-10 build; promotion is deliberately unmade
+
+Nothing was weakened, mocked or substituted to make these appear verified.
+
+---
+
+## Phase 11 — State, Loading, Error & Graceful Degradation ✅ complete for everything reachable without live data
+
+Nine states made distinguishable on every canonical surface: unknown, absent,
+empty, loading, pending, confirmed, refused, failed, degraded. Loading
+placeholders that stand for shapes and never for values; route-local error
+boundaries where `stillTrue` is a required prop; a mutation sequence where a
+pressed button is a claim about the record rather than about a request having
+been sent; a session gate that distinguishes "I could not check" from "you are
+signed out" without becoming more permissive.
+
+The laboratory (`/lab/states`, `/lab/mutations`) makes all fourteen specimens
+reachable on demand. 25 new tests, every assertion mutation-tested.
+
+Full report: `docs/PHASE_11_RATIFICATION.md`. Known gaps are in its §K — chiefly
+that partial degradation has a shape and a specimen but no production call site,
+and that **none of this has been seen against live data.**
+
+---
+
 ## Recommended sequence
 
-1. **Quality gate remediation** — lint autofix, 4 TS errors, test framework.
-   Cheap, unblocks honest phase closure.
-2. **Close Phase 2** — configure Google OAuth in Supabase, decide on LinkedIn
-   and Remember Me, test auth end-to-end. Everything user-facing depends on it.
-3. **Deploy** — a real URL unblocks live testing of Phases 4/5, re-enables the
-   discovery cron, and gives OAuth a stable redirect target.
-4. **Then** close Phase 6/7 gaps (calendar, cover letter, interview prep).
+The July sequence is superseded: the quality gates it led with now pass. What
+remains is external.
+
+1. **Create one confirmed account and run the Phase 10 walk.** Sections 2–6 of
+   `docs/PHASE_10_EXTERNAL_VERIFICATION.md`. Everything downstream is guesswork
+   until an authenticated surface has been seen.
+2. **Run one bounded sweep from a machine with ordinary internet.** Section 7.
+   A sweep that retrieves nothing is a valid result; a fabricated one is not.
+3. **Promote a build to production**, then repeat sections 3 and 4 against it.
+   READY build ≠ deployed ≠ authenticated and working ≠ real discovery.
+4. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
 5. **Phase 8/9** last — they assume the platform below them is solid.

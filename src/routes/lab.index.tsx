@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { labSurface, labDeclare, labWithdraw } from "@/lib/lab.server";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
@@ -23,28 +23,19 @@ export const Route = createFileRoute("/lab/")({
 
 function Lab() {
   const { specimens } = Route.useLoaderData();
-  const router = useRouter();
 
   /*
     Re-read after a write rather than tracking the position locally. The point
     of the walk is to prove the declaration was stored and can be read back; a
     local state update would show the button changing colour whether or not
     anything was recorded, which is the exact illusion the product refuses.
+
+    The re-read no longer lives in here. It used to — each action wrote and then
+    invalidated the router — which made the two indistinguishable to the control
+    above, and so a successful write whose refresh failed was reported as a
+    failure. `InterestedControl` performs the read-back itself now.
   */
-  const actions = {
-    declare: async (args: {
-      data: { entityId: string; state: "interested" | "not-interested" };
-    }) => {
-      const result = await labDeclare({ data: args.data });
-      await router.invalidate();
-      return result;
-    },
-    withdraw: async (args: { data: { entityId: string } }) => {
-      const result = await labWithdraw({ data: args.data });
-      await router.invalidate();
-      return result;
-    },
-  };
+  const actions = { declare: labDeclare, withdraw: labWithdraw };
 
   const cared = specimens.filter((s) => s.card.stance.declaration === "interested");
   const rest = specimens.filter((s) => s.card.stance.declaration !== "interested");
@@ -71,7 +62,18 @@ function Lab() {
           to="/lab/states"
           className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
         >
-          The three absences
+          The states of a surface
+        </Link>
+        {/*
+          And the states that only exist while something is being written. They
+          need pressing rather than looking at, so they get an interactive page
+          rather than a row on the one above.
+        */}
+        <Link
+          to="/lab/mutations"
+          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          What a write looks like
         </Link>
       </nav>
 

@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { labInspect, labDeclare, labWithdraw } from "@/lib/lab.server";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { OpportunityInspection } from "@/components/opportunity/OpportunityInspection";
@@ -17,22 +17,15 @@ export const Route = createFileRoute("/lab/$id")({
 
 function OneSpecimen() {
   const result = Route.useLoaderData();
-  const router = useRouter();
 
-  const actions = {
-    declare: async (args: {
-      data: { entityId: string; state: "interested" | "not-interested" };
-    }) => {
-      const r = await labDeclare({ data: args.data });
-      await router.invalidate();
-      return r;
-    },
-    withdraw: async (args: { data: { entityId: string } }) => {
-      const r = await labWithdraw({ data: args.data });
-      await router.invalidate();
-      return r;
-    },
-  };
+  /*
+    Just the writes. This used to invalidate the router inside each action, which
+    made the write and the read-back one indivisible step — so a control could not
+    tell "nothing was recorded" from "it was recorded and the page did not
+    refresh". `InterestedControl` now performs the read-back itself, after the
+    write returns, and reports those two outcomes differently.
+  */
+  const actions = { declare: labDeclare, withdraw: labWithdraw };
 
   if (!result.found) {
     return (
