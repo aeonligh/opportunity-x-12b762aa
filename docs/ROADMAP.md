@@ -225,6 +225,26 @@ Full report: `docs/PHASE_13_CONSOLIDATION.md`.
 
 ---
 
+## Phase 15 — Real conditions ✅ complete; external verification still blocked
+
+External verification was attempted and is blocked at the network layer:
+outbound CONNECT is denied by policy for every host, including `google.com`.
+Recorded once, not waited on. **Correction to the earlier record:** this is not
+the announcers refusing automated requests — the sandbox denies everything.
+
+Two defects the attempt surfaced were fixed. The sign-in form collapsed every
+failure into one branch, so an unreachable auth service told people their
+password was wrong; it now classifies five outcomes and renders them inline
+rather than as a toast. And a loader re-running underneath rendered content was
+presented as current; `Refreshing` now says so beside it.
+
+Performance measured for the first time: 0 server-function calls on initial
+load, exactly 2 per declaration (write + read-back), 201 ms round trip.
+
+Full report: `docs/PHASE_15_REAL_CONDITIONS.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What

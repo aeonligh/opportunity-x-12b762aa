@@ -6,6 +6,72 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-17 — Phase 15: external verification attempted; the sign-in door fixed
+
+**Outcome.** External verification is **blocked at the network layer** — recorded
+once and not waited on. Two defects it surfaced were fixed.
+
+**The blocker, measured.** Outbound CONNECT is denied by policy for every host:
+Supabase, the announcers, the deployment, and `www.google.com` alike. The proxy
+reports `"gateway answered 403 to CONNECT (policy denial or upstream failure)"`.
+
+**A correction to the record.** Phases 10–14 described this as "announcer egress
+403", which reads as though Nigerian government sites were refusing automated
+requests. They are not — the sandbox denies everything. The first would be a
+product finding; this is an environment fact.
+
+**Confirmed without network:** `.env` names `anfiojmbgonrtympzjch` (Opportunity
+X); AEON X's project appears nowhere; only public values are committed; migration
+guarantees still 40/40 including the refusal probes that must error rather than
+report `UPDATE 0`. No account created, no write attempted, nothing promoted.
+
+**Defect 1 — the sign-in form blamed the password for the network.**
+`catch (err) { toast.error(err.message) }` put every failure in one branch. Phase
+11 taught the authenticated _gate_ to tell a rejected token from an unreachable
+service; the _form_ never learned it. A person on a bad connection is told their
+password is wrong, retypes a correct one, and is told it is wrong again — a
+confident claim about something never established, on the surface where being
+wrong locks someone out of their own account.
+
+`src/lib/auth-outcome.ts` now classifies into five outcomes, each with what
+happened, what is still true and what to do, and offers retry only where retrying
+can help. It renders inline and persistently rather than as a toast, which
+vanishes while the person is still reading the form it refers to.
+
+**Verified live, by accident.** Because Supabase genuinely is unreachable here,
+the browser walk drove a real failed sign-in and got _"I couldn't reach the
+service that signs you in. This says nothing about your password."_ The
+environment that blocks the verification produced the proof that the fix is
+right.
+
+**Defect 2 — a refresh in flight was presented as current.** Nothing modelled a
+loader re-running underneath content already on screen, which is what every
+declaration does: write, then `router.invalidate()` to read back. `Refreshing`
+states it beside the content — a line, not a skeleton, because replacing valid
+content with grey to report that fresher content is coming destroys what is known.
+
+**Performance, measured** (Phase 14 had recorded it as unmeasured): routes 21–144
+ms; **0 server-function calls on initial load** (loader is server-rendered);
+**exactly 2 during a declaration** — one write, one read-back, no duplicate fetch
+and no N+1; 201 ms click-to-confirmed. No caching introduced.
+
+**Files.** New: `src/lib/auth-outcome.ts`, `src/components/ui/state/Refreshing.tsx`,
+`test/auth-outcome.test.ts`, `docs/PHASE_15_REAL_CONDITIONS.md`. Modified:
+`src/routes/auth.tsx`, `opportunities.tsx`, `saved.tsx`, `lab.faults.tsx`
+(`?state=` deep links).
+
+**Testing.** 6 new, 270 total, 0 failing. Five mutations, each observed to fail.
+Browser: 56 combinations (7 fault states × 4 widths × light/dark), 0 console
+errors, no overflow, themes verified on the root element; Phase 11 and Phase 14
+walks both still pass.
+
+**Future work.** The external walk needs one hour on an ordinary connection.
+Attributing failed retrievals to entities closes the degraded gap and is the same
+work that lets `opportunity_deliveries` record what was shown. Preparation
+untouched, per the directive.
+
+---
+
 ## 2026-08-17 — Phase 14: the state system
 
 **Feature.** What each visual state is allowed to claim. Three new states, one
@@ -14,8 +80,8 @@ new contract, a failure-injection laboratory, and the removal of a duplicate.
 **The three defects, each a surface claiming more than the system knew.**
 
 1. `pursuitFor` caught every declaration read failure and returned
-   `{ state: "undeclared" }`, so a read that did not happen rendered as *"You
-   haven't said either way"* — a claim about what the person did, made by a
+   `{ state: "undeclared" }`, so a read that did not happen rendered as _"You
+   haven't said either way"_ — a claim about what the person did, made by a
    system that could not look. `PursuitResolution` gains `unreadable`, carried
    through `deriveStance` (where a total ternary would have folded it silently
    back) and rendered as its own sentence. The buttons are also disabled in that
@@ -42,7 +108,7 @@ projection layer, with a test that fails when the gap closes.
 
 **A correction.** This phase added a global `prefers-reduced-motion` block and
 then removed it: one already existed at the foot of `styles.css`. The gap did not
-exist. The test now asserts the universal rule is present *and not duplicated*.
+exist. The test now asserts the universal rule is present _and not duplicated_.
 
 **Files.** New: `src/lib/opportunity/surface/faults.ts`, `src/routes/lab.faults.tsx`,
 `test/state-system.test.ts`, `docs/PHASE_14_STATE_SYSTEM.md`. Modified:

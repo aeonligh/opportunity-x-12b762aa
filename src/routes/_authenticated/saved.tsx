@@ -5,6 +5,7 @@ import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { FreshnessStamp } from "@/components/ui/FreshnessStamp";
 import { Skeleton } from "@/components/ui/state/Skeleton";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
+import { Refreshing } from "@/components/ui/state/Refreshing";
 
 /**
  * Saved — what you told Opportunity X you care about.
@@ -100,6 +101,7 @@ function Saved() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
       <Masthead />
+      <Refreshing what="what you’ve saved" />
 
       {saved?.state === "unknown" ? <UnknownState gap={saved.gap} /> : null}
 

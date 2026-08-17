@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { BrandLoader } from "@/components/BrandLoader";
+import { classifyAuthFailure, type AuthOutcome } from "@/lib/auth-outcome";
 import { BrandMark } from "@/components/BrandMark";
 
 export const Route = createFileRoute("/auth")({
@@ -63,6 +64,15 @@ function AuthPage() {
   // but are about to navigate. Renders the full-screen BrandLoader so no
   // stale content flashes and no protected surface is exposed.
   const [handingOff, setHandingOff] = useState(false);
+  /*
+    The last failure, kept on screen rather than thrown at a toast.
+
+    A toast is the wrong surface for this: it is transient, it stacks, and it
+    disappears while the person is still reading the form it refers to. An
+    authentication failure is the one message someone needs to be able to look
+    back at while they retype something.
+  */
+  const [failure, setFailure] = useState<AuthOutcome | null>(null);
   const initialCheckDone = useRef(false);
 
   useEffect(() => {
@@ -98,6 +108,7 @@ function AuthPage() {
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFailure(null);
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -119,12 +130,20 @@ function AuthPage() {
       setHandingOff(true);
       await navigate({ to: destination() });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
+      /*
+        Classified, not stringified. `err.message` from an auth library is an
+        implementation detail that happens to be a sentence, and it reports a
+        network failure and a wrong password identically — which tells a person
+        on a bad connection that their correct password is wrong, repeatedly.
+        See `src/lib/auth-outcome.ts`.
+      */
+      setFailure(classifyAuthFailure(err));
       setLoading(false);
     }
   };
 
   const handleGoogle = async () => {
+    setFailure(null);
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -132,14 +151,14 @@ function AuthPage() {
         options: { redirectTo: `${window.location.origin}/auth` },
       });
       if (error) {
-        toast.error("Google sign-in failed");
+        setFailure(classifyAuthFailure(error));
         setLoading(false);
         return;
       }
       // Full-page redirect: browser is leaving; keep the loader up.
       setHandingOff(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Google sign-in failed");
+      setFailure(classifyAuthFailure(err));
       setLoading(false);
     }
   };
@@ -170,6 +189,26 @@ function AuthPage() {
               ? "Sign in to your opportunities feed."
               : "Start discovering opportunities in seconds."}
           </p>
+
+          {/*
+            What happened, what is still true, and what to do — the same three
+            parts every other failure in this product answers, on the surface
+            where getting it wrong locks someone out of their own account.
+
+            `role="alert"` because this is the result of something the person
+            just did and they need it announced; it replaces a toast that
+            vanished while they were still reading the form it referred to.
+          */}
+          {failure ? (
+            <div
+              role="alert"
+              className="mb-5 flex flex-col gap-2 rounded-xl border border-[color-mix(in_oklab,var(--destructive)_35%,var(--border))] bg-[color-mix(in_oklab,var(--destructive)_6%,transparent)] p-4"
+            >
+              <p className="text-[14px] font-bold leading-snug text-foreground">{failure.what}</p>
+              <p className="text-[13px] leading-relaxed text-text-s">{failure.stillTrue}</p>
+              <p className="text-[13px] leading-relaxed text-text-s">{failure.whatYouCanDo}</p>
+            </div>
+          ) : null}
 
           <button
             type="button"

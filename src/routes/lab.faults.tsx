@@ -40,6 +40,21 @@ import type { CardsResolution } from "@/lib/opportunity/surface/service";
  * observed, and no opportunity is claimed to exist.
  */
 export const Route = createFileRoute("/lab/faults")({
+  /*
+    `?state=<fault>` renders one state on its own, full page.
+
+    The list view is right for comparing states against each other; it is wrong
+    for inspecting one, because at 375px the row above and below are always in
+    frame and every judgement about hierarchy, wrapping and spacing is made
+    against neighbours the person will never see together. A deep link also means
+    a browser walk can visit each state directly rather than scrolling to it.
+
+    Validated against the known fault names and ignored otherwise — an unknown
+    value falls back to the full list rather than erroring, because a typo in a
+    development URL should not look like a product failure.
+  */
+  validateSearch: (search: Record<string, unknown>): { state?: string } =>
+    typeof search.state === "string" ? { state: search.state } : {},
   loader: async () => ({
     cards: await Promise.all(
       CARD_FAULTS.map(async (fault) => ({
@@ -109,6 +124,17 @@ function CardsBranch({ resolution }: { resolution: CardsResolution }) {
 
 function Faults() {
   const { cards, inspection, saved } = Route.useLoaderData();
+  const { state: only } = Route.useSearch();
+
+  /* One state, alone, when asked for by name. */
+  const wanted = <T extends { fault: string }>(rows: T[]) =>
+    only ? rows.filter((r) => r.fault === only) : rows;
+
+  const showCards = wanted(cards);
+  const showInspection = wanted(inspection);
+  const showSaved = wanted(saved);
+  const nothingMatched =
+    only !== undefined && showCards.length + showInspection.length + showSaved.length === 0;
 
   return (
     <LabFrame
@@ -125,11 +151,26 @@ function Faults() {
         compares what the product actually reaches.
       </p>
 
+      {nothingMatched ? (
+        <p className="max-w-[62ch] rounded-md border border-border p-4 text-[14px] leading-relaxed text-text-s">
+          No fault is named <span className="font-mono text-foreground">{only}</span>. Drop the{" "}
+          <span className="font-mono">?state=</span> parameter to see all of them.
+        </p>
+      ) : null}
+
+      {only === undefined ? (
+        <p className="max-w-[62ch] text-[13px] leading-relaxed text-text-s">
+          Add <span className="font-mono text-foreground">?state=&lt;name&gt;</span> to render one
+          on its own — useful for looking at a single state at a narrow width, where the rows above
+          and below would otherwise always be in frame.
+        </p>
+      ) : null}
+
       <h2 className="mt-4 border-b border-border pb-2 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s">
         Opportunities
       </h2>
 
-      {cards.map(({ fault, resolution }) => (
+      {showCards.map(({ fault, resolution }) => (
         <Row
           key={fault}
           fault={fault}
@@ -149,7 +190,7 @@ function Faults() {
         One opportunity
       </h2>
 
-      {inspection.map(({ fault, resolution }) => (
+      {showInspection.map(({ fault, resolution }) => (
         <Row
           key={fault}
           fault={fault}
@@ -181,7 +222,7 @@ function Faults() {
         Saved
       </h2>
 
-      {saved.map(({ fault, resolution }) => (
+      {showSaved.map(({ fault, resolution }) => (
         <Row
           key={fault}
           fault={fault}

@@ -5,6 +5,7 @@ import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { AbsentState } from "@/components/ui/absence/AbsentState";
 import { OpportunityListSkeleton } from "@/components/opportunity/OpportunityCardSkeleton";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
+import { Refreshing } from "@/components/ui/state/Refreshing";
 
 /**
  * Opportunities — the home of Opportunity X.
@@ -125,6 +126,7 @@ function Opportunities() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6">
       <Masthead />
+      <Refreshing what="for new opportunities" />
 
       {result.state === "cards" ? (
         <>
