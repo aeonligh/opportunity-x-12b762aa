@@ -6,6 +6,63 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-17 — Phase 16: first contact with HTTP
+
+**Feature.** The discovery pipeline run against a real HTTP server over a real
+socket — every layer the fixture corpus has never touched.
+
+**Why.** `retrieve()`, `readRobots()`, the link walk, the page budget and the
+politeness delay had never executed against an HTTP server in fifteen phases.
+Every opportunity this product has rendered came from `demoCorpus`, which calls
+`witness()` directly with a hand-built exchange. Those five are the first things
+`npm run sweep -- ng-fme` touches, and the external checkpoint asks a person to
+run it on a laptop with an hour of their attention riding on it.
+
+**What held.** Robots fetched, parsed and obeyed — a disallowed path was not
+retrieved. The link walk stayed on-domain. A 500 was recorded as `unreachable`
+rather than skipped. A page with no JSON-LD at all produced an observation and
+invented nothing. Two URLs with one declared identifier resolved to one entity.
+A page stating no deadline yielded no deadline.
+
+**Three findings.**
+
+1. A redirect discards the requested URL. `retrieve()` records `response.url`
+   deliberately and correctly; what is lost is the other half. R-01 observed one
+   advert at three addresses with `-FINAL` and `-corrected` revisions and
+   "nothing linking them to what they supersede" — the request→destination edge
+   is exactly what R-11 wants, and it is discarded at the moment it exists.
+2. A redirect produces a silent duplicate observation. `visited` is keyed on the
+   requested URL, so `/moved` and `/scholarship` look distinct, both are fetched,
+   and both are filed under the same final URL — two observations, same URL, same
+   content, same sweep, no way to tell why there are two. **Corroboration is
+   counted from observations**, so a page reached twice by two routes inflates the
+   "read from N sources" figure the inspection surface asks people to trust.
+3. The sweep needs `SUPABASE_SERVICE_ROLE_KEY` as well as a network. Someone told
+   "run this from a machine with ordinary internet" gets an immediate refusal.
+
+**Not fixed, deliberately.** The better fix for 1 and 2 is one schema change —
+record the requested URL alongside the final one and dedupe on the final — and
+taking it now would mean designing against a synthetic redirect instead of a real
+one. Recorded in the report; the real evidence is one sweep away.
+
+**Files.** New: `test/discovery-over-http.test.ts`,
+`docs/PHASE_16_FIRST_CONTACT.md`.
+
+**Testing.** 8 new, 278 total, 0 failing. All assert behaviour over a live socket.
+One pins finding 2 as current behaviour with a pointer to the report, so a future
+fix fails loudly rather than silently. **One of my assertions was wrong about the
+product rather than the reverse** — it expected `https://fixture.test/…` and the
+observations carry the rewritten host, which is correct, because that is genuinely
+where the bytes came from.
+
+**Not done, and why.** Phase 16's definition of done requires a real sweep, which
+has not happened; the phase is not complete on its own terms and the report does
+not claim it is. No card work against real content (there is none — optimising
+against my own synthetic long title would repeat the mistake that item exists to
+end), no freshness semantics, no verification-history work, no preparation.
+
+---
+
 ## 2026-08-17 — Phase 15: external verification attempted; the sign-in door fixed
 
 **Outcome.** External verification is **blocked at the network layer** — recorded

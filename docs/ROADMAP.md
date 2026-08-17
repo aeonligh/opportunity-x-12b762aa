@@ -245,6 +245,30 @@ Full report: `docs/PHASE_15_REAL_CONDITIONS.md`.
 
 ---
 
+## Phase 16 — First contact with HTTP ⚠️ pipeline proven, real sweep still blocked
+
+The discovery pipeline was run against a real HTTP server over a real socket.
+`retrieve()`, `readRobots()`, the link walk, the page budget and the politeness
+delay had never executed against an HTTP server in fifteen phases — and they are
+the first five things `npm run sweep` touches.
+
+Robots is obeyed, the walk stays on-domain, a 500 is recorded as unreachable, a
+page with no JSON-LD invents nothing, and two URLs with one identifier resolve to
+one entity.
+
+Three findings, none fixed: a redirect discards the requested URL; a redirect
+produces a silent duplicate observation that inflates the corroboration count;
+and the sweep needs the service-role key as well as a network. The fix for the
+first two is one schema change, deferred until a real redirect exists to design
+against.
+
+**Not complete on its own terms** — the definition of done requires a real sweep,
+which remains blocked by egress.
+
+Full report: `docs/PHASE_16_FIRST_CONTACT.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What
