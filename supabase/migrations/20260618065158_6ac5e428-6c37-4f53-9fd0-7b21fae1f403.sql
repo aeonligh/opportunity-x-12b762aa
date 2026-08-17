@@ -78,7 +78,30 @@ EXCEPTION WHEN OTHERS THEN NULL; END $$;
 --   $$
 --   SELECT net.http_post(
 --     url := '<deployment-url>/api/public/hooks/crawl-opportunities',
---     headers := '{"Content-Type":"application/json","apikey":"<current anon/publishable key>"}'::jsonb,
+--     headers := '{"Content-Type":"application/json","x-opportunity-x-cron-secret":"<OPPORTUNITY_X_CRON_SECRET>"}'::jsonb,
+--     body := '{}'::jsonb
+--   ) AS request_id;
+--   $$
+-- );
+--
+-- The `x-opportunity-x-cron-secret` header is REQUIRED as of Phase 12. Both
+-- hook endpoints previously accepted an unauthenticated POST from anyone;
+-- they now answer 401 without the header and 503 while the secret is unset in
+-- the app's environment. The value must equal the app's
+-- OPPORTUNITY_X_CRON_SECRET.
+--
+-- The `apikey` header this snippet used to carry did nothing: these routes are
+-- application handlers, not PostgREST, and never looked at it.
+--
+-- The reminder job is the same shape and the same requirement:
+--
+-- SELECT cron.schedule(
+--   'opportunity-x-deadline-reminders',
+--   '0 7 * * *',
+--   $$
+--   SELECT net.http_post(
+--     url := '<deployment-url>/api/public/hooks/deadline-reminders',
+--     headers := '{"Content-Type":"application/json","x-opportunity-x-cron-secret":"<OPPORTUNITY_X_CRON_SECRET>"}'::jsonb,
 --     body := '{}'::jsonb
 --   ) AS request_id;
 --   $$

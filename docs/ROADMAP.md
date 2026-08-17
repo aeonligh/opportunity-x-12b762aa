@@ -179,6 +179,30 @@ and that **none of this has been seen against live data.**
 
 ---
 
+## Phase 12 — Product Completeness Audit ✅ audit complete, one decision blocking
+
+The implementation contains **two products**. System A — the constitutional
+engine of Phases 4–11 — holds no composite score and states absence honestly.
+System B — the pre-migration app — renders `match_scores` as a percentage ring on
+an unauthenticated, shareable route, which CR-21 forbids in those words. They
+share a build and no data, and every piece of navigation points at System B.
+
+Fixed this phase: both `/api/public/hooks/` endpoints accepted an unauthenticated
+POST — one drives the service-role discovery pipeline, the other emails every
+user. Both now require a shared secret and fail closed.
+
+Six capabilities are genuinely missing with real constitutional authority,
+chiefly the inspectable person-model (CR-24) and the "show me anyway" override
+(CR-25). None were built: each would have to be built twice until the founder
+decides which product is the product.
+
+Also established: the five "Bibles" cited 30 times across the source have never
+existed in this repository, and the Constitution contains no role model.
+
+Full report: `docs/PHASE_12_COMPLETENESS_AUDIT.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What

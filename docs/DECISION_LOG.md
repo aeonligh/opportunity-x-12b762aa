@@ -6,6 +6,73 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-17 — Phase 12: the completeness audit, and the scheduled jobs
+
+**Feature.** An audit, and one fix: a shared-secret boundary on the two
+`/api/public/hooks/` endpoints, which accepted an unauthenticated POST from
+anyone on the internet.
+
+**Purpose.** Establish whether the implementation contains the product the
+Constitution specifies. Full findings in `docs/PHASE_12_COMPLETENESS_AUDIT.md`.
+
+**The finding that matters.** The repository contains **two products**. System A
+— the constitutional engine of Phases 4–11 — reads four append-only tables, holds
+no composite score anywhere, and states absence honestly. System B — the
+pre-migration app — reads fifteen tables and renders `match_scores` as a 0–100 %
+ring on `/opportunity/$id`, which is unauthenticated and carries OG tags for
+sharing. CR-21 forbids collapsing the mechanisms into a single opaque score, in
+those words.
+
+They share a build, a router and a Supabase project, and no data. `/` links to
+`/auth` and `/search`; `Header.tsx` links to seven System B routes. **Neither
+links to `/opportunities` or `/saved`.** Sign-in lands on `/opportunities`, so
+the constitutional product is reachable only by signing in and by nothing else.
+
+Two further contradictions follow from it: two declaration stores
+(`opportunity_pursuits` and `saved_opportunities`, mutually unaware — a person who
+declares interest on `/opportunities/$id` is not reminded about it), and two
+opportunity-detail routes with different authentication and different guarantees.
+
+**The authority problem.** The phase was directed to audit against five "Bibles".
+`git log --all --diff-filter=A` shows no file with "bible" in its name has ever
+been added to this repository, while 20 source files cite those documents by
+section number 30 times. The audit therefore used `docs/CONSTITUTION.md`, and
+records gaps where the Constitution is silent rather than inventing policy —
+including for roles, which it never mentions.
+
+**What was implemented.** `src/lib/cron-authorization.ts`. Both hook routes ran
+unauthenticated: one drives the discovery pipeline with the service role, the
+other reads every user's saved opportunities and sends them email. Now a
+constant-time shared secret in `x-opportunity-x-cron-secret`, failing **closed** —
+503 unconfigured, 401 wrong — and checked inside `runScheduledCrawl` as well as on
+the route, because a server function is its own HTTP endpoint.
+
+**Files.** New: `src/lib/cron-authorization.ts`, `test/authorization.test.ts`,
+`docs/PHASE_12_COMPLETENESS_AUDIT.md`. Modified: both hook routes,
+`src/lib/intelligence.functions.ts`, `.env.example`, and the comment block in
+migration `20260618065158_…` documenting the `cron.schedule` snippet (comments
+only, no DDL; re-verified 40/40).
+
+**Risks.** The fix fails closed, so a deployment that later schedules the cron
+without setting `OPPORTUNITY_X_CRON_SECRET` gets a job that refuses and says so.
+That is the intended trade: a visible outage over an endpoint that mails a user
+base on request. No live caller exists — the cron was deliberately unscheduled
+during the migration.
+
+**Testing.** 9 new tests, 249 total, 0 failing. All nine mutation-tested. Two of
+the new assertions were vacuous on the first pass — both matched an import rather
+than a call site, so one reported correct ordering against a handler that ran the
+job before authorizing it. Both now assert the call and its acted-on result.
+Behaviour confirmed against a running server: 503 / 401 / 200.
+
+**Future work.** Six missing capabilities with real constitutional authority,
+chiefly the inspectable person-model (CR-24) and the "show me anyway" override
+(CR-25), neither of which exists in any form a person can reach. None were built:
+each needs a schema, and every one of them would have to be built twice until the
+founder decides which of the two products is the product.
+
+---
+
 ## 2026-08-17 — Phase 11: state, loading, error and graceful degradation
 
 **Feature.** A state system for every surface: loading placeholders, route-local

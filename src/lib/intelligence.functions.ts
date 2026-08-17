@@ -427,8 +427,21 @@ export const liveWebSearch = createServerFn({ method: "POST" })
     return { stats: result, results: rows ?? [] };
   });
 
-/** Internal cron entry. Calls a small rotation of priority queries. */
+/**
+ * Internal cron entry. Calls a small rotation of priority queries.
+ *
+ * The scheduler's secret is checked **here**, not only on the route that calls
+ * it. A server function is an HTTP endpoint of its own, so guarding the route
+ * alone would leave the same service-role write pipeline reachable through a
+ * second door — and the door nobody remembers is the one that stays open.
+ */
 export const runScheduledCrawl = createServerFn({ method: "POST" }).handler(async () => {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const { authorizeCronRun } = await import("@/lib/cron-authorization");
+
+  const allowed = authorizeCronRun(getRequest());
+  if (!allowed.allowed) throw new Error(allowed.because);
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const queries = [
     "fully funded scholarships for international students 2026",
