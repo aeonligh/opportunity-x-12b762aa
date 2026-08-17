@@ -235,6 +235,42 @@ export function OpportunityInspection({
         >
           What I looked at
         </h2>
+
+        {/*
+          The degraded state, said once at the top instead of left for the reader
+          to reconstruct by counting failures down a list.
+
+          Every number here is read off the observations themselves — a retrieval
+          either answered or it did not, and a page that answered either yielded
+          something legible or said why not. Nothing is estimated, and this block
+          is absent entirely when everything answered, because a banner announcing
+          completeness on every healthy page is noise that trains people to skip
+          the one that matters.
+        */}
+        {inspection.evidence.degraded ? (
+          <p
+            role="status"
+            className="max-w-[62ch] rounded-md border border-[color-mix(in_oklab,var(--destructive)_28%,var(--border))] bg-[color-mix(in_oklab,var(--destructive)_5%,transparent)] px-4 py-3 text-[14px] leading-relaxed text-foreground"
+          >
+            {`Built from ${inspection.evidence.answered} of ${inspection.evidence.consulted} ${
+              inspection.evidence.consulted === 1 ? "source" : "sources"
+            }.`}{" "}
+            <span className="text-text-s">
+              {[
+                inspection.evidence.unreachable > 0
+                  ? `${inspection.evidence.unreachable} didn’t answer`
+                  : null,
+                inspection.evidence.unreadable > 0
+                  ? `${inspection.evidence.unreadable} answered with nothing I could read`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join("; ")}
+              . What&rsquo;s below is real and was read from a page — but a source I couldn&rsquo;t
+              reach may have agreed or disagreed with the rest, and I don&rsquo;t know which.
+            </span>
+          </p>
+        ) : null}
         <ul className="flex flex-col gap-7">
           {inspection.sources.map((source) => (
             <li key={source.observationId} className="flex flex-col gap-2">

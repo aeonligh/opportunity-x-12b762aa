@@ -127,6 +127,49 @@ function observe(url: string, body: string, at: string): SourceObservation {
 }
 
 /**
+ * A source that did not answer.
+ *
+ * Goes through the same `witness` as every other observation, and `witness`
+ * decides the outcome from the exchange itself — a non-2xx status with no body
+ * mints an `unreachable` observation carrying the reason. Nothing here sets
+ * `outcome` by hand.
+ *
+ * That distinction is the whole reason this helper exists rather than a flag on
+ * the projection. A degraded surface must never be manufactured at the
+ * projection layer: the engine has to have genuinely failed to read something,
+ * and the count the inspection shows has to be a count of real failures.
+ *
+ * ── Currently unused, deliberately ────────────────────────────────────────
+ *
+ * A specimen built on this was written and then removed, because it could not
+ * demonstrate what it claimed. `entity/group.ts` skips any observation that is
+ * not `isRetrieved`, so a failed retrieval never joins an entity, never appears
+ * in `entity.resolution.observationIds`, and never reaches the inspection. The
+ * page showed two sources and had no way to say a third had been attempted.
+ *
+ * That is an engine gap, not a surface one, and Phase 14 recorded it rather
+ * than faking around it — see `docs/PHASE_14_STATE_SYSTEM.md` §D. This stays
+ * because it is exactly what a fixture will need the day failed retrievals are
+ * attributed to entities, and deleting it would make that day's work start from
+ * a blank page.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function observeUnreachable(url: string, at: string, status: number): SourceObservation {
+  const { sourceId, label, sourceClass } = classify(url);
+  return witness(
+    {
+      url,
+      completedAt: at,
+      status,
+      body: null,
+      encoding: "utf-8",
+      contentType: null,
+    },
+    { source: { sourceId, label, sourceClass } },
+  );
+}
+
+/**
  * One state the product has to handle, and the evidence that produces it.
  *
  * `demonstrates` is the point of the scenario in a sentence — what a reader

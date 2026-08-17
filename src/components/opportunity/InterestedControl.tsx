@@ -199,8 +199,20 @@ export function InterestedControl({
   const router = useRouter({ warn: false });
 
   const declared = pursuit.state === "declared" ? pursuit.declaration.state : null;
+  /*
+    The read failed. Distinct from `declared === null`, which means the record
+    was read and holds nothing — this means it was not read, and the control may
+    not describe the person's position either way.
+  */
+  const unreadable = pursuit.state === "unreadable" ? pursuit.because : null;
   const saving = write.phase === "saving";
-  const disabled = saving || !canPersist;
+  /*
+    Offering the buttons over an unreadable position would let someone press
+    "Interested" without being able to see that they had already pressed it —
+    and a declaration is append-only, so the second press is a second record.
+    The refusal is stated rather than mimed: see the sentence below.
+  */
+  const disabled = saving || !canPersist || unreadable !== null;
   const fixture = evidence === "fixture";
   /* Who is speaking, which is not always who the evidence belongs to. */
   const theirs = (voice ?? (fixture ? "this-person" : "you")) === "this-person";
@@ -276,6 +288,26 @@ export function InterestedControl({
             </>
           ) : null}
           .
+        </p>
+      ) : unreadable !== null ? (
+        /*
+          The state this control most needed and did not have.
+
+          Before this, a failed declaration read arrived here as `undeclared` and
+          rendered "You haven't said either way" — a statement about what the
+          person did, produced by a system that could not look. It is the same
+          error as showing an empty list when the corpus is unreadable, made
+          about someone's own record rather than about the world.
+        */
+        <p role="status" className="max-w-[58ch] text-[15px] leading-snug text-text-s">
+          {theirs
+            ? "I couldn’t read what they’ve said about this, so I can’t show their position."
+            : "I couldn’t read what you’ve said about this, so I can’t show your position."}{" "}
+          <span className="text-foreground">
+            {theirs
+              ? "Whatever they said is still recorded."
+              : "Whatever you said is still recorded — this is a failure to read it, not a blank."}
+          </span>
         </p>
       ) : (
         /* Undeclared, said aloud. Not an unchecked box. */
@@ -418,7 +450,18 @@ export function InterestedControl({
         that looks live and fails on press is worse than one that says plainly
         what it cannot do yet.
       */}
-      {!canPersist ? (
+      {/*
+        Why the buttons are inert right now. A disabled control that does not say
+        why is a refusal the person has to guess at.
+      */}
+      {unreadable !== null ? (
+        <p className="max-w-[58ch] text-[14px] leading-relaxed text-text-s">
+          {unreadable} Until I can, I won’t offer to change a position I can’t see — pressing
+          Interested now could record a second declaration on top of one you already made.
+        </p>
+      ) : null}
+
+      {!canPersist && unreadable === null ? (
         <p className="max-w-[58ch] text-[14px] leading-relaxed text-text-s">
           {fixture
             ? "These buttons do nothing here. This is a fixture opportunity, so there is no real record to write a position into."

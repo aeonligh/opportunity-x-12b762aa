@@ -69,6 +69,13 @@ function Lab() {
           need pressing rather than looking at, so they get an interactive page
           rather than a row on the one above.
         */}
+        {/* Reads that fail, induced by name rather than mimed with props. */}
+        <Link
+          to="/lab/faults"
+          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          Failures, induced
+        </Link>
         <Link
           to="/lab/mutations"
           className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"

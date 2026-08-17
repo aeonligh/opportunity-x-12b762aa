@@ -6,6 +6,70 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-17 — Phase 14: the state system
+
+**Feature.** What each visual state is allowed to claim. Three new states, one
+new contract, a failure-injection laboratory, and the removal of a duplicate.
+
+**The three defects, each a surface claiming more than the system knew.**
+
+1. `pursuitFor` caught every declaration read failure and returned
+   `{ state: "undeclared" }`, so a read that did not happen rendered as *"You
+   haven't said either way"* — a claim about what the person did, made by a
+   system that could not look. `PursuitResolution` gains `unreadable`, carried
+   through `deriveStance` (where a total ternary would have folded it silently
+   back) and rendered as its own sentence. The buttons are also disabled in that
+   state: a declaration is append-only, so offering a position over one nobody
+   can see would let someone record a second on top of one they already made.
+2. `resolveCards` had two states, so a corpus consulted with no qualifying result
+   returned `{ cards: [] }` and rendered a blank page — indistinguishable from
+   "could not look" and "never looked". `CardsResolution` gains `absent`, which
+   carries the `searchedAt` the success case already had and the surface was
+   discarding.
+3. `DeclarationRow.href` pointed at `/opportunity/$id`, retired in Phase 13.
+   Nothing read it, which is why TypeScript missed it — a hand-assembled URL is
+   invisible to the router's types.
+
+**The degraded state: a contract that is honestly unreachable.**
+`projectInspection` now projects `evidence: { consulted, answered, unreadable,
+unreachable, degraded }` from the observations themselves, and the inspection
+renders "Built from 2 of 3 sources" when something failed. Nothing can reach it:
+`entity/group.ts:145` skips any observation that is not `isRetrieved`, so a
+failed retrieval never joins an entity. A fixture written to demonstrate it was
+**removed** because it could not — it rendered two sources with no way to say a
+third was attempted. Recorded as an engine gap rather than faked at the
+projection layer, with a test that fails when the gap closes.
+
+**A correction.** This phase added a global `prefers-reduced-motion` block and
+then removed it: one already existed at the foot of `styles.css`. The gap did not
+exist. The test now asserts the universal rule is present *and not duplicated*.
+
+**Files.** New: `src/lib/opportunity/surface/faults.ts`, `src/routes/lab.faults.tsx`,
+`test/state-system.test.ts`, `docs/PHASE_14_STATE_SYSTEM.md`. Modified:
+`pursuit/types.ts`, `pursuit/stance.ts`, `surface/service.ts`,
+`surface/inspection.ts`, `surface/demo.ts`, `InterestedControl.tsx`,
+`OpportunityInspection.tsx`, `opportunities.tsx`, `lab.server.ts`,
+`lab.index.tsx`, `test/surface.test.ts`.
+
+**Risks.** `unreadable` disables the declaration buttons, so a deployment whose
+declaration store is unreachable offers no way to declare — deliberate, and
+stated on screen. The `evidence` projection is inert until the engine change.
+
+**Testing.** 13 new, 264 total, 0 failing. Seven mutations, each observed to fail.
+**Four of my own assertions were vacuous on the first pass** and are recorded in
+the report: a regex matching `disabled:opacity-50` inside a Tailwind class list; a
+union parser capturing one state per union; a CSS slice satisfied by a later
+block; and a partition assertion holding trivially at zero. An existing test in
+`surface.test.ts` asserted a literal source substring and broke when the
+expression was reworded, having never checked its behaviour — replaced with a
+rendered assertion.
+
+**Future work.** Attributing failed retrievals to entities closes the degraded
+gap and is the same work that would let `opportunity_deliveries` record what was
+shown. Nothing here has met real data.
+
+---
+
 ## 2026-08-17 — Phase 13: retire the legacy product, keep one
 
 **Decision.** System A — the constitutional engine of Phases 4-11 — is

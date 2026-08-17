@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 
 import { groupObservations } from "@/lib/opportunity/entity/group";
 import { resolveEntity } from "@/lib/opportunity/entity/resolve";
@@ -697,6 +698,38 @@ const INSPECTION_SOURCE = readFileSync(
 );
 const CONTROL_SOURCE = readFileSync("src/components/opportunity/InterestedControl.tsx", "utf8");
 
+/**
+ * Render the real control, in a child process that may load `react-dom/server`.
+ *
+ * The suite runs under `--conditions=react-server`, which forbids it in-process.
+ * See `test/render-component.ts`. Behaviour beats substring matching: an
+ * assertion over source text keeps passing after the component stops rendering
+ * what the text described, and fails when an expression is merely reworded.
+ */
+function renderControl(pursuit: unknown, props: Record<string, unknown> = {}): string {
+  return execFileSync(
+    process.execPath,
+    [
+      "--import",
+      "./test/register.mjs",
+      "test/render-component.ts",
+      "@/components/opportunity/InterestedControl",
+      "InterestedControl",
+      JSON.stringify({ entityId: "e1", pursuit, ...props }),
+    ],
+    { encoding: "utf8" },
+  );
+}
+
+/** What a person actually reads. */
+function visibleText(html: string): string {
+  return html
+    .replace(/<[^>]*class="[^"]*\bsr-only\b[^"]*"[^>]*>[\s\S]*?<\/[a-z]+>/g, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /** Comments discuss why the word is avoided; only what renders is under test. */
 function withoutComments(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -761,12 +794,21 @@ const PURSUIT_SQL = readFileSync(
 );
 
 test("the Interested control states its limit before it is pressed", () => {
-  /* A control that looks live and fails on press is a refusal disguised as an
-     interaction: the person has already made the statement, and the system
-     takes it back. */
-  assert.ok(CONTROL_SOURCE.includes("canPersist"));
-  assert.ok(CONTROL_SOURCE.includes("!canPersist ?"));
-  assert.ok(CONTROL_SOURCE.includes("disabled={disabled}"));
+  /*
+    A control that looks live and fails on press is a refusal disguised as an
+    interaction: the person has already made the statement, and the system takes
+    it back.
+
+    This used to assert `CONTROL_SOURCE.includes("!canPersist ?")` — a literal
+    substring of an expression that is allowed to change. It broke the moment the
+    condition gained a second clause, having never checked the behaviour it
+    describes. Rendered instead: the reason must be on screen, and the buttons
+    must be inert.
+  */
+  const html = renderControl({ state: "undeclared" }, { canPersist: false });
+
+  assert.match(visibleText(html), /I can’t keep this yet/);
+  assert.equal(html.match(/<button[^>]*\sdisabled=""/g)?.length, 2, "both buttons must be inert");
 });
 
 test("declarations are person-scoped in the database, unlike observations", () => {

@@ -115,8 +115,15 @@ export type NextMove =
 
 export interface PursuitStance {
   entityId: string;
-  /** Exactly what the person said. Never inferred, never upgraded. */
-  declaration: "undeclared" | "interested" | "not-interested";
+  /**
+   * Exactly what the person said. Never inferred, never upgraded.
+   *
+   * `unreadable` is not a thing they said — it is the absence of an answer from
+   * the store, kept separate so nothing downstream can treat a failed read as
+   * silence. The stance folded it into `undeclared` when the state was first
+   * added, and `undeclared` is a claim about the person.
+   */
+  declaration: "undeclared" | "interested" | "not-interested" | "unreadable";
   /** When they said it. Null when they have not. */
   since: string | null;
   urgency: Urgency;
@@ -231,7 +238,17 @@ export interface StanceInput {
 export function deriveStance(input: StanceInput): PursuitStance {
   const { entity, pursuit, now } = input;
 
-  const declaration = pursuit.state === "declared" ? pursuit.declaration.state : "undeclared";
+  /*
+    Three-way, not two. `pursuit.state === "declared" ? … : "undeclared"` was
+    total and therefore silently correct-looking, which is exactly how the
+    unreadable case would have been lost the moment it was introduced.
+  */
+  const declaration =
+    pursuit.state === "declared"
+      ? pursuit.declaration.state
+      : pursuit.state === "unreadable"
+        ? ("unreadable" as const)
+        : ("undeclared" as const);
   const since = pursuit.state === "declared" ? pursuit.declaration.declaredAt : null;
 
   const urgency = deriveUrgency(entity, now);
@@ -272,6 +289,14 @@ function decide(input: {
   if (input.urgency.kind === "passed") {
     return { kind: "closed", deadline: input.urgency.deadline };
   }
+
+  /*
+    The read failed. The move is still to look — an opportunity's facts do not
+    depend on this person's side-record — but nothing may be said about what
+    they have or have not declared, so this returns the same neutral move by a
+    different route and the surface says why separately.
+  */
+  if (input.declaration === "unreadable") return { kind: "review" };
 
   /*
     Undeclared. The move is to look, and nothing is assumed either way —

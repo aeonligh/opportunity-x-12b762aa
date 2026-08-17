@@ -136,8 +136,83 @@ export interface OpportunityInspection {
   /** Every retrieval this entity rests on, successes and failures alike. */
   sources: SourceRow[];
 
+  /**
+   * How complete the evidence under this page actually is.
+   *
+   * ══════════════════════════════════════════════════════════════════════════
+   * WHY THIS IS A REAL STATE AND NOT A MANUFACTURED ONE
+   * ══════════════════════════════════════════════════════════════════════════
+   *
+   * The state system forbids inventing epistemic information to make a UI state
+   * possible: a surface may not say *"3 of 4 sources answered"* unless the system
+   * genuinely knows that three answered and one did not.
+   *
+   * It does. Every observation records its own outcome — `answered` is false when
+   * the retrieval failed, and `unreadable` carries the reason when a page replied
+   * with nothing legible. The page already rendered both, one row at a time, in
+   * the middle of a list. What was missing was the **summary**: a reader had to
+   * count the failures themselves to notice that this opportunity rests on two
+   * sources rather than four.
+   *
+   * So this is a projection of evidence that was already there, not a new claim.
+   * It is the one genuinely degraded state in the product — *some independently
+   * requested information succeeded and some failed* — and it exists here rather
+   * than at the surface precisely so the surface cannot fabricate it.
+   */
+  evidence: {
+    /** Sources consulted for this entity. */
+    consulted: number;
+    /** Of those, the ones that answered with something legible. */
+    answered: number;
+    /** Answered, and nothing about the opportunity could be read from them. */
+    unreadable: number;
+    /** Did not answer at all. */
+    unreachable: number;
+    /**
+     * True when at least one source is missing from the picture.
+     *
+     * Named rather than left to the caller to compute, so every surface that
+     * asks the question gets the same answer to it.
+     */
+    degraded: boolean;
+  };
+
   /** What happens if the person acts. Plain, and never a promise. */
   whatHappensNext: string[];
+}
+
+/**
+ * Count what actually answered.
+ *
+ * Deliberately three separate counts rather than a ratio. "Two of four" is a
+ * different fact from "two answered, one was unreachable, one replied with
+ * nothing readable" — and the second is the one that tells a reader whether to
+ * come back later or to distrust the page.
+ */
+function evidenceCompleteness(
+  observations: readonly SourceObservation[],
+): OpportunityInspection["evidence"] {
+  let answered = 0;
+  let unreadable = 0;
+  let unreachable = 0;
+
+  for (const observation of observations) {
+    if (!isRetrieved(observation)) {
+      unreachable += 1;
+    } else if (observation.unreadable) {
+      unreadable += 1;
+    } else {
+      answered += 1;
+    }
+  }
+
+  return {
+    consulted: observations.length,
+    answered,
+    unreadable,
+    unreachable,
+    degraded: unreadable + unreachable > 0,
+  };
 }
 
 export function projectInspection(input: {
@@ -198,6 +273,7 @@ export function projectInspection(input: {
         : {}),
       said: statementsIn(observation),
     })),
+    evidence: evidenceCompleteness(input.observations),
     whatHappensNext: whatHappensNext(card),
   };
 }

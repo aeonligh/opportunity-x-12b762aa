@@ -16,6 +16,7 @@ import { Route as LabIndexRouteImport } from './routes/lab.index'
 import { Route as LabStatesRouteImport } from './routes/lab.states'
 import { Route as LabSavedRouteImport } from './routes/lab.saved'
 import { Route as LabMutationsRouteImport } from './routes/lab.mutations'
+import { Route as LabFaultsRouteImport } from './routes/lab.faults'
 import { Route as LabIdRouteImport } from './routes/lab.$id'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
@@ -56,6 +57,11 @@ const LabMutationsRoute = LabMutationsRouteImport.update({
   path: '/lab/mutations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LabFaultsRoute = LabFaultsRouteImport.update({
+  id: '/lab/faults',
+  path: '/lab/faults',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LabIdRoute = LabIdRouteImport.update({
   id: '/lab/$id',
   path: '/lab/$id',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
   '/saved': typeof AuthenticatedSavedRoute
   '/lab/$id': typeof LabIdRoute
+  '/lab/faults': typeof LabFaultsRoute
   '/lab/mutations': typeof LabMutationsRoute
   '/lab/saved': typeof LabSavedRoute
   '/lab/states': typeof LabStatesRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
   '/saved': typeof AuthenticatedSavedRoute
   '/lab/$id': typeof LabIdRoute
+  '/lab/faults': typeof LabFaultsRoute
   '/lab/mutations': typeof LabMutationsRoute
   '/lab/saved': typeof LabSavedRoute
   '/lab/states': typeof LabStatesRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/lab/$id': typeof LabIdRoute
+  '/lab/faults': typeof LabFaultsRoute
   '/lab/mutations': typeof LabMutationsRoute
   '/lab/saved': typeof LabSavedRoute
   '/lab/states': typeof LabStatesRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/opportunities'
     | '/saved'
     | '/lab/$id'
+    | '/lab/faults'
     | '/lab/mutations'
     | '/lab/saved'
     | '/lab/states'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/opportunities'
     | '/saved'
     | '/lab/$id'
+    | '/lab/faults'
     | '/lab/mutations'
     | '/lab/saved'
     | '/lab/states'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/_authenticated/opportunities'
     | '/_authenticated/saved'
     | '/lab/$id'
+    | '/lab/faults'
     | '/lab/mutations'
     | '/lab/saved'
     | '/lab/states'
@@ -174,6 +186,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   LabIdRoute: typeof LabIdRoute
+  LabFaultsRoute: typeof LabFaultsRoute
   LabMutationsRoute: typeof LabMutationsRoute
   LabSavedRoute: typeof LabSavedRoute
   LabStatesRoute: typeof LabStatesRoute
@@ -229,6 +242,13 @@ declare module '@tanstack/react-router' {
       path: '/lab/mutations'
       fullPath: '/lab/mutations'
       preLoaderRoute: typeof LabMutationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/faults': {
+      id: '/lab/faults'
+      path: '/lab/faults'
+      fullPath: '/lab/faults'
+      preLoaderRoute: typeof LabFaultsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/$id': {
@@ -304,6 +324,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   LabIdRoute: LabIdRoute,
+  LabFaultsRoute: LabFaultsRoute,
   LabMutationsRoute: LabMutationsRoute,
   LabSavedRoute: LabSavedRoute,
   LabStatesRoute: LabStatesRoute,

@@ -57,6 +57,27 @@ export type InspectionResolution =
 
 export type CardsResolution =
   | { state: "cards"; cards: OpportunityCard[]; searchedAt: string }
+  /**
+   * Sources were consulted and nothing currently qualifies. A **finding**.
+   *
+   * ── Why this is not `{ cards: [] }` ───────────────────────────────────────
+   *
+   * It was, and the surface rendered two empty sections — a page with nothing on
+   * it, which is what an unreadable corpus and an unlooked one also render as.
+   * Three unlike facts arriving at the same blank screen is the collapse this
+   * engine exists to prevent, and it had quietly reappeared at the one layer
+   * nobody had given a third state.
+   *
+   * The distinction is not decorative. *"I looked and there is nothing right
+   * now"* is CR-20's first-class output — a legitimate answer with a time on it,
+   * which a person can act on by coming back. *"I could not look"* is a limit on
+   * the system. *"I have never looked"* is neither. Only the first is a claim
+   * about the world, and only the first is safe to make.
+   *
+   * `searchedAt` was already on the success case, so nothing new had to be known
+   * for this to exist. It was information the surface was throwing away.
+   */
+  | { state: "absent"; searchedAt: string }
   | { state: "unknown"; gap: string };
 
 const UNDECLARED: PursuitResolution = { state: "undeclared" };
@@ -135,18 +156,31 @@ export async function pursuitsFor(
   }
 }
 
+/**
+ * What this person has said about one opportunity — or that it could not be read.
+ *
+ * Every branch that is not a successful read now returns `unreadable` rather
+ * than `undeclared`. The difference is the whole point: `undeclared` is a fact
+ * about the person, and this function is in no position to establish one when
+ * the query failed or nothing is configured.
+ */
 async function pursuitFor(
   personId: string,
   entityId: string,
   client: PersonClient,
 ): Promise<PursuitResolution> {
+  if (client === null) return { state: "unreadable", because: NO_PURSUIT_LOG_REASON };
+
+  const log = pursuitLogFor(client);
+  if (log === null) return { state: "unreadable", because: NO_PURSUIT_LOG_REASON };
+
   try {
-    if (client === null) return UNDECLARED;
-    const log = pursuitLogFor(client);
-    if (log === null) return UNDECLARED;
     return await log.read(personId, entityId);
   } catch {
-    return UNDECLARED;
+    return {
+      state: "unreadable",
+      because: "I could not reach the place your declarations are kept.",
+    };
   }
 }
 
@@ -219,6 +253,12 @@ export async function resolveCards(
           entity,
           verification,
           judgments: judgments.find((j) => j.entityId === entity.id) ?? null,
+          /*
+            A supplied map is the result of one successful `readAll`, so a
+            missing key means this person has said nothing about this entity —
+            genuinely `undeclared`. With no map, each card asks separately, and
+            that ask can fail; `pursuitFor` returns `unreadable` when it does.
+          */
           pursuit:
             options.pursuits?.get(entity.id) ??
             (options.pursuits ? UNDECLARED : await pursuitFor(personId, entity.id, client)),
@@ -226,6 +266,12 @@ export async function resolveCards(
         }),
       );
     }
+
+    /*
+      Consulted, and nothing qualifies. Reported as the finding it is rather
+      than as an empty success — see `CardsResolution`.
+    */
+    if (cards.length === 0) return { state: "absent", searchedAt: corpus.searchedAt };
 
     return { state: "cards", cards, searchedAt: corpus.searchedAt };
   } catch {
@@ -250,9 +296,15 @@ export interface DeclarationRow {
   state: "interested" | "not-interested";
   declaredAt: string;
   title: string | null;
-  /** Where to go to see it. Null when there is nothing left to inspect. */
-  href: string | null;
 }
+
+/*
+  `href` used to live here, built as `/opportunity/${entityId}` — a route Phase 13
+  retired. Nothing read it: `/saved` builds its own typed link to
+  `/opportunities/$id`, which is why a dead path survived a route deletion that
+  TypeScript otherwise caught everywhere. A hand-assembled URL string is invisible
+  to the router's types, so it is gone rather than corrected.
+*/
 
 export type DeclarationsResolution =
   | { state: "declarations"; declarations: DeclarationRow[] }
@@ -331,7 +383,6 @@ export async function resolveDeclarations(
       state: resolution.declaration.state,
       declaredAt: resolution.declaration.declaredAt,
       title,
-      href: title === null ? null : `/opportunity/${entityId}`,
     });
   }
 

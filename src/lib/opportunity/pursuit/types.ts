@@ -89,7 +89,32 @@ export interface Declaration {
  */
 export type PursuitResolution =
   | { state: "declared"; declaration: Declaration; history: Declaration[] }
-  | { state: "undeclared" };
+  | { state: "undeclared" }
+  /**
+   * The read failed. **Not** the same as having said nothing.
+   *
+   * ── Why this is a third state and not an error the caller throws ──────────
+   *
+   * Because the surface has to keep rendering. An opportunity's facts do not
+   * depend on whether this person's side-record could be read, so failing the
+   * whole page would destroy known content to report a failure in a supplement
+   * — which is what §9 of the state system forbids.
+   *
+   * But the alternative that was here before is worse. `pursuitFor` caught the
+   * failure and returned `{ state: "undeclared" }`, so a read that did not
+   * happen rendered as *"You haven't said either way"* — a claim about what the
+   * person did, made by a system that could not look. It is the declaration
+   * layer's version of showing an empty list when the corpus is unreadable, and
+   * the engine refuses that everywhere else.
+   *
+   * Three states, and the middle one is the person's silence rather than the
+   * system's blindness:
+   *
+   *   declared    — they said something, and here it is.
+   *   undeclared  — the record was read and holds nothing. Their silence.
+   *   unreadable  — the record could not be read. Says nothing about them.
+   */
+  | { state: "unreadable"; because: string };
 
 export interface PursuitLog {
   /** Record a declaration. The only writer. Requires an explicit person act. */

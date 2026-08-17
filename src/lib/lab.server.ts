@@ -71,6 +71,58 @@ async function corpus() {
   return demoCorpus(new Date().toISOString(), declarations);
 }
 
+/**
+ * A named failure, in the real result shape.
+ *
+ * The laboratory's failure-injection door. Every fault is asked for by name,
+ * validated against a closed list, and produced by `surface/faults.ts` in the
+ * genuine resolution type the corresponding read returns — so the route under
+ * test takes the branch it would take in production rather than being handed a
+ * component with error-looking props.
+ *
+ * `assertDevelopment()` runs first, as it does on every function in this module,
+ * so there is no path to this from a production deployment. No flag exists,
+ * nothing branches inside production code, and a fault has to be requested by a
+ * caller production does not have.
+ */
+/*
+  Three functions rather than one taking a surface name, because a single
+  entry point returns the union of all three resolution types and every caller
+  then has to narrow it by hand. Separate functions give each caller the exact
+  result its surface branches on, which is the whole point of injecting real
+  resolutions instead of error-looking props.
+*/
+
+export const labCardsFault = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ fault: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { CARD_FAULTS, cardsUnder } = await import("@/lib/opportunity/surface/faults");
+    const fault = CARD_FAULTS.find((f) => f === data.fault);
+    if (!fault) throw new Error(`Unknown card fault: ${data.fault}`);
+    return cardsUnder(fault);
+  });
+
+export const labInspectionFault = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ fault: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { INSPECTION_FAULTS, inspectionUnder } = await import("@/lib/opportunity/surface/faults");
+    const fault = INSPECTION_FAULTS.find((f) => f === data.fault);
+    if (!fault) throw new Error(`Unknown inspection fault: ${data.fault}`);
+    return inspectionUnder(fault);
+  });
+
+export const labSavedFault = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ fault: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { SAVED_FAULTS, savedUnder } = await import("@/lib/opportunity/surface/faults");
+    const fault = SAVED_FAULTS.find((f) => f === data.fault);
+    if (!fault) throw new Error(`Unknown saved fault: ${data.fault}`);
+    return savedUnder(fault);
+  });
+
 /** Every specimen, as cards, plus whatever has been declared in this session. */
 export const labSurface = createServerFn({ method: "GET" }).handler(async () => {
   assertDevelopment();

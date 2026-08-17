@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { listOpportunities } from "@/lib/opportunities.server";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
+import { AbsentState } from "@/components/ui/absence/AbsentState";
 import { OpportunityListSkeleton } from "@/components/opportunity/OpportunityCardSkeleton";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
 
@@ -161,6 +162,27 @@ function Opportunities() {
             ))}
           </section>
         </>
+      ) : result.state === "absent" ? (
+        /*
+          Sources were consulted and nothing currently qualifies — a finding, and
+          CR-20's first-class output. It carries the time it was made, because
+          "nothing right now" is only actionable if the person can see how recent
+          the "now" is. This is deliberately *not* the branch below: that one is
+          about the system's limits, this one is about the world.
+        */
+        <section className="flex flex-col gap-5">
+          <AbsentState
+            verdict="Nothing I watch is currently offering something worth your attention."
+            searchedAt={result.searchedAt}
+            standing="This is what I found, not a gap in my looking. When something opens, it appears here."
+          />
+          <Link
+            to="/opportunities/examples"
+            className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+          >
+            See example opportunities &rarr;
+          </Link>
+        </section>
       ) : (
         /*
           Nothing has been searched for, or the record could not be read. Not

@@ -61,8 +61,8 @@
     on decoration would make the one affordance that matters stop standing out.
   */
   --charcoal: #001619;
-  --thin-air: #C7F8FE;
-  --fluorescent: #50E8F4;
+  --thin-air: #c7f8fe;
+  --fluorescent: #50e8f4;
 
   --background: var(--charcoal);
   /* Lifted off the ground just enough to read as a raised surface, still the
@@ -80,7 +80,7 @@
   --success: oklch(0.85 0.18 165);
   --warning: oklch(0.88 0.16 95);
   --whatsapp: oklch(0.72 0.17 152);
-  --destructive: oklch(0.68 0.20 20);
+  --destructive: oklch(0.68 0.2 20);
 }
 
 html.light {
@@ -96,11 +96,11 @@ html.light {
     colour carries against charcoal — the same colour, doing the same job.
   */
   --charcoal: #001619;
-  --thin-air: #C7F8FE;
-  --fluorescent: #50E8F4;
+  --thin-air: #c7f8fe;
+  --fluorescent: #50e8f4;
 
-  --background: #FFFFFF;
-  --surface: color-mix(in oklab, var(--thin-air) 45%, #FFFFFF);
+  --background: #ffffff;
+  --surface: color-mix(in oklab, var(--thin-air) 45%, #ffffff);
   --foreground: var(--charcoal);
   --text-s: color-mix(in oklab, var(--charcoal) 68%, var(--thin-air));
   --border: color-mix(in oklab, var(--thin-air) 85%, var(--charcoal));
@@ -108,13 +108,16 @@ html.light {
 
   --success: oklch(0.55 0.16 165);
   --warning: oklch(0.62 0.16 75);
-  --whatsapp: oklch(0.60 0.17 152);
-  --destructive: oklch(0.55 0.20 20);
+  --whatsapp: oklch(0.6 0.17 152);
+  --destructive: oklch(0.55 0.2 20);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html, body {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -123,10 +126,15 @@ html.light {
 }
 
 @layer utilities {
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-border); border-radius: 9999px;
+    background: var(--color-border);
+    border-radius: 9999px;
   }
 
   .glass-panel {
@@ -146,9 +154,21 @@ html.light {
 
   .aurora-bg {
     background:
-      radial-gradient(60% 60% at 20% 30%, color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 60%),
-      radial-gradient(50% 50% at 80% 20%, color-mix(in oklab, oklch(0.75 0.18 152) 18%, transparent) 0%, transparent 60%),
-      radial-gradient(60% 60% at 60% 90%, color-mix(in oklab, oklch(0.6 0.2 280) 18%, transparent) 0%, transparent 60%);
+      radial-gradient(
+        60% 60% at 20% 30%,
+        color-mix(in oklab, var(--accent) 22%, transparent) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        50% 50% at 80% 20%,
+        color-mix(in oklab, oklch(0.75 0.18 152) 18%, transparent) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        60% 60% at 60% 90%,
+        color-mix(in oklab, oklch(0.6 0.2 280) 18%, transparent) 0%,
+        transparent 60%
+      );
   }
 
   .text-gradient {
@@ -161,7 +181,11 @@ html.light {
   .grid-fade {
     background-image:
       linear-gradient(color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px);
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--border) 60%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 48px 48px;
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   }
@@ -235,24 +259,53 @@ html.light {
 }
 
 @keyframes brand-draw {
-  to { stroke-dashoffset: 0; }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 @keyframes brand-seed {
-  0%   { transform: scale(0);   opacity: 0; }
-  60%  { transform: scale(1.4); opacity: 1; }
-  100% { transform: scale(1);   opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 @keyframes brand-shimmer {
-  0%, 100% { stroke-opacity: 1; }
-  50%      { stroke-opacity: 0.75; }
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.75;
+  }
 }
 @keyframes brand-halo {
-  0%, 100% { opacity: 0.15; transform: scale(0.94); }
-  50%      { opacity: 0.55; transform: scale(1.06); }
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.06);
+  }
 }
 @keyframes brand-caption {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -261,11 +314,19 @@ html.light {
     stroke-dashoffset: 0;
     animation: none;
   }
-  .brand-loader-seed { animation: none; transform: scale(1); }
-  .brand-loader-halo { animation: none; opacity: 0.3; }
-  .brand-loader-caption { animation: none; opacity: 1; }
+  .brand-loader-seed {
+    animation: none;
+    transform: scale(1);
+  }
+  .brand-loader-halo {
+    animation: none;
+    opacity: 0.3;
+  }
+  .brand-loader-caption {
+    animation: none;
+    opacity: 1;
+  }
 }
-
 
 /* ============================================================
    Reduced motion, globally.
