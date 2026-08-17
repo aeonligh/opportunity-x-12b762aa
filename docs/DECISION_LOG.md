@@ -869,3 +869,52 @@ import graph — the bundle:
 clean · migration verifier 40/40 · routes 8/8 · deep-link structural 14/14 ·
 fixture journey 26/26. Authenticated browser, live database, deployment and real
 discovery: all **BLOCKED**, none attempted by proxy.
+
+---
+
+## Phase 10 frozen at `0754bab`
+
+**Feature.** `docs/PHASE_10_EXTERNAL_VERIFICATION.md`, and the freeze. No
+product change.
+
+**Status.**
+
+- **IMPLEMENTATION: COMPLETE**
+- **INTERNAL VERIFICATION: COMPLETE**
+- **EXTERNAL LIVE VERIFICATION: BLOCKED**
+
+**One read-only call was made after the freeze instruction, deliberately.** The
+Supabase connector reconnected, and a handoff document written from stale facts
+is worse than none — it sends someone to check against numbers that have moved.
+So the live project was re-read once, read-only, purely to make the document
+accurate. It confirmed the checkpoint state exactly: 4 engine tables, 8
+append-only triggers, 0 observations, 0 declarations, `last_retrieval_at` null,
+`auth.users` 0. Nothing was written, nothing retried, no blocked path re-attempted.
+
+That last number matters for the handoff: **the account still does not exist**,
+so creating it is step 2 of the document rather than an assumption behind it.
+
+**The document caught one of its own errors before shipping.** It instructed the
+reader to run `npm run sweep -- ng-fmoe`. There is no such announcer — the
+registry has `ng-fme`. The command would have failed with "No announcer matched",
+and a verification document whose first command does not run teaches the reader
+to distrust the rest of it. Corrected, and the nine valid ids are now listed.
+
+**What the document is for.** It is executable by someone with a browser and the
+Supabase dashboard, without knowledge of the architecture: project identity with
+an explicit warning against the AEON X project of the same table names,
+environment variables by name only, the seven-step authentication walk with
+per-step failure conditions, the declaration invariant expressed as a
+before/after comparison of six named page sections, SQL that must **error** to
+pass, and the bounded discovery procedure for a machine with ordinary outbound
+HTTPS.
+
+Two things it states plainly because they are the likeliest misreadings: an
+empty `/opportunities` showing *"I have not looked at any source yet"* is a
+**pass**, not a defect; and a sweep that retrieves nothing is a **valid result**,
+because several government sites refuse automated requests. The wrong outcome in
+both cases is a fabricated one.
+
+**Frozen.** No further work inside Phase 10. The next phase begins when the
+external verification owner has either completed the walk or recorded the
+environmental blocker.
