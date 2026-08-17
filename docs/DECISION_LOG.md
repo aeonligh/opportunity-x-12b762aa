@@ -6,6 +6,90 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-17 — Phase 13: retire the legacy product, keep one
+
+**Decision.** System A — the constitutional engine of Phases 4-11 — is
+Opportunity X. The pre-migration system is retired, not kept as a second product.
+
+**Purpose.** Phase 12 found two incompatible systems sharing a build, a router
+and a Supabase project. A person's experience of Opportunity X depended on which
+route they entered through, and the route most navigation pointed at rendered a
+composite match score that CR-21 forbids in those words.
+
+**What was removed.** 5,403 lines across 30 files: 13 routes, 8 components, 7
+services, plus the score surfaces on the landing page and the globe. Nothing was
+removed on appearance — the trace came first, and it is why the cut was clean:
+the canonical engine imported nothing from System B.
+
+**Three findings the retirement produced.**
+
+1. `src/server.ts` called the deadline-reminder job at module scope on startup
+   and then hourly on a `setInterval`, reading every user's saved opportunities
+   and emailing them. It was the third door onto that job and the one Phase 12
+   missed, because it needs no request — and on a serverless target every cold
+   start is a server start.
+2. The landing page and the globe carried **invented** match percentages: "94%"
+   beside Mastercard Foundation Scholars Program by name, and `matchScore` on 33
+   globe nodes rendered as "% Match" on hover with an "Avg match" per country.
+   The type comment read `// 0-100 illustrative`; on screen it was a fabricated
+   claim about real organisations, on the most public page the product has.
+3. `judgeAll` held a local named `scored`. No number was computed — the sort
+   applies three separate criteria in sequence, which is exactly the structure
+   CR-21 requires — but a variable named for a judgment this engine does not make
+   is how that judgment eventually gets written. Renamed `ordered`.
+
+**Declarations.** `opportunity_pursuits` is authoritative and
+`src/lib/pursuit.functions.ts` is the sole writer. There were three writers
+before: the legacy `saved_opportunities` writes, and a dead duplicate pair in
+`opportunities.server.ts` that nothing called.
+
+`saved_opportunities` was **not** migrated. Its `opportunity_id` references the
+legacy opportunity table; `opportunity_pursuits.entity_id` references an entity
+resolved from observations. There is no correspondence between those identifiers,
+so a migration would have to invent one — producing declarations nobody made, in
+an append-only store. It is archived instead, and the honest consequence is
+recorded: interest expressed in the legacy product is not visible in the
+canonical one.
+
+**Preparation (CR-09).** `generateSOP`, `optimizeCV` and `checkEligibility` were
+traced, their authority identified, and **none was rebuilt**. Each takes a legacy
+opportunity row as its subject; rebuilding on the canonical model means operating
+on an entity resolved from observations, and there are zero observations. A
+preparation surface built now would have nothing to prepare against. What a
+rebuild requires is recorded rather than half-built.
+
+**Database.** Nothing dropped. One metadata-only migration
+(`20260817190000_mark_legacy_tables_retired.sql`) annotates each legacy table as
+retired and flags the four that may hold real user content for export before any
+destructive migration. Row counts are unknown from this environment, which is
+exactly why nothing was dropped.
+
+**Files.** New: `docs/PHASE_13_CONSOLIDATION.md`, `test/consolidation.test.ts`,
+the annotation migration. Removed: 30 files (listed in the report B). Modified:
+`src/server.ts`, `src/lib/opportunities.server.ts`,
+`src/lib/opportunity/judgment/service.ts`, `src/routes/index.tsx`,
+`src/components/landing/OpportunityGlobe.tsx`.
+
+**Risks.** Phase 12's `cron-authorization.ts` was removed with the endpoints it
+guarded — strictly stronger, since an endpoint that does not exist cannot be
+authorized incorrectly, but the pattern must be reused when a canonical scheduled
+job appears. The Constitution's `user_roles`/`has_role` machinery survives in the
+database with no application caller.
+
+**Testing.** 11 new tests, 251 total, 0 failing. Nine mutations introduced one at
+a time and each observed to fail. Two assertions were vacuous on the first pass:
+`\b(score|scoring)\b` caught neither `fitScore` (camelCase places no word
+boundary before "score") nor `scored` (needs one after) — widening it to
+`\w*scor\w*` is what surfaced the misleading name in `judgeAll`. The built
+artifact was inspected, not only the source.
+
+**Future work.** CR-24, CR-25, CR-09 preparation and CR-08 reminders remain
+unimplemented with their authority recorded. `opportunity_deliveries` still has no
+writer. `types.ts` is stale and needs database access to regenerate. Legacy data
+is unexported.
+
+---
+
 ## 2026-08-17 — Phase 12: the completeness audit, and the scheduled jobs
 
 **Feature.** An audit, and one fix: a shared-secret boundary on the two

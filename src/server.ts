@@ -37,24 +37,28 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
-// Start periodic deadline intelligence scan (every hour) when the server starts
-if (typeof process !== "undefined" && process.env.NODE_ENV !== "test") {
-  import("./lib/deadline-intelligence.server")
-    .then((m) => {
-      // Run once on startup
-      void m.runDeadlineIntelligenceCheck();
-      // Schedule hourly runs
-      setInterval(
-        () => {
-          void m.runDeadlineIntelligenceCheck();
-        },
-        60 * 60 * 1000,
-      );
-    })
-    .catch((err) => {
-      console.error("[Server Startup] Failed to load deadline intelligence:", err);
-    });
-}
+/*
+  ══════════════════════════════════════════════════════════════════════════
+  WHAT USED TO BE HERE, AND WHY IT IS NOT
+  ══════════════════════════════════════════════════════════════════════════
+
+  A module-scope block that called `runDeadlineIntelligenceCheck()` on startup
+  and then every hour, on a `setInterval`. It read every user's saved
+  opportunities out of the legacy `saved_opportunities` table and sent them
+  email.
+
+  It was the third door onto that job, and the one Phase 12 did not find: the
+  two HTTP hooks were given a shared secret, and this needed no request at all.
+  On a serverless target every cold start is a server start, so the schedule was
+  neither hourly nor bounded — it was "once per instance, plus hourly for as long
+  as that instance survives", which is a fan-out nobody chose.
+
+  Retired with the rest of the legacy system in Phase 13. Reminders have real
+  constitutional authority — CR-08 makes lateness a product failure — and a
+  canonical implementation must read `opportunity_pursuits`, not the legacy
+  store, and must be invoked by something that can be authorized. See
+  `docs/PHASE_13_CONSOLIDATION.md` §D.
+*/
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {

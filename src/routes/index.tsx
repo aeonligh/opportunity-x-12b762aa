@@ -54,13 +54,22 @@ const PLACEHOLDERS = [
   "AI research grants for undergrads",
 ];
 
+/*
+  What the engine actually does, named as it names itself.
+
+  "Ranking" and "Matching" stood at the end of this list. Both describe an opaque
+  judgment being formed, which is the thing CR-21 keeps separable and CR-33 keeps
+  inspectable — and neither is a step this engine performs as a black box. It
+  observes, it corroborates, and it explains; ordering is a consequence of that,
+  not a stage that happens to you.
+*/
 const AI_STEPS = [
   "Searching",
   "Discovering",
   "Reading",
   "Verifying",
-  "Ranking",
-  "Matching",
+  "Corroborating",
+  "Explaining",
 ] as const;
 
 function Landing() {
@@ -103,7 +112,7 @@ function Nav() {
               Verification
             </a>
             <a href="#personalization" className="hover:text-foreground transition">
-              Match
+              Fit
             </a>
             <a href="#execution" className="hover:text-foreground transition">
               Execution
@@ -111,11 +120,17 @@ function Nav() {
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            {/*
+              The canonical product. This said "Live Search" and pointed at
+              `/search`, which was the legacy system's entrance — so the landing
+              page's own navigation led away from Opportunity X. Signed out, this
+              lands on `/auth?next=%2Fopportunities` and comes back here.
+            */}
             <Link
-              to="/search"
+              to="/opportunities"
               className="hidden sm:inline-flex px-3 py-1.5 rounded-xl text-xs font-semibold text-text-s border border-border hover:text-foreground hover:border-accent/40 transition"
             >
-              Live Search
+              Opportunities
             </Link>
             <Link
               to="/auth"
@@ -274,10 +289,10 @@ function Hero() {
               <Rocket size={16} /> Start discovering
             </Link>
             <Link
-              to="/search"
+              to="/opportunities"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl glass-panel font-semibold hover:border-accent/40 transition"
             >
-              <Search size={16} /> Try live search
+              <Search size={16} /> See opportunities
             </Link>
           </div>
 
@@ -579,11 +594,21 @@ function SectionPersonalization() {
               </h3>
               <div className="text-xs text-text-s mt-1">University of Toronto · Canada</div>
             </div>
+            {/*
+              A "94% Match" ring stood here, beside a named real programme.
+
+              Two things wrong with it, either of which is disqualifying. CR-21
+              forbids collapsing the mechanisms into a single opaque score, and a
+              percentage is the composite number that rule names. And the number
+              was invented — a fabricated claim about a real opportunity, on the
+              product's most public surface.
+
+              What replaces it is what the product actually produces: the reasons,
+              which are already listed below. They were always the evidence; the
+              number was a summary that had nothing behind it.
+            */}
             <div className="text-right shrink-0">
-              <div className="text-3xl font-black text-gradient leading-none">94%</div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mt-1">
-                Match
-              </div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-text-s">Why</div>
             </div>
           </div>
           <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mt-4 mb-2">
@@ -754,10 +779,10 @@ function SectionTransformation() {
             <Rocket size={16} /> Start discovering
           </Link>
           <Link
-            to="/search"
+            to="/opportunities"
             className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass-panel font-semibold hover:border-accent/40 transition"
           >
-            <Sparkles size={16} /> Try live search
+            <Sparkles size={16} /> See opportunities
           </Link>
         </motion.div>
       </div>

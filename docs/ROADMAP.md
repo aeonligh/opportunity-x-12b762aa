@@ -203,6 +203,28 @@ Full report: `docs/PHASE_12_COMPLETENESS_AUDIT.md`.
 
 ---
 
+## Phase 13 — Unify / retire the legacy judgment system ✅ complete
+
+One product now exists. 5,403 lines across 30 files retired: the legacy routes,
+components and services, plus the invented match percentages on the landing page
+and the globe.
+
+`opportunity_pursuits` is the sole declaration store with a single writer.
+`saved_opportunities` is archived rather than migrated — its identifiers have no
+correspondence to the canonical entity model, and inventing one would produce
+declarations nobody made.
+
+Ten legacy paths now 404; the built artifact carries no legacy route, table or
+component. CR-21 holds. CR-09, CR-24 and CR-25 remain unimplemented with their
+authority recorded rather than manufactured.
+
+Nothing was dropped from the database. One metadata-only migration annotates the
+legacy tables as retired and flags those that may hold real user content.
+
+Full report: `docs/PHASE_13_CONSOLIDATION.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What

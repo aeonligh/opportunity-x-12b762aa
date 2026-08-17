@@ -29,9 +29,28 @@ export interface OpportunityNode {
   lat: number;
   lng: number;
   kind: OpportunityKind;
-  matchScore: number; // 0-100 illustrative
   verified: boolean;
 }
+
+/*
+  ══════════════════════════════════════════════════════════════════════════
+  THE FIELD THAT WAS HERE
+  ══════════════════════════════════════════════════════════════════════════
+
+  `matchScore: number; // 0-100 illustrative`, carried by all 34 nodes, rendered
+  as "94% Match" on hover and averaged into an "Avg match" figure per country.
+
+  "Illustrative" was doing a great deal of work in that comment. On screen it was
+  a percentage attached to DAAD, Chevening and Mastercard Foundation by name, on
+  the product's most public page, with nothing behind it — and CR-21 forbids
+  collapsing the mechanisms into a single opaque score even when the score is
+  real. An invented one is worse: it is a fabricated claim about a real
+  organisation.
+
+  What remains is what the globe legitimately shows: where opportunities are
+  announced, by whom, of what kind, and whether this system has verified them.
+  Those are facts about the world with a source. A percentage was not.
+*/
 
 const flag = (cc: string) =>
   cc.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
@@ -47,7 +66,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 50.7374,
     lng: 7.0982,
     kind: "Scholarship",
-    matchScore: 94,
     verified: true,
   },
   {
@@ -60,7 +78,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 51.5074,
     lng: -0.1278,
     kind: "Scholarship",
-    matchScore: 91,
     verified: true,
   },
   {
@@ -73,7 +90,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 38.9072,
     lng: -77.0369,
     kind: "Scholarship",
-    matchScore: 88,
     verified: true,
   },
   {
@@ -86,7 +102,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 35.6762,
     lng: 139.6503,
     kind: "Scholarship",
-    matchScore: 86,
     verified: true,
   },
   {
@@ -99,7 +114,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 50.8503,
     lng: 4.3517,
     kind: "Program",
-    matchScore: 90,
     verified: true,
   },
   {
@@ -112,7 +126,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 51.752,
     lng: -1.2577,
     kind: "Scholarship",
-    matchScore: 89,
     verified: true,
   },
   {
@@ -125,7 +138,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 51.5074,
     lng: -0.1278,
     kind: "Scholarship",
-    matchScore: 87,
     verified: true,
   },
   {
@@ -138,7 +150,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 43.6532,
     lng: -79.3832,
     kind: "Scholarship",
-    matchScore: 93,
     verified: true,
   },
   {
@@ -151,7 +162,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -35.2809,
     lng: 149.13,
     kind: "Scholarship",
-    matchScore: 84,
     verified: true,
   },
   {
@@ -164,7 +174,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 46.9481,
     lng: 7.4474,
     kind: "Scholarship",
-    matchScore: 82,
     verified: true,
   },
   {
@@ -177,7 +186,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 48.8566,
     lng: 2.3522,
     kind: "Scholarship",
-    matchScore: 85,
     verified: true,
   },
   {
@@ -190,7 +198,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 36.3729,
     lng: 127.3607,
     kind: "Research",
-    matchScore: 80,
     verified: true,
   },
   {
@@ -203,7 +210,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 52.0705,
     lng: 4.3007,
     kind: "Scholarship",
-    matchScore: 81,
     verified: true,
   },
   {
@@ -216,7 +222,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 39.9042,
     lng: 116.4074,
     kind: "Scholarship",
-    matchScore: 78,
     verified: true,
   },
   {
@@ -229,7 +234,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 49.2827,
     lng: -123.1207,
     kind: "Internship",
-    matchScore: 88,
     verified: true,
   },
   {
@@ -242,7 +246,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 9.03,
     lng: 38.74,
     kind: "Fellowship",
-    matchScore: 83,
     verified: true,
   },
   {
@@ -255,7 +258,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 45.6495,
     lng: 13.7768,
     kind: "Research",
-    matchScore: 79,
     verified: true,
   },
   {
@@ -268,7 +270,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -1.2921,
     lng: 36.8219,
     kind: "Scholarship",
-    matchScore: 84,
     verified: true,
   },
   {
@@ -281,7 +282,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -26.2041,
     lng: 28.0473,
     kind: "Scholarship",
-    matchScore: 76,
     verified: true,
   },
   {
@@ -294,7 +294,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 1.3521,
     lng: 103.8198,
     kind: "Research",
-    matchScore: 82,
     verified: true,
   },
   {
@@ -307,7 +306,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 19.076,
     lng: 72.8777,
     kind: "Research",
-    matchScore: 77,
     verified: true,
   },
   {
@@ -320,7 +318,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -23.5505,
     lng: -46.6333,
     kind: "Scholarship",
-    matchScore: 74,
     verified: true,
   },
   {
@@ -333,7 +330,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 19.4326,
     lng: -99.1332,
     kind: "Scholarship",
-    matchScore: 73,
     verified: true,
   },
   {
@@ -346,7 +342,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 37.4419,
     lng: -122.143,
     kind: "Internship",
-    matchScore: 92,
     verified: true,
   },
   {
@@ -359,7 +354,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 48.1351,
     lng: 11.582,
     kind: "Research",
-    matchScore: 90,
     verified: true,
   },
   {
@@ -372,7 +366,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 52.0022,
     lng: 4.3736,
     kind: "Research",
-    matchScore: 83,
     verified: true,
   },
   {
@@ -385,7 +378,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 47.3769,
     lng: 8.5417,
     kind: "Scholarship",
-    matchScore: 91,
     verified: true,
   },
   {
@@ -398,7 +390,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 22.3092,
     lng: 39.1043,
     kind: "Scholarship",
-    matchScore: 85,
     verified: true,
   },
   {
@@ -411,7 +402,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 24.4539,
     lng: 54.3773,
     kind: "Scholarship",
-    matchScore: 86,
     verified: true,
   },
   {
@@ -424,7 +414,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 24.4667,
     lng: 54.6,
     kind: "Research",
-    matchScore: 88,
     verified: true,
   },
   {
@@ -437,7 +426,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 48.8499,
     lng: 2.306,
     kind: "Fellowship",
-    matchScore: 82,
     verified: true,
   },
   {
@@ -450,7 +438,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 46.2044,
     lng: 6.1432,
     kind: "Internship",
-    matchScore: 84,
     verified: true,
   },
   {
@@ -463,7 +450,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 50.7374,
     lng: 7.0982,
     kind: "Fellowship",
-    matchScore: 89,
     verified: true,
   },
 ];
@@ -530,7 +516,7 @@ export interface CountryIntel {
   total: number;
   byKind: Partial<Record<OpportunityKind, number>>;
   organizations: string[];
-  avgMatch: number;
+  verified: number;
   nodes: OpportunityNode[];
 }
 
@@ -540,14 +526,13 @@ function aggregate(country: string): CountryIntel | null {
   const byKind: Partial<Record<OpportunityKind, number>> = {};
   for (const n of nodes) byKind[n.kind] = (byKind[n.kind] ?? 0) + 1;
   const orgs = Array.from(new Set(nodes.map((n) => n.organization))).slice(0, 6);
-  const avg = Math.round(nodes.reduce((a, n) => a + n.matchScore, 0) / nodes.length);
   return {
     country,
     countryCode: nodes[0].countryCode,
     total: nodes.length,
     byKind,
     organizations: orgs,
-    avgMatch: avg,
+    verified: nodes.filter((n) => n.verified).length,
     nodes,
   };
 }
@@ -798,7 +783,7 @@ export default function OpportunityGlobe({ query = "", onCountrySelect }: Opport
               </span>
             )}
             <span className="px-1.5 py-0.5 rounded bg-surface font-mono font-semibold">
-              {hovered.matchScore}% Match
+              {hovered.kind}
             </span>
           </div>
         </div>
@@ -853,9 +838,13 @@ export default function OpportunityGlobe({ query = "", onCountrySelect }: Opport
             ))}
           </ul>
 
+          {/* A count, not a score. It says how many of these this system has
+              actually verified — a fact with a source behind it. */}
           <div className="flex items-center justify-between pt-2 border-t border-border">
-            <span className="text-[10px] text-text-s">Avg match</span>
-            <span className="text-xs font-black text-gradient">{intel.avgMatch}%</span>
+            <span className="text-[10px] text-text-s">Verified</span>
+            <span className="text-xs font-black text-gradient">
+              {intel.verified} of {intel.total}
+            </span>
           </div>
         </div>
       )}

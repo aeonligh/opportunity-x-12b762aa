@@ -389,7 +389,15 @@ export function judge(input: JudgeInput): PairingJudgments {
  * is judged cannot explain why it was not shown.
  */
 export function judgeAll(inputs: readonly Omit<JudgeInput, "ranking">[]): PairingJudgments[] {
-  const scored = inputs.map((input) => {
+  /*
+    `ordered`, not `scored`. Nothing here computes a number: the sort below is
+    three separate criteria applied in sequence — verified, then open, then
+    deadline — which is exactly the structure CR-21 requires, since a composite
+    score is what it forbids. The old name described the shape of a judgment this
+    engine does not make, and a misleading name is how the thing it describes
+    eventually gets written.
+  */
+  const ordered = inputs.map((input) => {
     const resolution = resolveVerification(input.verification, input.now);
     const openState = deriveOpenState(input.entity, input.now);
     return {
@@ -400,9 +408,9 @@ export function judgeAll(inputs: readonly Omit<JudgeInput, "ranking">[]): Pairin
     };
   });
 
-  scored.sort((a, b) => a.verified - b.verified || a.open - b.open || a.deadline - b.deadline);
+  ordered.sort((a, b) => a.verified - b.verified || a.open - b.open || a.deadline - b.deadline);
 
-  return scored.map((s, index) =>
-    judge({ ...s.input, ranking: { position: index + 1, outOf: scored.length } }),
+  return ordered.map((s, index) =>
+    judge({ ...s.input, ranking: { position: index + 1, outOf: ordered.length } }),
   );
 }

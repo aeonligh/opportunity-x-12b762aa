@@ -78,51 +78,26 @@ export const fixtureOpportunities = createServerFn({ method: "GET" })
     return scenarios.map((s) => ({ id: s.id, label: s.label, card: s.card }));
   });
 
-/**
- * Saying you care about something, or that you do not.
- *
- * Refuses rather than pretends. Nothing reports success unless the write
- * actually happened — telling someone their answer was kept when it was not is
- * worse than telling them it could not be.
- */
-export const saveOpportunity = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) =>
-    z.object({ id: z.string(), state: z.enum(["interested", "not-interested"]) }).parse(i),
-  )
-  .handler(async ({ context, data }) => {
-    const { userId, supabase } = context as Ctx;
-    const { pursuitLogFor } = await import("@/lib/opportunity/pursuit/provider");
-    const { declaration } = await import("@/lib/opportunity/pursuit/types");
+/*
+  ══════════════════════════════════════════════════════════════════════════
+  WHY THERE IS NO WRITE IN THIS MODULE
+  ══════════════════════════════════════════════════════════════════════════
 
-    const log = pursuitLogFor(supabase);
-    if (log === null) {
-      return {
-        saved: false as const,
-        because: "There is nowhere durable to keep this yet, so I won’t pretend to remember it.",
-      };
-    }
-    await log.declare(
-      declaration({
-        personId: userId,
-        entityId: data.id,
-        state: data.state,
-        declaredAt: new Date().toISOString(),
-      }),
-    );
-    return { saved: true as const };
-  });
+  There used to be: `saveOpportunity` and `unsaveOpportunity`, a complete second
+  pair of declaration functions writing to `opportunity_pursuits` through the
+  same `pursuitLogFor` that `declarePursuit` and `withdrawPursuit` use.
 
-/** Taking it back. The person owns what they said about their own life. */
-export const unsaveOpportunity = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
-  .handler(async ({ context, data }) => {
-    const { userId, supabase } = context as Ctx;
-    const { pursuitLogFor } = await import("@/lib/opportunity/pursuit/provider");
-    const log = pursuitLogFor(supabase);
-    if (log === null)
-      return { saved: false as const, because: "Nothing durable to remove it from." };
-    await log.withdraw(userId, data.id);
-    return { saved: true as const };
-  });
+  Nothing called them. `grep -rln "\bsaveOpportunity\b" src/ test/` returned only
+  this file — so the product had **three** ways to record a declaration
+  (`pursuit.functions.ts`, here, and the legacy `saved_opportunities` writes in
+  the old card) and used exactly one.
+
+  Two of the three are now gone. A duplicate write path that nothing calls is
+  not harmless: it is the one a future change picks by accident, and it returns a
+  differently-shaped answer (`{ saved }` rather than `{ recorded }`), so the
+  surface that picked it would silently lose the read-back contract Phase 11
+  established.
+
+  **Declarations are written in exactly one place: `src/lib/pursuit.functions.ts`.**
+  This module reads.
+*/
