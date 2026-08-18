@@ -153,7 +153,7 @@ function observe(url: string, body: string, at: string): SourceObservation {
  * attributed to entities, and deleting it would make that day's work start from
  * a blank page.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 function observeUnreachable(url: string, at: string, status: number): SourceObservation {
   const { sourceId, label, sourceClass } = classify(url);
   return witness(

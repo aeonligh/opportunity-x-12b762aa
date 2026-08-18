@@ -1,3 +1,4 @@
+import { useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { fixtureOpportunities } from "@/lib/opportunities.server";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
@@ -75,6 +76,13 @@ function Pending() {
 
 function Failed() {
   const router = useRouter();
+  /*
+    Retry with a pending state. `SurfaceError` accepted `retrying` from the day
+    it was written and no call site ever passed it, so pressing Try again did
+    nothing visible while the loader re-ran.
+  */
+  const [retrying, startRetry] = useTransition();
+  const retry = () => startRetry(() => void router.invalidate());
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6">
@@ -83,7 +91,8 @@ function Failed() {
         what="I couldn’t load the examples."
         stillTrue="These are fixtures, so nothing about the real record is affected either way — there is simply nothing to look at here for the moment."
         whatYouCanDo="Try again."
-        onRetry={() => void router.invalidate()}
+        onRetry={retry}
+        retrying={retrying}
       />
     </div>
   );

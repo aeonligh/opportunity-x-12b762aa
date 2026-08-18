@@ -82,6 +82,19 @@ function Lab() {
         >
           What a write looks like
         </Link>
+        {/*
+          And the one state that only exists in the seam between the two: a
+          re-read that fails over content that is still valid. It cannot be
+          staged with props — the defect was that the router discards the
+          previous data before the error boundary mounts — so it has to be
+          provoked by arming a real loader to throw.
+        */}
+        <Link
+          to="/lab/refresh"
+          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          A refresh that fails
+        </Link>
       </nav>
 
       {cared.length > 0 ? (

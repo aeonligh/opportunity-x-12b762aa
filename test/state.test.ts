@@ -493,7 +493,14 @@ test("the gate acts on the classification rather than on truthiness", async () =
     false,
     "the gate is back to collapsing a failed check into a signed-out answer",
   );
-  assert.match(text_, /classifySessionCheck/);
+  /*
+    The gate must go through the classifier, whatever the classifier is currently
+    called. This named `classifySessionCheck` until Phase 17 put a deadline in
+    front of it — the check now runs inside `verifySession`, which classifies the
+    answer *and* bounds how long it will wait for one. Either is acceptable here;
+    a gate that inspects `error` and `user` itself is not.
+  */
+  assert.match(text_, /verifySession\(|classifySessionCheck\(/);
   assert.match(text_, /check\.outcome === "unverifiable"/);
   assert.match(text_, /check\.outcome === "signed-out"/);
 

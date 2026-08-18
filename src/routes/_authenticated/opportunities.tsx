@@ -1,3 +1,4 @@
+import { useEffect, useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { listOpportunities } from "@/lib/opportunities.server";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
@@ -6,6 +7,8 @@ import { AbsentState } from "@/components/ui/absence/AbsentState";
 import { OpportunityListSkeleton } from "@/components/opportunity/OpportunityCardSkeleton";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
 import { Refreshing } from "@/components/ui/state/Refreshing";
+import { RefreshFailed } from "@/components/ui/state/RefreshFailed";
+import { lastGood, rememberLastGood } from "@/lib/last-good";
 
 /**
  * Opportunities — the home of Opportunity X.
@@ -90,8 +93,40 @@ function Pending() {
   );
 }
 
+/** Exactly what the loader returns, so preserved and live content share a type. */
+type LoaderData = Awaited<ReturnType<typeof listOpportunities>>;
+
+const LAST_GOOD_KEY = "opportunities";
+
 function Failed() {
   const router = useRouter();
+  const [retrying, startRetry] = useTransition();
+  const kept = lastGood<LoaderData>(LAST_GOOD_KEY);
+  const retry = () => startRetry(() => void router.invalidate());
+
+  /*
+    A failed re-read must not destroy what was already true. With something
+    previously shown, this is a caveat on good information; with nothing shown,
+    the first read failed and the full treatment is correct.
+
+    Measured, not assumed: `/lab/refresh` showed that a loader throwing during
+    `invalidate()` reaches this boundary with the previous data already
+    discarded, so the surface has to remember for itself. See `lib/last-good.ts`.
+  */
+  if (kept) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6">
+        <Masthead />
+        <RefreshFailed
+          what="I couldn’t check for new opportunities."
+          at={kept.at}
+          onRetry={retry}
+          retrying={retrying}
+        />
+        <Opportunities data={kept.data} />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6">
@@ -104,7 +139,8 @@ function Failed() {
         */
         stillTrue="This is a failure to look, not a finding. Opportunities I have already observed are still there — I just can’t reach them from here at the moment."
         whatYouCanDo="Trying again usually works. If it doesn’t, the record is genuinely unreachable and nothing you do here will change that."
-        onRetry={() => void router.invalidate()}
+        onRetry={retry}
+        retrying={retrying}
       />
       <Link
         to="/opportunities/examples"
@@ -116,17 +152,33 @@ function Failed() {
   );
 }
 
-function Opportunities() {
-  const { result, canKeepDeclarations, whyNot } = Route.useLoaderData();
+function Opportunities({ data }: { data?: LoaderData }) {
+  const live = Route.useLoaderData();
+  /*
+    `data` is supplied only by the refresh-failure branch, which renders this
+    body over preserved content. The live path passes nothing and reads the
+    loader as before — one body, so preserved content cannot drift from current
+    content by being rendered somewhere else.
+  */
+  const { result, canKeepDeclarations, whyNot } = data ?? live;
+
+  /* Only what actually reached a person is remembered. */
+  useEffect(() => {
+    if (!data) rememberLastGood(LAST_GOOD_KEY, live);
+  }, [data, live]);
 
   const all = result.state === "cards" ? result.cards : [];
   const cared = all.filter((c) => c.stance.declaration === "interested");
   const rest = all.filter((c) => c.stance.declaration !== "interested");
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6">
-      <Masthead />
-      <Refreshing what="for new opportunities" />
+    <div
+      className={
+        data ? "flex flex-col gap-10" : "mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6"
+      }
+    >
+      {data ? null : <Masthead />}
+      {data ? null : <Refreshing what="for new opportunities" />}
 
       {result.state === "cards" ? (
         <>

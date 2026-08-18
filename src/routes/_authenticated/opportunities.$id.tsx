@@ -1,3 +1,4 @@
+import { useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { getOpportunity } from "@/lib/opportunities.server";
 import { OpportunityInspection } from "@/components/opportunity/OpportunityInspection";
@@ -55,6 +56,13 @@ function Pending() {
 
 function Failed() {
   const router = useRouter();
+  /*
+    Retry with a pending state. `SurfaceError` accepted `retrying` from the day
+    it was written and no call site ever passed it, so pressing Try again did
+    nothing visible while the loader re-ran.
+  */
+  const [retrying, startRetry] = useTransition();
+  const retry = () => startRetry(() => void router.invalidate());
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
@@ -69,7 +77,8 @@ function Failed() {
         */
         stillTrue="That doesn’t mean it isn’t there, and it isn’t a judgement about the opportunity. Nothing I had already established about it has changed — I just can’t assemble the page right now."
         whatYouCanDo="Try again, or go back to the list and come at it from there."
-        onRetry={() => void router.invalidate()}
+        onRetry={retry}
+        retrying={retrying}
       />
     </div>
   );

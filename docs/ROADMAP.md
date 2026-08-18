@@ -12,21 +12,21 @@ and have not been re-measured since.
 
 ## Quality Gate Status — PASSING in this environment
 
-Re-measured 2026-08-17. The July assessment (4 TypeScript errors, ~28,540 lint
-errors, no tests) is superseded.
+Re-measured 2026-08-18 at the close of Phase 17. The July assessment (4
+TypeScript errors, ~28,540 lint errors, no tests) is superseded.
 
 | Gate            | Status                   | Detail                                                                                             |
 | --------------- | ------------------------ | -------------------------------------------------------------------------------------------------- |
 | TypeScript      | ✅ **0 errors**          | `bunx tsc --noEmit -p .`                                                                           |
-| ESLint          | ✅ **0 errors**          | 9 warnings remain, all pre-existing `react-refresh/only-export-components` in `src/components/ui/` |
+| ESLint          | ✅ **0 errors**          | 8 warnings remain, all pre-existing `react-refresh/only-export-components` in `src/components/ui/` |
 | Build           | ✅ passes                | `bun run build` → Vercel Build Output v3 via Nitro                                                 |
 | Dev server      | ✅ passes                | serves on :5173                                                                                    |
-| Tests           | ✅ **240 pass / 0 fail** | `npm test` — Node test runner, no framework dependency                                             |
-| Console errors  | ✅ none                  | Chromium walk of `/lab/*` and the signed-out gate                                                  |
+| Tests           | ✅ **299 pass / 0 fail** | `bun run test` — Node test runner, no framework dependency                                         |
+| Console errors  | ⚠️ one, pre-existing     | `bun run verify:states` clean; a hydration mismatch fires on the protected-route redirect (P17 §R) |
 | Light/dark mode | ✅ both verified         | driven through the real `ThemeProvider`, not `prefers-color-scheme`                                |
-| Responsive      | ✅ 375 / 768 / 1280      | no horizontal overflow at any width                                                                |
-| Accessibility   | ⚠️ partial               | keyboard reachability and live-region roles verified on the state surfaces; no full audit          |
-| Performance     | ⚠️ unverified            | no measurement taken                                                                               |
+| Responsive      | ✅ 375 / 390 / 768 / 1280 | no horizontal overflow at any width, both themes — `bun run verify:states`                        |
+| Accessibility   | ⚠️ partial               | tab reach, focus indicators, live-region roles and reduced motion scripted; no full audit          |
+| Performance     | ✅ measured              | 1 server fn/route, no duplicates, no N+1; client bundle +0.68% over Phase 17 (P17 §Q)             |
 
 **The gates are no longer what blocks phase closure.** What blocks it is live
 verification — see Phase 10 below.
@@ -269,6 +269,43 @@ Full report: `docs/PHASE_16_FIRST_CONTACT.md`.
 
 ---
 
+## Phase 17 — The state system ✅ complete
+
+Every state the product can be in, audited, then the collapses closed.
+
+Two defects dominated, and neither was visible in source. A **failed refresh
+destroyed valid content** — the router discards the previous data before the
+error boundary mounts, so a re-read that failed took a working page down with
+it. And an **unverifiable session spun for 57.3 seconds** before saying so; the
+classification underneath was already right, it just arrived a minute late,
+while a spinner asserted "progressing" the whole time.
+
+Both are the governing rule inverted: *a UI state must never claim more
+knowledge than the underlying system currently possesses.*
+
+Fixed: content preservation across a failed refresh (`lib/last-good.ts`, which is
+deliberately not a cache); an 8s bound on the session check that resolves to the
+*existing* `unverifiable` outcome rather than a new state; and seven retry
+controls that had no pending state, three of them entirely — two in production.
+
+The retry fix is closed as a **class**, not a list: the test sweeps
+`src/**/*.tsx` for any event handler reaching `router.invalidate()` without a
+transition, because the first version named four routes and a browser walk then
+found three more it had never looked at.
+
+**Process change:** browser verification is now `bun run verify:states`, a
+committed script of 47 checks across 375/390/768/1280 × light/dark. Previous
+phases drove a browser once and wrote down what happened, which ages into an
+assumption.
+
+One finding reported and **not** fixed: a hydration mismatch on the
+protected-route redirect. Pre-existing, diagnosed precisely, and architectural —
+recommended as the first item of Phase 18.
+
+Full report: `docs/PHASE_17_STATE_SYSTEM.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What
@@ -281,5 +318,7 @@ remains is external.
    A sweep that retrieves nothing is a valid result; a fabricated one is not.
 3. **Promote a build to production**, then repeat sections 3 and 4 against it.
    READY build ≠ deployed ≠ authenticated and working ≠ real discovery.
-4. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
-5. **Phase 8/9** last — they assume the platform below them is solid.
+4. **Fix the hydration mismatch on the protected-route redirect** (Phase 17 §R)
+   before any new feature — it is the only known console error in the product.
+5. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
+6. **Phase 8/9** last — they assume the platform below them is solid.

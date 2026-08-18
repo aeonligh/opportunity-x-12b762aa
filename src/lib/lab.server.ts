@@ -123,6 +123,42 @@ export const labSavedFault = createServerFn({ method: "GET" })
     return savedUnder(fault);
   });
 
+/*
+  ── The refresh probe ─────────────────────────────────────────────────────
+
+  Two functions supporting `/lab/refresh`, which exists to answer one question a
+  browser has to answer rather than a reader: when a re-read fails while valid
+  content is already on screen, does the content survive?
+
+  Held in module state and armed explicitly. There is no flag in production code
+  and no branch anywhere outside this module; both functions run
+  `assertDevelopment()` first, as everything here does.
+*/
+let refreshReadings = 0;
+let refreshFailsNext = false;
+
+export const labRefreshProbe = createServerFn({ method: "GET" }).handler(async () => {
+  assertDevelopment();
+
+  if (refreshFailsNext) {
+    /* One-shot: disarm so the next read recovers, which is the other half of
+       what needs observing. */
+    refreshFailsNext = false;
+    throw new Error("The laboratory's refresh probe was armed to fail this read.");
+  }
+
+  refreshReadings += 1;
+  return { readings: refreshReadings, at: new Date().toISOString() };
+});
+
+export const labRefreshShouldFail = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => z.object({ fail: z.boolean() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    refreshFailsNext = data.fail;
+    return { armed: data.fail };
+  });
+
 /** Every specimen, as cards, plus whatever has been declared in this session. */
 export const labSurface = createServerFn({ method: "GET" }).handler(async () => {
   assertDevelopment();

@@ -1,8 +1,9 @@
+import { useTransition } from "react";
 import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLoader } from "@/components/BrandLoader";
 import {
-  classifySessionCheck,
+  verifySession,
   SessionUnverifiable,
   isSessionUnverifiable,
 } from "@/lib/session-verification";
@@ -15,24 +16,19 @@ export const Route = createFileRoute("/_authenticated")({
   pendingComponent: () => <BrandLoader label="Verifying your session" />,
   beforeLoad: async ({ location }) => {
     /*
-      Two questions, kept apart. `classifySessionCheck` decides *what happened*;
-      this decides what to do about it. The version before this one asked only
+      Two questions, kept apart. `verifySession` decides *what happened* — and
+      bounds how long it will wait before deciding, because a dead auth host
+      took 57 seconds to reject and the spinner asserted progress for all of
+      them; this decides what to do about it. The version before it asked only
       `if (error || !data.user)` and redirected, which meant a network failure
       was reported to the person as "you are signed out" — an assertion about
       their account that the system had no evidence for. See
       `src/lib/session-verification.ts`.
     */
-    let raised: unknown = null;
-    let user: unknown = null;
-    try {
+    const check = await verifySession(async () => {
       const { data, error } = await supabase.auth.getUser();
-      raised = error;
-      user = data.user;
-    } catch (thrown) {
-      raised = thrown;
-    }
-
-    const check = classifySessionCheck(raised, user);
+      return { user: data.user, error };
+    });
 
     if (check.outcome === "unverifiable") {
       /*
@@ -60,7 +56,8 @@ export const Route = createFileRoute("/_authenticated")({
       throw redirect({ to: "/auth", search: { next: location.href } });
     }
 
-    return { user: user as NonNullable<typeof user> };
+    /* Narrowed by the two throws above: only `signed-in` reaches here. */
+    return { user: check.user };
   },
   errorComponent: SessionBoundary,
   component: () => <Outlet />,
@@ -77,6 +74,13 @@ export const Route = createFileRoute("/_authenticated")({
  */
 function SessionBoundary({ error }: { error: Error }) {
   const router = useRouter();
+  /*
+    A pending state, because this is the retry most likely to be pressed twice.
+    The check that failed here is a network call to the auth service; re-running
+    it can take seconds, and with no visible change the person presses again —
+    which is how one unverifiable session becomes three concurrent checks.
+  */
+  const [retrying, startRetry] = useTransition();
 
   if (!isSessionUnverifiable(error)) throw error;
 
@@ -102,10 +106,12 @@ function SessionBoundary({ error }: { error: Error }) {
         <div className="mt-1 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => void router.invalidate()}
-            className="rounded-full border border-border px-6 py-3 text-xs font-bold uppercase tracking-widest text-text-s transition-colors duration-[120ms] hover:border-accent hover:text-accent"
+            onClick={() => startRetry(() => void router.invalidate())}
+            disabled={retrying}
+            aria-busy={retrying}
+            className="rounded-full border border-border px-6 py-3 text-xs font-bold uppercase tracking-widest text-text-s transition-colors duration-[120ms] hover:border-accent hover:text-accent disabled:opacity-50"
           >
-            Check again
+            {retrying ? "Checking…" : "Check again"}
           </button>
           <a
             href="/"

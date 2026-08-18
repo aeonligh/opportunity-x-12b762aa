@@ -1405,3 +1405,110 @@ both cases is a fabricated one.
 **Frozen.** No further work inside Phase 10. The next phase begins when the
 external verification owner has either completed the walk or recorded the
 environmental blocker.
+
+---
+
+## Phase 17 — The state system
+
+**Feature.** Audit every state the product can be in, close the collapses, and
+make the verification repeatable.
+
+**Purpose.** One rule: *a UI state must never claim more knowledge than the
+underlying system currently possesses.* Eight specific collapses were forbidden;
+this phase found three of them live.
+
+**Files changed.**
+
+- New: `src/lib/last-good.ts`, `src/components/ui/state/RefreshFailed.tsx`,
+  `src/routes/lab.refresh.tsx`, `test/refresh-preservation.test.ts`,
+  `scripts/state-walk.mjs`, `docs/PHASE_17_STATE_SYSTEM.md`
+- Changed: `src/lib/session-verification.ts`, `src/routes/__root.tsx`,
+  `src/routes/_authenticated/{route,opportunities,saved,opportunities.$id,opportunities.examples}.tsx`,
+  `src/routes/lab.index.tsx`, `src/lib/lab.server.ts`, `test/state.test.ts`,
+  `package.json`
+
+**Dependencies.** `playwright-core` added as a devDependency. ARB: the
+vendor lock-in rule does not fire — it owns none of the build, auth, data or AI
+layers, the build does not depend on it, and it exists solely to make browser
+verification repeatable rather than anecdotal.
+
+### The two findings
+
+**A failed refresh destroyed valid content.** The router has no notion of "the
+last answer that worked". A loader either resolves or throws, and a throw during
+`invalidate()` reaches `errorComponent` with the previous data already
+discarded — the component holding it unmounts as the boundary mounts, so state,
+refs and context beneath it are gone precisely when wanted. Measured on
+`/lab/refresh`: `AFTER-FAIL reading present : GONE`.
+
+`lib/last-good.ts` is the answer, and it is **not a cache**. Nothing reads from
+it to satisfy a request; it is consulted only after a read has already failed,
+and only to answer "what were we showing?". A cache without an explicit freshness
+model makes evidence go stale while looking current, which this product forbids —
+so it carries `at`, and renderers are obliged to show it. A test asserts it has
+grown no `ttl`/`maxAge`/`expires`/`revalidate` and that no route consults it
+outside a failure branch.
+
+**An unverifiable session took 57.3 seconds to say so.** The classification was
+already correct: `signed-out` and `unverifiable` are held apart, and the gate
+refuses entry on the second rather than redirecting, because a redirect to
+`/auth` *is* the claim "you are signed out". What was wrong was the clock.
+
+The bound is not a performance tweak. A spinner asserts *this is progressing*,
+and after a few seconds against a dead host nothing supports that — the loading
+state becomes the lie. `SESSION_CHECK_DEADLINE_MS` (8s) is the point past which
+that assertion is no longer honest, and it resolves to the **existing**
+`unverifiable` outcome with its own `because`. No new state, no new component:
+the deadline only makes an already-correct answer reachable in human time.
+Re-measured: 8.7s, URL unchanged, worded as "not a sign that you've been signed
+out".
+
+### The retry model, closed as a class
+
+`SurfaceError` accepted a `retrying` prop from the day it was written and **no
+call site ever passed it**. Seven controls were brought to standard; three had
+no pending state at all, two of those in production (`__root` "Try again",
+`SessionBoundary` "Check again").
+
+The test sweeps `src/**/*.tsx` rather than naming routes. The first version
+named four and a browser walk immediately found three more — naming call sites
+closes instances, scanning closes the class. A deliberately added new route
+reintroducing the pattern is caught.
+
+**Risks.** One devDependency. `SESSION_CHECK_DEADLINE_MS` is a judgement call: at
+8s a genuinely slow but working auth round trip would be reported as
+unverifiable. That is the safe direction to be wrong in — the person is told the
+truth ("I couldn't confirm in time") and offered a retry, rather than being told
+something false about their account.
+
+**Testing.** 299 pass / 0 fail. Ten new behavioural tests; thirteen mutations,
+all caught.
+
+Two corrections recorded in the report and worth repeating here. One of my own
+assertions was **vacuous** — `age-dropped-from-preserved` escaped, because the
+test checked the label "Last read" rather than the timestamp, and a
+preserved-content notice reading "Last read" and nothing else is exactly the
+silent staleness the component exists to prevent. And my mutation harness was
+wrong too: it counted `# fail` only, and reported a hang that cancelled three
+tests as an escape.
+
+I also introduced three defects during the phase and fixed them: `useTransition`
+used without an import in `__root.tsx` (invisible to the build, which does not
+typecheck, and to the tests, which read source text — it would have been a
+runtime `ReferenceError` in the root error boundary); a dangling `user`
+reference in the gate, fixed properly by making `SessionCheck`'s `signed-in`
+carry the user; and an existing test that named `classifySessionCheck` directly,
+reconciled to its original intent and re-verified by mutation.
+
+**Future work.** A hydration mismatch fires on `/opportunities` and `/saved`
+when the gate redirects to `/auth`: the client-side redirect during hydration
+replaces a subtree the server rendered under `ssr: false`. It does not occur on
+the `unverifiable` branch, which stays in the same subtree — that isolation is
+what confirms the diagnosis. React recovers and the page is correct, but it is
+the only known console error in the product. Not fixed here: changing how the
+gate redirects is architectural, and Phase 17 was told not to redesign.
+Recommended as the first item of Phase 18.
+
+The degraded partition remains unreachable (`entity/group.ts:145`) and CR-24 /
+CR-25 remain unimplemented — both unchanged by this phase, both still recorded
+rather than manufactured.

@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useTransition, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "sonner";
@@ -38,6 +38,14 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  /*
+    Retry, with evidence that it is happening. Without the transition, pressing
+    Try again on a slow or repeatedly-failing read looks identical to pressing
+    nothing: the button does not change, the page does not change, and the only
+    honest reading available to the person is that the control is broken. A
+    retry that cannot be seen to be retrying is the infinite spinner inverted.
+  */
+  const [retrying, startRetry] = useTransition();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -50,13 +58,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={() =>
+              startRetry(() => {
+                void router.invalidate();
+                reset();
+              })
+            }
+            disabled={retrying}
+            aria-busy={retrying}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            Try again
+            {retrying ? "Trying…" : "Try again"}
           </button>
           <a
             href="/"

@@ -1,3 +1,4 @@
+import { useEffect, useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { listSaved } from "@/lib/opportunities.server";
 import { EmptyState } from "@/components/ui/absence/EmptyState";
@@ -6,6 +7,8 @@ import { FreshnessStamp } from "@/components/ui/FreshnessStamp";
 import { Skeleton } from "@/components/ui/state/Skeleton";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
 import { Refreshing } from "@/components/ui/state/Refreshing";
+import { RefreshFailed } from "@/components/ui/state/RefreshFailed";
+import { lastGood, rememberLastGood } from "@/lib/last-good";
 
 /**
  * Saved — what you told Opportunity X you care about.
@@ -73,8 +76,32 @@ function Pending() {
   );
 }
 
+/** Exactly what the loader returns, so preserved and live content share a type. */
+type LoaderData = Awaited<ReturnType<typeof listSaved>>;
+
+const LAST_GOOD_KEY = "saved";
+
 function Failed() {
   const router = useRouter();
+  const [retrying, startRetry] = useTransition();
+  const kept = lastGood<LoaderData>(LAST_GOOD_KEY);
+  const retry = () => startRetry(() => void router.invalidate());
+
+  /* Preserved content beats an error page. See `lib/last-good.ts`. */
+  if (kept) {
+    return (
+      <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
+        <Masthead />
+        <RefreshFailed
+          what="I couldn’t check your saved list for changes."
+          at={kept.at}
+          onRetry={retry}
+          retrying={retrying}
+        />
+        <Saved data={kept.data} />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
@@ -89,19 +116,30 @@ function Failed() {
         */
         stillTrue="Nothing has been lost. Everything you’ve told me is still recorded — this is a failure to read it, not an empty list."
         whatYouCanDo="Try again. Your positions are kept in the database, not in this page."
-        onRetry={() => void router.invalidate()}
+        onRetry={retry}
+        retrying={retrying}
       />
     </div>
   );
 }
 
-function Saved() {
-  const saved = Route.useLoaderData();
+function Saved({ data }: { data?: LoaderData }) {
+  const live = Route.useLoaderData();
+  /* Supplied only by the refresh-failure branch; one body for both paths. */
+  const saved = data ?? live;
+
+  useEffect(() => {
+    if (!data) rememberLastGood(LAST_GOOD_KEY, live);
+  }, [data, live]);
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
-      <Masthead />
-      <Refreshing what="what you’ve saved" />
+    <div
+      className={
+        data ? "flex flex-col gap-8" : "mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6"
+      }
+    >
+      {data ? null : <Masthead />}
+      {data ? null : <Refreshing what="what you’ve saved" />}
 
       {saved?.state === "unknown" ? <UnknownState gap={saved.gap} /> : null}
 

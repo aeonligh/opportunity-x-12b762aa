@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "test": "node --conditions=react-server --import ./test/register.mjs --test \"test/**/*.test.ts\"",
     "sweep": "node --experimental-strip-types --import ./scripts/register-alias.mjs scripts/sweep.ts",
-    "verify:migrations": "bash scripts/verify-migrations.sh"
+    "verify:migrations": "bash scripts/verify-migrations.sh",
+    "verify:states": "node scripts/state-walk.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
@@ -88,6 +89,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
+    "playwright-core": "^1.62.1",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
