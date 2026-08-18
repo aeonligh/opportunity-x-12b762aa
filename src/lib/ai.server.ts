@@ -23,12 +23,55 @@ type ChatMessage = { role: string; content: string };
  */
 export type ModelJson = Record<string, unknown>;
 
-export async function callClaude(messages: ChatMessage[], jsonMode?: true): Promise<ModelJson>;
-export async function callClaude(messages: ChatMessage[], jsonMode: false): Promise<string>;
+/**
+ * What came back, and whether it can be believed.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * WHY THIS IS NOT JUST THE PARSED VALUE
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * It was, and three unlike things all returned `{}`:
+ *
+ *   - a safety classifier declining the request (`stop_reason: "refusal"`)
+ *   - a response whose text is not parseable as JSON
+ *   - a response carrying no text block at all
+ *
+ * An empty object is indistinguishable from "the model answered, and found
+ * nothing". That is the same collapse this product refuses everywhere else —
+ * an inability to read presented as an absence — sitting in the one module the
+ * whole AI layer is supposed to go through.
+ *
+ * It has never fired, because nothing calls this yet. That is the reason to fix
+ * it now rather than later: the first caller would inherit the collapse
+ * silently, and `if (Object.keys(result).length === 0)` would become the
+ * product's way of asking "did the model find anything?".
+ *
+ * Refusal is deliberately not an exception. It is an answer — the system asked,
+ * and was told no — and a caller may reasonably carry on without that answer.
+ * A network failure or a bad key still throws, because those are failures to
+ * ask at all.
+ */
+export type ModelAnswer<T> =
+  /** The model answered, and the answer was readable. */
+  | { outcome: "answered"; value: T }
+  /** A safety classifier declined. Nothing was learned; nothing failed. */
+  | { outcome: "refused" }
+  /** Something came back and could not be read. The raw text is kept so the
+   *  caller can say what it saw rather than guess. */
+  | { outcome: "unreadable"; raw: string };
+
+export async function callClaude(
+  messages: ChatMessage[],
+  jsonMode?: true,
+): Promise<ModelAnswer<ModelJson>>;
+export async function callClaude(
+  messages: ChatMessage[],
+  jsonMode: false,
+): Promise<ModelAnswer<string>>;
 export async function callClaude(
   messages: ChatMessage[],
   jsonMode = true,
-): Promise<ModelJson | string> {
+): Promise<ModelAnswer<ModelJson> | ModelAnswer<string>> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
 
@@ -60,17 +103,35 @@ export async function callClaude(
   }
 
   const payload = await res.json();
-  // Safety classifiers can decline a request with a 200 + stop_reason: "refusal".
-  if (payload.stop_reason === "refusal") return jsonMode ? {} : "";
+  /* Safety classifiers can decline with a 200 + stop_reason: "refusal". */
+  if (payload.stop_reason === "refusal") return { outcome: "refused" };
 
   const textBlock = (payload.content ?? []).find((b: { type: string }) => b.type === "text");
-  const content: string = textBlock?.text ?? "";
-  if (!jsonMode) return content;
+  /*
+    No text block is not an empty answer. It means the response carried
+    something this code does not understand, and saying so is the only honest
+    option available.
+  */
+  if (typeof textBlock?.text !== "string") {
+    return { outcome: "unreadable", raw: JSON.stringify(payload.content ?? null).slice(0, 500) };
+  }
+
+  const content: string = textBlock.text;
+  if (!jsonMode) return { outcome: "answered", value: content };
 
   try {
     const match = content.match(/\{[\s\S]*\}/);
-    return JSON.parse(match ? match[0] : content);
+    const parsed: unknown = JSON.parse(match ? match[0] : content);
+    /*
+      `JSON.parse("7")` succeeds and is not an object. A caller reading
+      properties off it gets `undefined` for everything, which reads as "the
+      model answered and every field was absent".
+    */
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return { outcome: "unreadable", raw: content.slice(0, 500) };
+    }
+    return { outcome: "answered", value: parsed as ModelJson };
   } catch {
-    return {};
+    return { outcome: "unreadable", raw: content.slice(0, 500) };
   }
 }

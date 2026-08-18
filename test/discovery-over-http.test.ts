@@ -382,18 +382,24 @@ test("a page with no structured data yields an observation, not an invention", a
   assert.ok(bare, "no observation for the unstructured page");
   assert.equal(bare.outcome, "retrieved");
 
-  if (bare.outcome === "retrieved") {
-    const claimed = bare.unreadable ? [] : Object.keys(bare.statements ?? {});
-    /* Whatever it did or did not read, it must not have invented a deadline. */
-    const deadline = (bare.statements as Record<string, unknown> | undefined)?.deadline;
-    if (deadline !== undefined) {
-      assert.ok(
-        JSON.stringify(deadline).includes("2026"),
-        `a deadline was produced that the page does not support: ${JSON.stringify(deadline)}`,
-      );
-    }
-    void claimed;
-  }
+  /*
+    The outer branch is asserted rather than tested. If the retrieval stopped
+    succeeding, everything inside would silently stop running while the test
+    kept passing.
+  */
+  assert.equal(bare.outcome, "retrieved", "the bare page was not retrieved, so nothing below ran");
+  const claimed = bare.unreadable ? [] : Object.keys(bare.statements ?? {});
+  /*
+    Whatever it did or did not read, it must not have invented a deadline. No
+    deadline at all is a pass — the page states none — so the assertion is
+    written to cover both outcomes rather than skipping one of them.
+  */
+  const deadline = (bare.statements as Record<string, unknown> | undefined)?.deadline;
+  assert.ok(
+    deadline === undefined || JSON.stringify(deadline).includes("2026"),
+    `a deadline was produced that the page does not support: ${JSON.stringify(deadline)}`,
+  );
+  void claimed;
 });
 
 test("the same opportunity at two urls produces two observations and one entity", async () => {
@@ -457,13 +463,19 @@ test("a missing deadline stays missing", async () => {
   });
 
   const workshop = resolved.find((e) => agreedValue(e, "title")?.includes("Research Methods"));
-  if (workshop) {
-    assert.equal(
-      agreedValue(workshop, "deadline"),
-      null,
-      "a deadline was produced for a page that states none",
-    );
-  }
+  /*
+    Asserted, not assumed. This was `if (workshop) { ... }`, which passes having
+    checked nothing the day grouping stops producing this entity — and the thing
+    it is checking is that no deadline was invented for a page that states none.
+    A test that quietly stops running is worse than one that never existed,
+    because the suite still counts it.
+  */
+  assert.ok(workshop, "the workshop entity was not resolved, so nothing was checked");
+  assert.equal(
+    agreedValue(workshop, "deadline"),
+    null,
+    "a deadline was produced for a page that states none",
+  );
 });
 
 /* ══════════════════════════════════════════════════════════════════════════

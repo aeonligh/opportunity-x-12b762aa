@@ -192,6 +192,63 @@ export class SessionUnverifiable extends Error {
 }
 
 /**
+ * Thrown by the gate when there is no session and the person must sign in.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * WHY THIS IS NOT `throw redirect({ to: "/auth" })`
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * It was, and it produced a hydration mismatch on every signed-out arrival at a
+ * protected route. Traced, not guessed:
+ *
+ *   server  → renders `/opportunities`, which is `ssr: false`, so it emits the
+ *             gate's pending shell inside a Suspense boundary
+ *   client  → `beforeLoad` resolves at ~450ms, throws a redirect, and the
+ *             *router* swaps the entire match set to `/auth`
+ *   React   → still hydrating, finds `<AuthPage>`'s div where the server wrote
+ *             `<Suspense>`, and regenerates the tree
+ *
+ * The reason the `unverifiable` branch never did this is structural, not
+ * timing. For an `ssr: false` match the framework wraps the match in
+ * `<ClientOnly fallback={pendingComponent}>`, whose first client render is
+ * always the fallback — so the hydration render is identical to the server's,
+ * and anything the match decides afterwards is an ordinary post-hydration
+ * update. `SessionUnverifiable` is caught by the route's own error boundary and
+ * therefore stays inside that guarantee. A router-level redirect leaves it
+ * entirely: there is no longer a match to be client-only about.
+ *
+ * So the fix is to keep the signed-out decision *inside the match*, next to the
+ * other two outcomes, and let it navigate once mounted. Nothing about the auth
+ * contract moves: the protected surface still never renders, the destination is
+ * still `/auth`, and `next` is still carried and still re-validated there.
+ *
+ * Client-side navigation never had this problem — hydration is long finished by
+ * then — and it does not acquire one, because a navigation issued from an
+ * effect is what the router would have done anyway.
+ */
+export class SessionAbsent extends Error {
+  /** Where they were trying to go, to be carried through sign-in. */
+  readonly next: string;
+
+  constructor(next: string) {
+    super("There is no signed-in session.");
+    this.name = "SessionAbsent";
+    this.next = next;
+  }
+}
+
+/** Recognise one across a serialisation boundary. See `isSessionUnverifiable`. */
+export function isSessionAbsent(error: unknown): error is SessionAbsent {
+  return (
+    error instanceof SessionAbsent ||
+    (typeof error === "object" &&
+      error !== null &&
+      (error as { name?: string }).name === "SessionAbsent" &&
+      typeof (error as { next?: unknown }).next === "string")
+  );
+}
+
+/**
  * Recognise one across a serialisation boundary.
  *
  * TanStack Start can carry an error from a server round-trip, and `instanceof`

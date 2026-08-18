@@ -1512,3 +1512,128 @@ Recommended as the first item of Phase 18.
 The degraded partition remains unreachable (`entity/group.ts:145`) and CR-24 /
 CR-25 remain unimplemented — both unchanged by this phase, both still recorded
 rather than manufactured.
+
+---
+
+## Phase 18 — Integration, runtime integrity & pre-production readiness
+
+**Feature.** Audit the whole application as one running product: does the truth
+survive when the states interact, and when the browser hydrates.
+
+**Purpose.** Phase 17 proved each state says only what it knows. This phase asks
+whether that holds across hydration, navigation, overlapping async work, and the
+boundary between what the source says and what the artifact contains.
+
+**Files changed.**
+
+- New: `src/lib/hydrated.ts`, `scripts/verify-artifact.sh`,
+  `test/runtime-integrity.test.ts`, `docs/PHASE_18_RUNTIME_INTEGRITY.md`
+- Removed: `src/lib/api/example.functions.ts`
+- Changed: `src/routes/_authenticated/route.tsx`, `src/routes/__root.tsx`,
+  `src/lib/session-verification.ts`, `src/lib/ai.server.ts`,
+  `scripts/state-walk.mjs`, `test/lab.test.ts`,
+  `test/discovery-over-http.test.ts`, `package.json`
+
+**Dependencies.** None added.
+
+### The hydration defect, traced
+
+A protected route is `ssr: false`, so the server emits the gate's pending shell
+on no evidence — the session lives in `localStorage` and the server cannot see
+it. `beforeLoad` resolved at 449ms (DOMContentLoaded was at 85ms), threw a
+redirect, and the *router* replaced the entire match set with `/auth`. React,
+still hydrating, found `<AuthPage>`'s div where the server had written
+`<Suspense>`.
+
+The finding that decided the fix is why the `unverifiable` branch never did this,
+and it is structural rather than a matter of timing: for an `ssr: false` match
+the framework wraps the match in `<ClientOnly fallback={pendingComponent}>`,
+whose first client render is always the fallback. Anything decided *inside* the
+match is therefore hydration-safe by construction. A router-level redirect leaves
+that guarantee entirely — there is no longer a match to be client-only about.
+
+`reloadDocument: !isHydrated()`: before hydration, ask the server for the page it
+should have rendered; after, the identical redirect is an ordinary client
+navigation. Measured at 873ms before (with the mismatch) against 880ms after —
+**+7ms**, because the round trip replaces React's own tree regeneration.
+
+**An alternative was built, measured and discarded.** Keeping the decision inside
+the match — a `SessionAbsent` marker caught by the route's boundary — removed the
+mismatch completely and cost no round trip, but React reports every error an
+error boundary catches, so an ordinary signed-out visit logged a console error.
+Trading a hydration warning for an error on the most common unauthenticated path
+is not a fix.
+
+### Two collapses closed
+
+`getGreeting` — template scaffold, `POST`, no middleware, no guard, echoing its
+input plus `config.nodeEnv`. Traced before removal: zero importers, tree-shaken
+out of the build. Never a live endpoint; a live possibility one import away, with
+nothing in the repository that would have said so.
+
+`ai.server.ts` returned `{}` for a safety refusal, an unparseable response, and a
+response with no text block — three unlike facts indistinguishable from "the
+model answered, and found nothing". Nothing calls `callClaude`, which is the
+reason to fix it rather than a reason not to: the first caller would inherit the
+collapse silently. Now `answered | refused | unreadable`; a failure to *ask*
+still throws.
+
+### Verification moved from source to artifact
+
+Every prior claim about a trust boundary in this repository was a claim about
+imports. Whether it survived bundling, tree-shaking and an `import.meta.env`
+define is a different question, and only the artifact answers it.
+`verify:artifact` greps the built output — 22 assertions, seven planted leaks all
+caught. The browser walk grew from 47 checks to 133.
+
+### My own tests, audited
+
+Two tests written in this phase **escaped their mutations** and were only caught
+because the mutations were run:
+
+- The safe-redirect set had a vacuous branch — deleting the embedded-scheme guard
+  broke nothing, because every scheme-bearing input already failed the
+  leading-slash check first. The inputs that reach that guard are schemes carried
+  *inside* an allowed prefix.
+- The fact-immutability test declared one entity, and a mutation forcing `timing`
+  to "open" for declared entities walked straight through it — that specimen's
+  deadline was already open. One sample cannot tell "the projection ignores the
+  declaration" from "this specimen happens to be immune". It now declares the
+  whole corpus.
+
+Four checks in the new browser walk were also defective — an always-true
+`say(true, …)`, a hardcoded counter value against server-side state shared
+between runs, a selector matching a nav link instead of a specimen, and a check
+assuming an empty saved list when the laboratory ships fixture declarations. Two
+silently-skippable assertions from an earlier phase were closed, and one
+assertion pinned to a single line of formatting was rewritten.
+
+**Risks.** The signed-out deep link now costs a document round trip. Measured at
++7ms against the defect it replaces, and it gives `/auth` a genuine
+server-rendered first paint, but it is a real extra request and worth
+re-measuring on production hardware.
+
+**Testing.** 323 pass / 0 fail. 133 browser checks. 44 migration assertions. 22
+artifact assertions. 24 mutations, all caught.
+
+**Future work.**
+
+**There is no sign-out anywhere in the product.** `grep -rni "sign out|logout"`
+over `src/` returns nothing: no control, no account menu, no authenticated app
+shell. The mechanism is correct — `__root` listens for `SIGNED_OUT`, invalidates
+the router, and the gate re-evaluates, so a session ending in another tab is
+honoured — but the affordance does not exist. Not added here: it requires
+designing an app shell, and this phase was told not to add product features.
+
+**No AI call ships.** `callClaude` is the sanctioned path per `CLAUDE.md` and has
+no callers; the built server artifact contains no request to `api.anthropic.com`.
+The engine is deterministic and evidence-based by design, so this may be correct
+for the current phase — but it should be a decision rather than an accident.
+
+Also unchanged and still recorded rather than manufactured: the degraded
+partition is unreachable (`entity/group.ts:145`), `opportunity_deliveries` has a
+table and triggers and an in-memory log but no writer, and CR-24 / CR-25 remain
+unimplemented. The laboratory's UI shell ships as 29.6 KB of code-split chunks
+that refuse server-side in production — recommended as a build-configuration item
+rather than changed here, because making route generation differ between dev and
+prod would put the checked-in `routeTree.gen.ts` in conflict with itself.

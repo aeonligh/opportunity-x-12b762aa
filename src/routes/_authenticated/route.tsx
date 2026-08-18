@@ -2,6 +2,7 @@ import { useTransition } from "react";
 import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLoader } from "@/components/BrandLoader";
+import { isHydrated } from "@/lib/hydrated";
 import {
   verifySession,
   SessionUnverifiable,
@@ -52,8 +53,26 @@ export const Route = createFileRoute("/_authenticated")({
         Only the path is carried, never an absolute URL: `/auth` re-checks it
         against its own allowlist before honouring it, and an open redirect on a
         sign-in page is how one account becomes somebody else's.
+
+        ── `reloadDocument` before hydration ─────────────────────────────
+
+        The server rendered this route's pending shell on no evidence — it
+        cannot see a session that lives in `localStorage`. If the client then
+        changes the route while React is still hydrating, React finds `/auth`'s
+        markup where the server wrote the gate's, and regenerates the tree.
+        Measured: DOMContentLoaded 85ms, redirect 449ms, mismatch every time.
+
+        So before hydration this asks the server for the page it should have
+        rendered, instead of patching one it rendered on a guess. Afterwards the
+        very same redirect is an ordinary client navigation and is clean — also
+        measured. See `lib/hydrated.ts` and `SessionAbsent`'s note for the full
+        trace and the alternatives that were rejected.
       */
-      throw redirect({ to: "/auth", search: { next: location.href } });
+      throw redirect({
+        to: "/auth",
+        search: { next: location.href },
+        reloadDocument: !isHydrated(),
+      });
     }
 
     /* Narrowed by the two throws above: only `signed-in` reaches here. */
@@ -74,6 +93,7 @@ export const Route = createFileRoute("/_authenticated")({
  */
 function SessionBoundary({ error }: { error: Error }) {
   const router = useRouter();
+
   /*
     A pending state, because this is the retry most likely to be pressed twice.
     The check that failed here is a network call to the auth service; re-running

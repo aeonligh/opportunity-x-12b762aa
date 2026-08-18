@@ -12,7 +12,7 @@ and have not been re-measured since.
 
 ## Quality Gate Status — PASSING in this environment
 
-Re-measured 2026-08-18 at the close of Phase 17. The July assessment (4
+Re-measured 2026-08-18 at the close of Phase 18. The July assessment (4
 TypeScript errors, ~28,540 lint errors, no tests) is superseded.
 
 | Gate            | Status                   | Detail                                                                                             |
@@ -21,12 +21,14 @@ TypeScript errors, ~28,540 lint errors, no tests) is superseded.
 | ESLint          | ✅ **0 errors**          | 8 warnings remain, all pre-existing `react-refresh/only-export-components` in `src/components/ui/` |
 | Build           | ✅ passes                | `bun run build` → Vercel Build Output v3 via Nitro                                                 |
 | Dev server      | ✅ passes                | serves on :5173                                                                                    |
-| Tests           | ✅ **299 pass / 0 fail** | `bun run test` — Node test runner, no framework dependency                                         |
-| Console errors  | ⚠️ one, pre-existing     | `bun run verify:states` clean; a hydration mismatch fires on the protected-route redirect (P17 §R) |
+| Tests           | ✅ **323 pass / 0 fail** | `bun run test` — Node test runner, no framework dependency                                         |
+| Console errors  | ✅ none of ours          | hydration mismatch fixed (P18 §A); one named `@react-three/fiber` deprecation remains (P18 §J)     |
 | Light/dark mode | ✅ both verified         | driven through the real `ThemeProvider`, not `prefers-color-scheme`                                |
-| Responsive      | ✅ 375 / 390 / 768 / 1280 | no horizontal overflow at any width, both themes — `bun run verify:states`                        |
-| Accessibility   | ⚠️ partial               | tab reach, focus indicators, live-region roles and reduced motion scripted; no full audit          |
-| Performance     | ✅ measured              | 1 server fn/route, no duplicates, no N+1; client bundle +0.68% over Phase 17 (P17 §Q)             |
+| Responsive      | ✅ 375 / 390 / 768 / 1280 | no overflow, both themes, laboratory **and** product surfaces — `bun run verify:states`           |
+| Accessibility   | ✅ scripted              | tab reach, focus, `aria-pressed`, `aria-busy`, live regions, forced colours, reduced motion        |
+| Performance     | ✅ measured              | 1 doc/route, no duplicates, no N+1, 0-call route transitions; bundle +118 B over Phase 17          |
+| Build artifact  | ✅ **22 / 22**           | `bun run verify:artifact` — greps the built output for credentials, fixtures and legacy            |
+| Browser walk    | ✅ **133 checks**        | `bun run verify:states` — states, compositions, hydration, a11y, and the full journey              |
 
 **The gates are no longer what blocks phase closure.** What blocks it is live
 verification — see Phase 10 below.
@@ -306,6 +308,53 @@ Full report: `docs/PHASE_17_STATE_SYSTEM.md`.
 
 ---
 
+## Phase 18 — Integration & runtime integrity ✅ complete
+
+Whether the truth survives when the states interact, and when the browser
+hydrates.
+
+**The hydration mismatch is fixed**, and the trace is the useful part. A
+protected route is `ssr: false`, so the server emits the gate's pending shell on
+no evidence — it cannot see a session that lives in `localStorage`. The client
+then resolved at 449ms, the *router* swapped the whole match set to `/auth`, and
+React found the wrong markup mid-hydration. The unverifiable branch never did
+this for a structural reason: an `ssr: false` match is wrapped in
+`ClientOnly`, whose first client render always equals the server's, so anything
+decided *inside* the match is safe — and a router-level redirect leaves that
+guarantee entirely. Repaired by asking the server for the page it should have
+rendered. Cost: **+7ms**, because it replaces React's own tree regeneration.
+
+An alternative was built, measured and discarded: keeping the decision inside the
+match removed the mismatch at no round-trip cost, but made an ordinary
+signed-out visit log a caught error. Recorded in the report.
+
+**Two runtime collapses closed.** An unprotected `POST` server function left over
+from the template — tree-shaken, so never live, but one import away with nothing
+to say so — removed. And three `failure → empty` collapses in the AI entry point,
+where a safety refusal, an unparseable answer and a missing text block all
+returned `{}`. Fixed before the first caller could inherit them; there are
+currently none.
+
+**Verification moved from source to artifact.** `bun run verify:artifact` greps
+the *built* output for credentials, fixture data and retired-platform residue —
+22 assertions — because every prior claim about a trust boundary was a claim
+about imports, and bundling is what decides. The browser walk grew from 47 checks
+to 133, adding hydration integrity, state composition, screen-reader semantics,
+forced colours, and the whole journey from arrive to withdraw.
+
+**Two of my own new tests escaped their mutations** and were strengthened; four
+defective checks in the new walk were repaired; two silently-skippable
+assertions from an earlier phase were closed. All recorded.
+
+**Reported and not fixed:** there is **no sign-out anywhere in the product**. The
+mechanism is correct and wired — `__root` honours a session ending elsewhere —
+but there is no control and no authenticated app shell to put one in. That needs
+product design, which this phase was told not to invent.
+
+Full report: `docs/PHASE_18_RUNTIME_INTEGRITY.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What
@@ -318,7 +367,9 @@ remains is external.
    A sweep that retrieves nothing is a valid result; a fabricated one is not.
 3. **Promote a build to production**, then repeat sections 3 and 4 against it.
    READY build ≠ deployed ≠ authenticated and working ≠ real discovery.
-4. **Fix the hydration mismatch on the protected-route redirect** (Phase 17 §R)
-   before any new feature — it is the only known console error in the product.
-5. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
-6. **Phase 8/9** last — they assume the platform below them is solid.
+4. **Add a way to sign out** (Phase 18 §D). It is the only product contract the
+   integration audit found missing, and it needs an authenticated app shell.
+5. **Decide whether the AI path is wired or removed** (Phase 18 §P). `callClaude`
+   is the sanctioned entry point and has no callers; no Anthropic request ships.
+6. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
+7. **Phase 8/9** last — they assume the platform below them is solid.

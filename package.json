@@ -13,7 +13,8 @@
     "test": "node --conditions=react-server --import ./test/register.mjs --test \"test/**/*.test.ts\"",
     "sweep": "node --experimental-strip-types --import ./scripts/register-alias.mjs scripts/sweep.ts",
     "verify:migrations": "bash scripts/verify-migrations.sh",
-    "verify:states": "node scripts/state-walk.mjs"
+    "verify:states": "node scripts/state-walk.mjs",
+    "verify:artifact": "bash scripts/verify-artifact.sh"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",

@@ -123,10 +123,19 @@ test("the product's own surfaces are still authenticated", () => {
     assert.ok(guarded.includes(surface), `${surface} left the authenticated tree`);
   }
 
-  /* And the gate itself still redirects rather than rendering. */
+  /*
+    And the gate itself still redirects rather than rendering.
+
+    Matched across whitespace deliberately. The first version of this pinned the
+    call to one line — `/throw redirect\(\{ to: "\/auth"/` — and broke in Phase 18
+    when the redirect grew a third argument and Prettier wrapped it. The
+    invariant had not changed at all; only its formatting had. An assertion that
+    fails on a reformat is testing the formatter, and the noise trains whoever
+    sees it to reach for the regex instead of the behaviour.
+  */
   const gate = readFileSync("src/routes/_authenticated/route.tsx", "utf8");
-  assert.match(gate, /throw redirect\(\{ to: "\/auth"/, "the gate no longer redirects");
-  assert.match(gate, /next: location\.href/, "the gate no longer carries the destination");
+  assert.match(gate, /throw redirect\(\{[\s\S]*?to:\s*"\/auth"/, "the gate no longer redirects");
+  assert.match(gate, /next:\s*location\.href/, "the gate no longer carries the destination");
 });
 
 test("a fixture surface always says it is a fixture", () => {

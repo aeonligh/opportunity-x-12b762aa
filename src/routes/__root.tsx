@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, useTransition, type ReactNode } from "react";
 
+import { markHydrated } from "@/lib/hydrated";
 import appCss from "../styles.css?url";
 import { Toaster } from "sonner";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
@@ -138,6 +139,13 @@ function ThemedToaster() {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  /*
+    The moment React has committed the initial client render. Read by exactly
+    one thing — the authenticated gate, deciding whether its redirect can be an
+    ordinary navigation. See `lib/hydrated.ts`.
+  */
+  useEffect(markHydrated, []);
 
   // Single global auth listener: filter to identity transitions so
   // TOKEN_REFRESHED / INITIAL_SESSION don't thrash the router or cache.
