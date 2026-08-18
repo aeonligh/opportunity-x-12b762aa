@@ -56,6 +56,8 @@ const INDEX = HTML(
      <li><a href="/no-deadline">Workshop</a></li>
      <li><a href="/mirror">Mirror of the scholarship</a></li>
      <li><a href="/moved">Redirects elsewhere</a></li>
+     <li><a href="/also-moved">Redirects to the same place</a></li>
+     <li><a href="/loop-a">Redirect loop</a></li>
      <li><a href="/broken">Server error</a></li>
      <li><a href="/forbidden">Disallowed by robots</a></li>
      <li><a href="https://elsewhere.example/off-site">Off site</a></li>
@@ -164,6 +166,13 @@ const PAGES: Record<
      advert appeared as `-FINAL` and `-corrected` with nothing linking them. */
   "/moved": { status: 302, body: null, location: "/scholarship" },
 
+  /* A second, different route onto /scholarship — CASE 4. */
+  "/also-moved": { status: 302, body: null, location: "/scholarship" },
+
+  /* A redirect that never resolves — CASE 6. */
+  "/loop-a": { status: 302, body: null, location: "/loop-b" },
+  "/loop-b": { status: 302, body: null, location: "/loop-a" },
+
   "/broken": { status: 500, body: null },
   "/forbidden": { status: 200, body: HTML("<h1>Should never be retrieved</h1>") },
 };
@@ -203,11 +212,6 @@ after(() => {
  * decoding, and `readRobots()` still fetches and parses `robots.txt` over the
  * same socket.
  */
-function localTransport(url: string, init: RequestInit): Promise<Response> {
-  const target = new URL(url);
-  return fetch(`${origin}${target.pathname}${target.search}`, init);
-}
-
 const ANNOUNCER = {
   id: "fixture-http",
   label: "Fixture Ministry of Education",
@@ -218,6 +222,28 @@ const ANNOUNCER = {
   knownPaths: ["/"],
   defaultSourceClass: "official" as const,
 };
+
+async function localTransport(url: string, init: RequestInit): Promise<Response> {
+  const target = new URL(url);
+  const response = await fetch(`${origin}${target.pathname}${target.search}`, init);
+
+  /*
+    Map the final URL back into the announcer's namespace.
+
+    Without this the harness lies in a way that matters: `response.url` would be
+    the localhost address, so `finalUrl !== requestedUrl` for *every* page and
+    each one would look like a redirect. `requestedUrl` is meant to be present
+    only when something actually redirected, and a harness that populates it
+    everywhere cannot test that.
+
+    `Response.url` is read-only, so it is redefined on the instance. Confined to
+    this file, and it restores rather than fakes: the path is genuinely what the
+    server served, and only the host is being put back.
+  */
+  const fixtureUrl = `https://${ANNOUNCER.domain}${new URL(response.url).pathname}`;
+  Object.defineProperty(response, "url", { value: fixtureUrl, configurable: true });
+  return response;
+}
 
 async function sweep() {
   const { runDiscovery } = await import("@/lib/opportunity/discovery/run");
@@ -277,25 +303,24 @@ test("a real sweep over a real socket retrieves and records", async () => {
   }
 });
 
-test("a redirect is recorded at its destination, and the request is not kept", async () => {
+test("a redirect records both the destination and the route taken", async () => {
   /*
-    Documents real behaviour rather than asserting a preference. `/moved` 302s to
-    `/scholarship`, and the observation is filed under `/scholarship` — honest,
-    because that is what served the bytes.
-
-    **The gap this exposes:** the requested URL is discarded. R-01 observed one
-    advert published at three addresses with `-FINAL` and `-corrected` revisions
-    and "nothing linking them to what they supersede", and a recorded
-    request→destination edge is exactly the evidence R-11's entity resolution
-    would want. Recorded in `docs/PHASE_16_FIRST_CONTACT.md` §C; not fixed here,
-    because inventing a schema field ahead of the first real redirect is the kind
-    of speculative work this phase is meant to avoid.
+    Both halves, which is the Phase 16A change. `/moved` 302s to `/scholarship`:
+    the bytes came from `/scholarship` and the observation says so, and the fact
+    that discovery arrived by asking for `/moved` is kept beside it rather than
+    discarded — R-01's `-FINAL` and `-corrected` revisions with "nothing linking
+    them to what they supersede", previously reproduced by the pipeline itself.
   */
   const { store } = await sweep();
-  const urls = (await store.readAll()).map((o) => new URL(o.url).pathname);
+  const all = await store.readAll();
+  const paths = all.map((o) => new URL(o.url).pathname);
 
-  assert.equal(urls.includes("/moved"), false, "the redirect source was recorded as a page");
-  assert.ok(urls.includes("/scholarship"), "the redirect destination was not retrieved");
+  assert.equal(paths.includes("/moved"), false, "the redirect source was filed as a page");
+  assert.ok(paths.includes("/scholarship"), "the redirect destination was not retrieved");
+
+  const viaMoved = all.find((o) => o.requestedUrl?.endsWith("/moved"));
+  assert.ok(viaMoved, "the route that reached the page was discarded");
+  assert.ok(viaMoved.url.endsWith("/scholarship"), "the route was attached to the wrong page");
 });
 
 test("robots.txt is obeyed against a live server", async () => {
@@ -372,19 +397,11 @@ test("a page with no structured data yields an observation, not an invention", a
 });
 
 test("the same opportunity at two urls produces two observations and one entity", async () => {
-  /*
-    CR-36: duplicate observations are not discarded — the fact that two
-    representations existed is itself evidence. CR-35: they describe one
-    opportunity, not two.
-  */
+  /* CR-36: duplicates are evidence. CR-35: they describe one opportunity. */
   const { store } = await sweep();
   const { groupObservations } = await import("@/lib/opportunity/entity/group");
 
   const all = await store.readAll();
-  const { groups } = groupObservations(all);
-
-  /* Both addresses are retained — the fact that two representations existed is
-     itself evidence (CR-36), and they resolve to one entity (CR-35). */
   assert.ok(
     all.some((o) => o.url.endsWith("/mirror")),
     "the mirror was not retained",
@@ -394,45 +411,27 @@ test("the same opportunity at two urls produces two observations and one entity"
     "the original was not retained",
   );
 
-  const merged = groups.filter((g) => g.members.length > 1);
+  const { groups } = groupObservations(all);
   assert.ok(
-    merged.length >= 1,
+    groups.some((g) => g.members.length > 1),
     "two urls carrying one declared identifier did not resolve to a single entity",
   );
 
   /*
-    ── The finding this test exists to pin ──────────────────────────────────
+    `/scholarship` is still observed three times in one sweep — directly, via
+    `/moved` and via `/also-moved`. Deliberate and unchanged: each was a real
+    request that really returned bytes, and CR-37 keeps every one.
 
-    `/scholarship` is observed **twice in one sweep**: once directly, and once
-    because `/moved` redirects onto it. The crawler's `visited` set is keyed on
-    the *requested* URL, so the two look like different pages; the fetcher then
-    records both under the same final URL, because that is where the bytes came
-    from.
-
-    Both halves are individually defensible and together they lose information.
-    The record ends up holding two observations with the same URL, the same
-    content and the same sweep, and **no way to tell why there are two** — the
-    requested URL that would have explained it was discarded.
-
-    That matters beyond tidiness. Corroboration is counted from observations,
-    and this product's whole trust argument is that "read from N sources" can be
-    checked. A page reached twice by two routes is one source, not two.
-
-    Asserted as current behaviour rather than fixed, per the phase's own rule
-    about not rewriting the engine ahead of real evidence. Both candidate fixes
-    — dedupe `visited` on the final URL after retrieval, or record the requested
-    URL alongside it — are recorded in `docs/PHASE_16_FIRST_CONTACT.md` §C.
+    What changed is that the record explains itself. Each redirected arrival
+    carries the route that produced it, so the projection can show one page
+    reached three ways rather than three pages.
   */
-  const scholarship = all.filter((o) => o.url.endsWith("/scholarship"));
+  const scholarship = all.filter((o) => new URL(o.url).pathname === "/scholarship");
+  assert.equal(scholarship.length, 3);
   assert.equal(
-    scholarship.length,
+    scholarship.filter((o) => o.requestedUrl !== undefined).length,
     2,
-    "the redirect duplicate has changed — re-read PHASE_16 §C before adjusting this",
-  );
-  assert.equal(
-    new Set(scholarship.map((o) => o.url)).size,
-    1,
-    "the duplicates no longer share a url, which would mean the requested url is now kept",
+    "the two redirected arrivals did not record their routes",
   );
 });
 
@@ -465,4 +464,266 @@ test("a missing deadline stays missing", async () => {
       "a deadline was produced for a page that states none",
     );
   }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   What a redirect duplicate actually does to the numbers a person is shown
+   ══════════════════════════════════════════════════════════════════════════ */
+
+test("a redirect duplicate does not inflate corroboration", async () => {
+  /*
+    ── Correcting Phase 16's own report ─────────────────────────────────────
+
+    `docs/PHASE_16_FIRST_CONTACT.md` §C.2 claimed the redirect duplicate
+    "inflates exactly the number the inspection surface asks people to trust."
+    That was wrong, and it was wrong because the claim was reasoned from the
+    observation count rather than measured.
+
+    `establishVerification` counts `new Set(retrieved.map(o => o.source.sourceId))`
+    — distinct **announcers**, resolved by `classify()` from the domain. Two paths
+    on one domain are one source; a page reached twice through a redirect is one
+    source. Corroboration was never exposed to this.
+
+    That is also the right model: one publisher saying a thing twice is not
+    independent corroboration, whether the second saying arrived by a mirror, a
+    redirect or a second crawl.
+  */
+  const { store } = await sweep();
+  const { groupObservations } = await import("@/lib/opportunity/entity/group");
+  const { resolveEntity } = await import("@/lib/opportunity/entity/resolve");
+  const { deriveStakes } = await import("@/lib/opportunity/corpus");
+  const { establishVerification } = await import("@/lib/opportunity/verification/service");
+  const { agreedValue } = await import("@/lib/opportunity/entity/types");
+
+  const all = await store.readAll();
+  const { groups } = groupObservations(all);
+
+  const scholarship = groups
+    .map((g) => {
+      const r = resolveEntity({
+        members: g.members,
+        identity: g.identity,
+        rationale: g.rationale,
+        stakes: deriveStakes(),
+        decidedAt: new Date().toISOString(),
+      });
+      return "entity" in r ? r.entity : null;
+    })
+    .find((e) => e && agreedValue(e, "title")?.includes("National Merit"));
+
+  assert.ok(scholarship, "the scholarship entity did not resolve");
+
+  const members = all.filter((o) => scholarship.resolution.observationIds.includes(o.id));
+  /* Three observations: /scholarship twice (direct and via the redirect) and
+     /mirror once. All on one domain. */
+  assert.ok(members.length >= 3, `expected the duplicate to be present, got ${members.length}`);
+
+  const verification = establishVerification(scholarship, members, new Date().toISOString());
+
+  assert.equal(
+    verification.basis.distinctSources,
+    1,
+    "three observations of one publisher were counted as more than one source",
+  );
+});
+
+test("the inspection tally counts pages, not observations", async () => {
+  /*
+    The half of the earlier §C.2 finding that was real, now fixed.
+    `projectInspection` built one row per observation and `evidence.consulted`
+    from their length, so a page reached three ways read as three sources on the
+    surface a person is asked to trust.
+
+    Corroboration itself was never exposed to this — `establishVerification`
+    counts distinct announcers — and the earlier report claimed otherwise because
+    the claim had been reasoned rather than measured. The defect was real; its
+    location was not where the report put it.
+  */
+  const { inspection, members } = await inspectScholarship();
+
+  assert.equal(
+    members.filter((o) => new URL(o.url).pathname === "/scholarship").length,
+    3,
+    "the harness no longer produces the duplicate",
+  );
+  assert.equal(
+    inspection.sources.filter((r) => r.url.endsWith("/scholarship")).length,
+    1,
+    "one page is still being listed as several sources",
+  );
+  assert.equal(inspection.evidence.consulted, inspection.sources.length);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Phase 16D — the six redirect cases, over the socket
+   ══════════════════════════════════════════════════════════════════════════ */
+
+async function inspectScholarship() {
+  const { store } = await sweep();
+  const { groupObservations } = await import("@/lib/opportunity/entity/group");
+  const { resolveEntity } = await import("@/lib/opportunity/entity/resolve");
+  const { deriveStakes } = await import("@/lib/opportunity/corpus");
+  const { projectInspection } = await import("@/lib/opportunity/surface/inspection");
+  const { agreedValue } = await import("@/lib/opportunity/entity/types");
+
+  const all = await store.readAll();
+  const { groups } = groupObservations(all);
+
+  for (const g of groups) {
+    const r = resolveEntity({
+      members: g.members,
+      identity: g.identity,
+      rationale: g.rationale,
+      stakes: deriveStakes(),
+      decidedAt: new Date().toISOString(),
+    });
+    if (!("entity" in r)) continue;
+    if (!agreedValue(r.entity, "title")?.includes("National Merit")) continue;
+
+    const members = all.filter((o) => r.entity.resolution.observationIds.includes(o.id));
+    return {
+      all,
+      entity: r.entity,
+      members,
+      inspection: projectInspection({
+        entity: r.entity,
+        verification: null,
+        judgments: null,
+        pursuit: { state: "undeclared" },
+        observations: members,
+        now: new Date().toISOString(),
+      }),
+    };
+  }
+  throw new Error("the scholarship entity did not resolve");
+}
+
+test("CASE 1+4 — many routes to one page remain one source", async () => {
+  /*
+    `/scholarship` is reached three ways: directly, via `/moved`, and via
+    `/also-moved`. The bytes came from one page and the record says so once,
+    with the routes named rather than discarded.
+  */
+  const { inspection } = await inspectScholarship();
+  const rows = inspection.sources.filter((r) => r.url.endsWith("/scholarship"));
+
+  assert.equal(rows.length, 1, "one page was listed as several sources");
+  assert.equal(rows[0].retrievals, 3, "the retrievals were collapsed instead of counted");
+  assert.deepEqual(
+    rows[0].reachedVia.map((u) => new URL(u).pathname).sort(),
+    ["/also-moved", "/moved"],
+    "the routes that reached this page were lost",
+  );
+});
+
+test("CASE 2+5 — the tally counts pages, and distinct sources stay distinct", async () => {
+  const { inspection } = await inspectScholarship();
+
+  /* /scholarship and /mirror: two genuinely different pages. */
+  assert.equal(inspection.evidence.consulted, inspection.sources.length);
+  assert.equal(
+    inspection.sources.length,
+    2,
+    `expected two pages, got ${inspection.sources.map((r) => r.url).join(", ")}`,
+  );
+  assert.ok(inspection.sources.some((r) => r.url.endsWith("/mirror")));
+});
+
+test("CASE 3 — a later retrieval is added, never overwritten", async () => {
+  /*
+    The half that must not collapse. Grouping by page is right for counting
+    sources and wrong for history: two readings of one page at two times are two
+    observations, and CR-37 keeps both.
+  */
+  const { store } = await sweep();
+  const { witness } = await import("@/lib/opportunity/observation/record");
+  const { projectInspection } = await import("@/lib/opportunity/surface/inspection");
+  const { groupObservations } = await import("@/lib/opportunity/entity/group");
+  const { resolveEntity } = await import("@/lib/opportunity/entity/resolve");
+  const { deriveStakes } = await import("@/lib/opportunity/corpus");
+
+  const all = await store.readAll();
+  const original = all.find((o) => o.url.endsWith("/mirror"));
+  assert.ok(original);
+
+  /* The same page, read later, saying something different. */
+  const later = witness(
+    {
+      url: original.url,
+      completedAt: new Date(Date.parse(original.retrievedAt) + 86_400_000).toISOString(),
+      status: 200,
+      body:
+        "<!doctype html><html><head><title>x</title>" +
+        '<script type="application/ld+json">' +
+        JSON.stringify({
+          "@type": "Course",
+          name: "National Merit Scholarship",
+          identifier: "HTTP-FIXTURE-NMS",
+          endDate: "2027-04-30",
+        }) +
+        "</script></head><body></body></html>",
+      encoding: "utf-8",
+      contentType: "text/html; charset=utf-8",
+    },
+    { source: original.source },
+  );
+
+  const withHistory = [...all, later];
+  const { groups } = groupObservations(withHistory);
+  const g = groups.find((x) => x.members.length > 1);
+  assert.ok(g, "the later reading did not join the entity");
+
+  const r = resolveEntity({
+    members: g.members,
+    identity: g.identity,
+    rationale: g.rationale,
+    stakes: deriveStakes(),
+    decidedAt: new Date().toISOString(),
+  });
+  assert.ok("entity" in r);
+
+  const members = withHistory.filter((o) => r.entity.resolution.observationIds.includes(o.id));
+  const inspection = projectInspection({
+    entity: r.entity,
+    verification: null,
+    judgments: null,
+    pursuit: { state: "undeclared" },
+    observations: members,
+    now: new Date().toISOString(),
+  });
+
+  const mirror = inspection.sources.find((row) => row.url.endsWith("/mirror"));
+  assert.ok(mirror);
+  assert.equal(mirror.retrievals, 2, "a second reading of one page was collapsed away");
+  /* And the row speaks for the page as it was last read. */
+  assert.equal(mirror.retrievedAt, later.retrievedAt);
+  /* Both observations are still in the record. */
+  assert.equal(members.filter((o) => o.url.endsWith("/mirror")).length, 2);
+});
+
+test("CASE 6 — a redirect loop fabricates nothing", async () => {
+  const { store } = await sweep();
+  const all = await store.readAll();
+  const loops = all.filter((o) => new URL(o.url).pathname.startsWith("/loop"));
+
+  for (const o of loops) {
+    assert.notEqual(o.outcome, "retrieved", `a redirect loop produced content: ${o.url}`);
+  }
+  /* Whatever was recorded, nothing claims an opportunity exists at a loop. */
+  assert.equal(
+    loops.some((o) => o.outcome === "retrieved"),
+    false,
+  );
+});
+
+test("a page reached directly carries no route", async () => {
+  /*
+    Presence is the signal. If `requestedUrl` were populated on every
+    observation, a reader would have to compare two fields to learn that nothing
+    happened.
+  */
+  const { store } = await sweep();
+  const bare = (await store.readAll()).find((o) => o.url.endsWith("/bare"));
+  assert.ok(bare);
+  assert.equal(bare.requestedUrl, undefined);
 });

@@ -256,7 +256,29 @@ interface SourceObservationBase {
   id: string;
   /** O3 — when Opportunity X looked. Never a date read off the page. */
   retrievedAt: string;
+  /**
+   * Where the bytes came from. After redirects, always.
+   *
+   * The source of the content, and the only address this observation attributes
+   * anything to.
+   */
   url: string;
+  /**
+   * How discovery got there, when that was not directly.
+   *
+   * Present only when a redirect occurred, and never a claim that this address
+   * published anything — `url` remains the source. Two facts that were being
+   * collapsed into one:
+   *
+   *   url          — this page served these bytes.
+   *   requestedUrl — and we arrived by asking for this one.
+   *
+   * Optional rather than always-populated because equality carries no
+   * information: a reader who has to compare two fields on every observation to
+   * learn that nothing happened is worse off than one for whom the field's
+   * presence *is* the redirect.
+   */
+  requestedUrl?: string;
   source: ObservedSource;
   /** The composite extractor's version. Per-claim attribution is on the claim. */
   parserVersion: ParserVersion;

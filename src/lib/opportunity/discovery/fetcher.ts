@@ -82,10 +82,16 @@ export async function retrieve(
       that did not serve it.
     */
     const finalUrl = response.url || url;
+    /*
+      Only when it differs — see `CompletedExchange.requestedUrl`. A redirect is
+      the only way these come apart, so its presence *is* the redirect record.
+    */
+    const provenance = finalUrl === url ? {} : { requestedUrl: url };
 
     if (!response.ok) {
       return {
         url: finalUrl,
+        ...provenance,
         completedAt: new Date().toISOString(),
         status: response.status,
         body: null,
@@ -99,6 +105,7 @@ export async function retrieve(
     if (declared > limits.maxBytes) {
       return {
         url: finalUrl,
+        ...provenance,
         completedAt: new Date().toISOString(),
         status: response.status,
         body: null,
@@ -112,6 +119,7 @@ export async function retrieve(
     if (bytes === null) {
       return {
         url: finalUrl,
+        ...provenance,
         completedAt: new Date().toISOString(),
         status: response.status,
         body: null,
@@ -132,6 +140,7 @@ export async function retrieve(
 
     return {
       url: finalUrl,
+      ...provenance,
       /* Stamped after the body is in hand. An exchange is not complete until it
          is, and a timestamp taken earlier would overstate what was read. */
       completedAt: new Date().toISOString(),

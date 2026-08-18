@@ -6,6 +6,61 @@ testing, future work. See `CLAUDE.md` for when an entry is required.
 
 ---
 
+## 2026-08-18 — Phase 16A–16E: redirect provenance, and a correction to my own report
+
+**Correction first.** `PHASE_16_FIRST_CONTACT.md` §C.2 claimed a redirect
+duplicate "inflates exactly the number the inspection surface asks people to
+trust." **Wrong about corroboration.** Measured: `establishVerification` counts
+distinct `source.sourceId` — announcers, resolved from the domain — so three
+observations of one page reached three ways give `distinctSources = 1`. I had
+reasoned it from the observation count instead of measuring it.
+
+The defect was real but in a different place: `projectInspection` built one row
+per observation and `evidence.consulted` from their length, so one page appeared
+three times in "What I looked at". That is the surface a person reads, so it
+mattered — just not where the report said.
+
+**16A.** `requestedUrl` added to `CompletedExchange`, `witness()`,
+`SourceObservation` and `opportunity_observations.requested_url`. `url` remains
+the address that served the bytes; `requestedUrl` records how discovery arrived,
+and only when it differed — presence is the signal, so a reader never compares
+two fields to learn nothing happened. R-01 observed one advert at three addresses
+with `-FINAL` and `-corrected` revisions and "nothing linking them to what they
+supersede"; the pipeline was destroying that edge at the moment it existed.
+
+**16B/16E.** Fixed at the projection layer. `sourceRows()` groups by the URL that
+served the bytes, carrying `retrievals` and `reachedVia`. `evidence.consulted`
+counts pages and uses each page's latest outcome — a page that failed Monday and
+answered Tuesday is available. Repeated retrievals over time deliberately do not
+collapse: one page read three times is one source observed three times, not one
+observation. No observation is suppressed; the projection explains them.
+
+**16C, and what it exposed.** One nullable column, one partial index, no backfill
+— the table is empty, which is why this was the cheap moment. While wiring the
+assertions I found `verify-migrations.sh` applied a **hardcoded list of four
+files** under a comment reading "the three migrations"; it had already drifted,
+and my new migration was silently unverified. It now discovers every engine-era
+migration in filename order, which immediately picked up two nobody had been
+verifying. 40 → 44 assertions.
+
+**16D.** All six redirect cases driven over a real socket. Six mutations, each
+observed to fail. A harness defect is recorded too: the rewriting transport made
+every page look redirected, which would have made "present only on redirect"
+untestable; it now maps the final URL back into the announcer's namespace.
+
+**Files.** New: `supabase/migrations/20260818090000_observation_requested_url.sql`,
+`docs/PHASE_16A_REDIRECT_PROVENANCE.md`. Modified: `observation/types.ts`,
+`observation/record.ts`, `observation/supabase-store.ts`, `discovery/fetcher.ts`,
+`surface/inspection.ts`, `OpportunityInspection.tsx`,
+`scripts/verify-migrations.sh`, `test/discovery-over-http.test.ts`.
+
+**Testing.** 285 total, 0 failing. 44/44 migration assertions.
+
+**Phase 16 is still not complete.** The real sweep has not run. Nothing else was
+built: no card work against real content, no freshness semantics, no preparation.
+
+---
+
 ## 2026-08-17 — Phase 16: first contact with HTTP
 
 **Feature.** The discovery pipeline run against a real HTTP server over a real

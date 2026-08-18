@@ -65,7 +65,25 @@ export interface SourceRow {
   sourceClass: SourceClass;
   /** The same class, said to a person. `official` is jargon; this is not. */
   kind: string;
+  /** The most recent retrieval of this page. Earlier ones are counted below. */
   retrievedAt: string;
+  /**
+   * How many times this page was retrieved, across the whole record.
+   *
+   * A page read on three sweeps is one source observed three times, not three
+   * sources — but it is also not one observation, and the history is what makes
+   * "verified in March, still verified in June" a checkable claim rather than a
+   * present-tense assertion. So the row is per **page** and the count is here.
+   */
+  retrievals: number;
+  /**
+   * Addresses discovery followed to reach this page, when any differed from it.
+   *
+   * Empty in the ordinary case. Populated when a redirect brought the crawler
+   * here from somewhere else — which is the fact that makes two observations of
+   * one URL legible instead of looking like a bug.
+   */
+  reachedVia: string[];
   /** False when the retrieval failed — kept, because it is evidence too. */
   answered: boolean;
   /** Set when it answered and nothing could be read from it. */
@@ -182,6 +200,77 @@ export interface OpportunityInspection {
 }
 
 /**
+ * One row per **page**, not per observation.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * TWO ROUTES TO ONE SOURCE ARE NOT TWO SOURCES
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * This mapped observations one-to-one, and Phase 16's first HTTP run showed what
+ * that does. A page reached both directly and through a redirect produces two
+ * observations with the same URL and the same content, so *"What I looked at"*
+ * listed the same page twice and the evidence tally called it two sources.
+ *
+ * Corroboration itself was never exposed to this — `establishVerification`
+ * counts distinct `source.sourceId`, the announcer, so one publisher reached
+ * five ways is one source there. (Phase 16's own report claimed otherwise and
+ * was wrong; the claim had been reasoned from the observation count rather than
+ * measured.) But the surface a person actually reads had the defect, and that is
+ * the number the product asks them to trust.
+ *
+ * ── What must not collapse ────────────────────────────────────────────────
+ *
+ * Repeated retrievals **over time**. A page read on three sweeps is one source
+ * observed three times: not three sources, and emphatically not one observation.
+ * Collapsing that would destroy the history that makes "verified in March, still
+ * verified in June" checkable, and CR-37 keeps every one of those observations
+ * for exactly that reason.
+ *
+ * So: grouped by the URL that served the bytes, the most recent retrieval shown,
+ * the count of retrievals kept, and the routes recorded.
+ */
+function sourceRows(observations: readonly SourceObservation[]): SourceRow[] {
+  const byUrl = new Map<string, SourceObservation[]>();
+  for (const observation of observations) {
+    const existing = byUrl.get(observation.url);
+    if (existing) existing.push(observation);
+    else byUrl.set(observation.url, [observation]);
+  }
+
+  return [...byUrl.values()].map((group) => {
+    /* Newest first, so the row speaks for the page as it was last read. */
+    const ordered = [...group].sort((a, b) => b.retrievedAt.localeCompare(a.retrievedAt));
+    const latest = ordered[0];
+
+    /*
+      Routes other than the direct one. A redirect from elsewhere is recorded;
+      arriving at a page by asking for it is not a "route" worth naming.
+    */
+    const reachedVia = [
+      ...new Set(
+        ordered
+          .map((o) => o.requestedUrl)
+          .filter((u): u is string => typeof u === "string" && u !== latest.url),
+      ),
+    ];
+
+    return {
+      observationId: latest.id,
+      url: latest.url,
+      label: latest.source.label,
+      sourceClass: latest.source.sourceClass,
+      kind: sourceKind(latest.source.sourceClass),
+      retrievedAt: latest.retrievedAt,
+      retrievals: ordered.length,
+      reachedVia,
+      answered: isRetrieved(latest),
+      ...(isRetrieved(latest) && latest.unreadable ? { unreadable: latest.unreadable.reason } : {}),
+      said: statementsIn(latest),
+    };
+  });
+}
+
+/**
  * Count what actually answered.
  *
  * Deliberately three separate counts rather than a ratio. "Two of four" is a
@@ -192,11 +281,30 @@ export interface OpportunityInspection {
 function evidenceCompleteness(
   observations: readonly SourceObservation[],
 ): OpportunityInspection["evidence"] {
+  /*
+    Counted per **page**, matching `sourceRows`. This counted observations, so a
+    page reached twice through a redirect made "2 of 2 sources" out of one page —
+    the same defect as the source list, in the number the degraded line puts in
+    front of a person.
+
+    The latest retrieval decides the page's outcome. A page that failed on Monday
+    and answered on Tuesday is available, and reporting it as degraded because a
+    historical retrieval failed would make the record's own completeness decay as
+    it grows.
+  */
+  const latestPerUrl = new Map<string, SourceObservation>();
+  for (const observation of observations) {
+    const seen = latestPerUrl.get(observation.url);
+    if (!seen || observation.retrievedAt > seen.retrievedAt) {
+      latestPerUrl.set(observation.url, observation);
+    }
+  }
+
   let answered = 0;
   let unreadable = 0;
   let unreachable = 0;
 
-  for (const observation of observations) {
+  for (const observation of latestPerUrl.values()) {
     if (!isRetrieved(observation)) {
       unreachable += 1;
     } else if (observation.unreadable) {
@@ -207,7 +315,7 @@ function evidenceCompleteness(
   }
 
   return {
-    consulted: observations.length,
+    consulted: latestPerUrl.size,
     answered,
     unreadable,
     unreachable,
@@ -260,19 +368,7 @@ export function projectInspection(input: {
     contradictions: ALL_FIELDS.flatMap((field) => contradictionFor(input.entity, field, byId)),
     deadlineReasoning: deadlineReasoning(input.entity, card),
     verificationHistory: input.verification?.transitions ?? [],
-    sources: input.observations.map((observation) => ({
-      observationId: observation.id,
-      url: observation.url,
-      label: observation.source.label,
-      sourceClass: observation.source.sourceClass,
-      kind: sourceKind(observation.source.sourceClass),
-      retrievedAt: observation.retrievedAt,
-      answered: isRetrieved(observation),
-      ...(isRetrieved(observation) && observation.unreadable
-        ? { unreadable: observation.unreadable.reason }
-        : {}),
-      said: statementsIn(observation),
-    })),
+    sources: sourceRows(input.observations),
     evidence: evidenceCompleteness(input.observations),
     whatHappensNext: whatHappensNext(card),
   };

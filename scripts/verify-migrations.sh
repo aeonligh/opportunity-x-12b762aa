@@ -54,6 +54,17 @@ refused() {
   fi
 }
 
+# Assert a query returns exactly one expected value.
+equals() {
+  local what="$1" sql="$2" want="$3" got
+  got=$(psql_q "$sql" | tr -d '[:space:]')
+  if [ "$got" = "$want" ]; then
+    ok "$what"
+  else
+    bad "$what — expected '$want', got '$got'"
+  fi
+}
+
 allowed() {
   local what="$1" sql="$2"
   if psql -h /tmp -p "$PORT" -U postgres -d "$DB" -v ON_ERROR_STOP=1 -q -c "$sql" >/dev/null 2>&1; then
@@ -91,11 +102,21 @@ grant usage on schema auth to anon, authenticated, service_role;
 grant execute on function auth.uid() to anon, authenticated, service_role;
 SQL
 
-echo "── Applying the three migrations in filename order"
-for m in supabase/migrations/20260810121500_opportunity_observations.sql \
-         supabase/migrations/20260810122000_opportunity_verification_events.sql \
-         supabase/migrations/20260810160000_opportunity_pursuit_and_delivery.sql \
-         supabase/migrations/20260815170000_refusal_functions_are_not_endpoints.sql; do
+# Every engine migration, in filename order, discovered rather than listed.
+#
+# This was a hardcoded list, and it had already drifted: the comment said "the
+# three migrations" while the list held four. A hardcoded list means every new
+# migration is silently unverified until somebody remembers to add it — which is
+# exactly what happened to Phase 16A's `requested_url`, whose assertions failed
+# here against a column the script had never created.
+#
+# The cutoff is the first engine migration. Everything before it belongs to the
+# retired pre-migration product and depends on `auth.users` and other Supabase
+# machinery this throwaway database does not have.
+ENGINE_ERA_BEGINS="20260810121500"
+
+echo "── Applying every engine migration in filename order"
+for m in $(find supabase/migrations -name '*.sql' | sort | awk -F/ -v from="$ENGINE_ERA_BEGINS" '$NF >= from'); do
   if psql -h /tmp -p "$PORT" -U postgres -d "$DB" -v ON_ERROR_STOP=1 -q -f "$m" >/dev/null 2>&1; then
     ok "$(basename "$m") applied"
   else
@@ -160,6 +181,20 @@ SQL
 
 echo
 echo "── Append-only: observations, verification events, deliveries"
+# ── Redirect provenance (Phase 16A) ───────────────────────────────────────
+# `url` is where the bytes came from; `requested_url` is how discovery got
+# there, and is null unless a redirect occurred. The pair is what makes a
+# redirect-induced duplicate legible instead of baffling.
+equals "requested_url exists and is nullable" \
+  "select is_nullable from information_schema.columns
+   where table_schema='public' and table_name='opportunity_observations'
+     and column_name='requested_url';" "YES"
+
+equals "requested_url is indexed only where it is set" \
+  "select count(*)::text from pg_indexes
+   where schemaname='public' and tablename='opportunity_observations'
+     and indexdef ilike '%requested_url%' and indexdef ilike '%where (requested_url IS NOT NULL)%';" "1"
+
 refused "observation UPDATE"          "update public.opportunity_observations set url='https://evil.example';"
 refused "observation DELETE"          "delete from public.opportunity_observations;"
 refused "observation TRUNCATE"        "truncate public.opportunity_observations cascade;"

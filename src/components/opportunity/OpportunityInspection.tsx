@@ -289,7 +289,36 @@ export function OpportunityInspection({
                 */}
                 {!source.answered ? " · did not answer" : ""}
                 {source.unreadable ? ` · ${source.unreadable}` : ""}
+                {/*
+                  Read more than once. One page observed repeatedly is one
+                  source, and the repetition is still a fact worth showing —
+                  "seen 3 times" is what makes "still open in June" checkable.
+                */}
+                {source.retrievals > 1 ? ` · read ${source.retrievals} times` : ""}
               </span>
+
+              {/*
+                How discovery arrived, when it did not arrive directly.
+
+                Never a claim that these addresses published anything — the link
+                above is the page that served the bytes. This exists because
+                without it a page reached by a redirect produced a second,
+                identical-looking entry with no explanation, and R-01 found real
+                adverts republished at `-FINAL` and `-corrected` URLs with
+                nothing linking them.
+              */}
+              {source.reachedVia.length > 0 ? (
+                <span className="max-w-[58ch] font-mono text-[11px] leading-relaxed text-text-s">
+                  also reached from{" "}
+                  {source.reachedVia.map((route, i) => (
+                    <span key={route}>
+                      {i > 0 ? ", " : ""}
+                      <span className="break-all text-foreground">{route}</span>
+                    </span>
+                  ))}
+                  {" — redirected here"}
+                </span>
+              ) : null}
 
               {/*
                 What the page said, in its own words.

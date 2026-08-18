@@ -38,12 +38,14 @@ import type {
  */
 
 const COLUMNS =
-  "id, retrieved_at, url, source_id, source_label, source_class, parser_version, related_to, outcome, content_body, content_type, content_sha256, content_bytes, content_encoding, items, page_identity, unreadable, status, reason";
+  "id, retrieved_at, url, requested_url, source_id, source_label, source_class, parser_version, related_to, outcome, content_body, content_type, content_sha256, content_bytes, content_encoding, items, page_identity, unreadable, status, reason";
 
 interface ObservationRow {
   id: string;
   retrieved_at: string;
   url: string;
+  /** Null unless a redirect occurred. See `SourceObservation.requestedUrl`. */
+  requested_url: string | null;
   source_id: string;
   source_label: string;
   source_class: SourceClass;
@@ -67,6 +69,7 @@ function toRow(observation: SourceObservation): Record<string, unknown> {
     id: observation.id,
     retrieved_at: observation.retrievedAt,
     url: observation.url,
+    requested_url: observation.requestedUrl ?? null,
     source_id: observation.source.sourceId,
     source_label: observation.source.label,
     source_class: observation.source.sourceClass,
@@ -105,6 +108,10 @@ function fromRow(row: ObservationRow): SourceObservation {
     */
     retrievedAt: new Date(row.retrieved_at).toISOString(),
     url: row.url,
+    /* Absent rather than null on the way out: the domain type says "present only
+       when a redirect happened", and a null would make every reader check two
+       things instead of one. */
+    ...(row.requested_url ? { requestedUrl: row.requested_url } : {}),
     source: {
       sourceId: row.source_id,
       label: row.source_label,

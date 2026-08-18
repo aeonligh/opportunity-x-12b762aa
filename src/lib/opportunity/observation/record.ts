@@ -41,7 +41,28 @@ import type { ClaimExtractor } from "./extractors/types";
  */
 
 export interface CompletedExchange {
+  /**
+   * The URL that actually served the bytes, after redirects.
+   *
+   * Recording the requested URL here instead would attribute content to a page
+   * that did not serve it. This stays the source of the content.
+   */
   url: string;
+  /**
+   * The URL discovery asked for, when it differs from the one that answered.
+   *
+   * Provenance about how the system arrived — never a claim that this address
+   * published anything. Absent when nothing redirected, which is the common case:
+   * carrying `requestedUrl === url` on every observation would be noise in the
+   * record and one more field every reader has to remember to compare.
+   *
+   * It exists because discarding it lost something real. R-01 observed one advert
+   * published at three addresses with `-FINAL` and `-corrected` revisions and
+   * "nothing linking them to what they supersede" — a request → destination edge
+   * is exactly the evidence R-11's entity resolution wants, and the pipeline was
+   * throwing it away at the one moment it existed.
+   */
+  requestedUrl?: string;
   /** ISO 8601, taken at the moment the exchange finished. */
   completedAt: string;
   status: number | null;
@@ -105,6 +126,8 @@ export function witness(exchange: CompletedExchange, options: WitnessOptions): S
     /* Not a parameter. Not `new Date()`. The exchange's own completion time. */
     retrievedAt: exchange.completedAt,
     url: exchange.url,
+    /* Only present when a redirect happened. See `CompletedExchange`. */
+    ...(exchange.requestedUrl ? { requestedUrl: exchange.requestedUrl } : {}),
     source: options.source,
     parserVersion: extractor.version,
     relatedTo: options.relatedTo ?? [],
