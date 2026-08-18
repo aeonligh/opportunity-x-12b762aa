@@ -240,15 +240,28 @@ laptop.
 ```bash
 git clone https://github.com/aeonligh/opportunity-x-12b762aa
 cd opportunity-x-12b762aa
-git checkout 0754bab
+git checkout claude/project-analysis-review-9h7hly
 npm install
 
+# BOTH are required. The sweep writes observations and refuses to start with
+# nowhere durable to put them — a machine with ordinary internet is necessary
+# and not sufficient.
 export SUPABASE_URL="...your project URL..."
 export SUPABASE_SERVICE_ROLE_KEY="...service role key..."
 
 # One bounded sweep against a single announcer. Do not schedule anything yet.
 npm run sweep -- ng-fme
 ```
+
+> **The commit matters.** Until Phase 16 this command did not work at any commit:
+> it died on `Cannot find package '@/lib'` before reaching its own credential
+> check, because the engine imports through the `@/` alias and the resolve hook
+> was wired only into the test runner. Checking out `0754bab`, as this document
+> previously instructed, reproduces that failure. Use the branch head.
+>
+> A healthy run prints `Fetching directly` (or `Fetching through Firecrawl`)
+> before it does anything else. If you see a Node stack trace instead, you are on
+> a commit that predates the fix.
 
 Valid announcer ids (pass one; omitting them sweeps all nine, which is not
 "bounded"):

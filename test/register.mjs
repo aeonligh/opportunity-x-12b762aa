@@ -1,14 +1,10 @@
-import { register } from "node:module";
-import { pathToFileURL } from "node:url";
-
 /**
  * Registers the `@/` path alias for `node --test`.
  *
- * The application resolves `@/*` to `src/*` through tsconfig, which Node knows
- * nothing about. Rather than add a test runner and its dependency tree to carry
- * one mapping, the mapping is nine lines of a resolve hook.
+ * The hook itself lives in `scripts/`, because the test suite is not the only
+ * thing that runs the engine under plain Node — `npm run sweep` does too, and
+ * for a long time it did not have this, which is why it had never run.
  *
- * Node 22 strips TypeScript types natively, so the tests import the real
- * modules — not a compiled copy that could drift from them.
+ * Kept as its own file so the `test` script's `--import` path is unchanged.
  */
-register("./hook.mjs", pathToFileURL("./test/"));
+import "../scripts/register-alias.mjs";
