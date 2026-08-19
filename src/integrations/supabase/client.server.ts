@@ -1,3 +1,17 @@
+/*
+ * Server-only, and it says so in code rather than only in its filename.
+ *
+ * This module holds the service-role key, which bypasses row-level security. Until Phase 20 the
+ * `.server.` suffix carried that meaning by convention alone: the build
+ * protection had been narrowed to a directory pattern nothing here matches,
+ * so a client component importing this compiled successfully and put the
+ * credential name into the browser bundle. Measured, not supposed.
+ *
+ * The marker below is what the build now watches for. Importing it from
+ * anything the client reaches is a build error, and evaluating it in a
+ * browser throws. The suffix stays as documentation; this is the guarantee.
+ */
+import "@/lib/server-only";
 // Server-side Supabase client with service role key - bypasses RLS.
 // Use this for admin operations in server functions and server routes only.
 // For user-authenticated queries (with RLS), use the auth middleware instead.

@@ -965,7 +965,7 @@ test("nothing user-scoped is read with the key that bypasses row-level security"
   assert.equal(/pursuit/i.test(store), false, "the service-role record now includes pursuits");
 
   /* Every user-scoped read takes its client from the middleware context. */
-  const server = withoutComments(src("src/lib/opportunities.server.ts"));
+  const server = withoutComments(src("src/lib/opportunities.functions.ts"));
   assert.equal(/supabaseAdmin/.test(server), false, "a product read reaches for the admin client");
   for (const fn of ["listOpportunities", "getOpportunity", "listSaved"]) {
     const at = server.indexOf(fn);

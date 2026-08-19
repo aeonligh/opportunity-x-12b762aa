@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { labSaved } from "@/lib/lab.server";
+import { labSaved } from "@/lib/lab.functions";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { EmptyState } from "@/components/ui/absence/EmptyState";
 import { FreshnessStamp } from "@/components/ui/FreshnessStamp";

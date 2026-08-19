@@ -51,7 +51,19 @@ export type AuthOutcome =
   | { kind: "unconfirmed"; what: string; stillTrue: string; whatYouCanDo: string; retryable: false }
   | { kind: "unreachable"; what: string; stillTrue: string; whatYouCanDo: string; retryable: true }
   | { kind: "rate-limited"; what: string; stillTrue: string; whatYouCanDo: string; retryable: true }
-  | { kind: "no-session"; what: string; stillTrue: string; whatYouCanDo: string; retryable: true };
+  | { kind: "no-session"; what: string; stillTrue: string; whatYouCanDo: string; retryable: true }
+  /*
+    Refused before anything was sent. Not produced by `classifyAuthFailure`,
+    which classifies what a service *answered* — this one exists because
+    nothing was asked. See `lib/auth-input.ts`.
+  */
+  | {
+      kind: "invalid-input";
+      what: string;
+      stillTrue: string;
+      whatYouCanDo: string;
+      retryable: false;
+    };
 
 /** Set when the object carries an HTTP-ish status, whatever its class. */
 function statusOf(error: unknown): number | null {

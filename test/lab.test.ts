@@ -24,7 +24,7 @@ import { join } from "node:path";
  *   - a reason the product's own routes stopped being guarded.
  */
 
-const LAB_SERVER = "src/lib/lab.server.ts";
+const LAB_SERVER = "src/lib/lab.functions.ts";
 
 /** Every `.ts`/`.tsx` under `src/`, generated route tree excluded. */
 function sourceFiles(dir: string): string[] {
@@ -162,7 +162,7 @@ test("the laboratory does not invent product concepts", async () => {
     name things this product has repeatedly been asked not to have.
   */
   const sources = [
-    "src/lib/lab.server.ts",
+    "src/lib/lab.functions.ts",
     "src/routes/lab.index.tsx",
     "src/routes/lab.$id.tsx",
     "src/routes/lab.saved.tsx",
@@ -197,8 +197,8 @@ test("the fixture corpus is reachable from exactly the surfaces that label it", 
   assert.deepEqual(
     importers.sort(),
     [
-      "src/lib/lab.server.ts",
-      "src/lib/opportunities.server.ts",
+      "src/lib/lab.functions.ts",
+      "src/lib/opportunities.functions.ts",
       "src/lib/opportunity/surface/demo.ts",
     ],
     "something new can reach the fixture corpus",

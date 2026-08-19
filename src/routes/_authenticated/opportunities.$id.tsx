@@ -1,6 +1,6 @@
 import { useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { getOpportunity } from "@/lib/opportunities.server";
+import { getOpportunity } from "@/lib/opportunities.functions";
 import { OpportunityInspection } from "@/components/opportunity/OpportunityInspection";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { InspectionSkeleton } from "@/components/opportunity/InspectionSkeleton";

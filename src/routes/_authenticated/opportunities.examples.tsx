@@ -1,6 +1,6 @@
 import { useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { fixtureOpportunities } from "@/lib/opportunities.server";
+import { fixtureOpportunities } from "@/lib/opportunities.functions";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
 import { OpportunityCardSkeleton } from "@/components/opportunity/OpportunityCardSkeleton";
 import { Skeleton } from "@/components/ui/state/Skeleton";

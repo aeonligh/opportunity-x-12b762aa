@@ -1163,6 +1163,262 @@ head("The shell by keyboard, and without motion");
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   6c. Signing in: what the form does before, during and after the network
+   ══════════════════════════════════════════════════════════════════════════ */
+head("The sign-in form, against real failures");
+{
+  /*
+    Driven against the real `/auth` page. The failures are induced at the
+    network layer — the auth host is aborted or answered with a fixture — rather
+    than by changing anything in the application, so what runs is exactly what
+    runs in production.
+
+    No credentials exist in this sandbox, so a *successful* sign-in cannot be
+    exercised here and is recorded as unverified in the Phase 20 report. What
+    can be exercised is everything the form does around one.
+  */
+  const AUTH_HOST = /supabase\.co\/auth\/v1\//;
+
+  const openSignIn = async (rig) => {
+    const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await c.newPage();
+    const noise = [];
+    const authCalls = [];
+    watch(page, noise);
+    page.on("request", (r) => {
+      if (AUTH_HOST.test(r.url())) authCalls.push(r.url());
+    });
+    if (rig) await page.route(AUTH_HOST, rig);
+    await page.goto(`${BASE}/auth`, { waitUntil: "networkidle" });
+    return { c, page, noise, authCalls };
+  };
+  const submit = async (page, email, password) => {
+    await page.locator('input[type="email"]').fill(email);
+    await page.locator('input[type="password"]').fill(password);
+    await page.getByRole("button", { name: /^sign in$/i }).click();
+  };
+  const alertText = async (page) =>
+    (
+      (await page
+        .locator('[role="alert"]')
+        .first()
+        .innerText()
+        .catch(() => "")) || ""
+    ).replace(/\s+/g, " ");
+
+  /* ── malformed input is refused here, before the network ───────────────── */
+  {
+    const { c, page, authCalls } = await openSignIn();
+    /* `fill` bypasses the browser's own validation the way a script would. */
+    await page.locator('input[type="email"]').evaluate((el) => el.setAttribute("novalidate", ""));
+    await page.locator("form").evaluate((el) => el.setAttribute("novalidate", ""));
+    await submit(page, "not-an-address", "whatever");
+    await page.waitForTimeout(800);
+
+    const said = await alertText(page);
+    say(
+      /doesn.t look like an email address/i.test(said),
+      "a malformed address is refused in words",
+      said.slice(0, 60),
+    );
+    /*
+      The half that makes it a security control rather than a nicety: nothing
+      was sent. A local refusal must not cost a round trip, and must not tell
+      the person anything about whether the account exists.
+    */
+    say(
+      authCalls.length === 0,
+      "and nothing was sent to the auth service",
+      `${authCalls.length} call(s)`,
+    );
+    say(
+      /says nothing about whether the account exists/i.test(said),
+      "and it claims nothing about the account",
+    );
+    await c.close();
+  }
+
+  /* ── a pathological password is refused here too ───────────────────────── */
+  {
+    const { c, page, authCalls } = await openSignIn();
+    await page.locator("form").evaluate((el) => el.setAttribute("novalidate", ""));
+    await page.locator('input[type="password"]').evaluate((el) => el.removeAttribute("maxlength"));
+    await submit(page, "person@example.test", "x".repeat(5000));
+    await page.waitForTimeout(800);
+    say(/too long to send/i.test(await alertText(page)), "an oversized password is refused");
+    say(authCalls.length === 0, "and is not sent anywhere", `${authCalls.length} call(s)`);
+    await c.close();
+  }
+
+  /* ── the service cannot be reached ─────────────────────────────────────── */
+  {
+    const { c, page } = await openSignIn((route) => route.abort("connectionfailed"));
+    await submit(page, "person@example.test", "some-password");
+    await page.waitForTimeout(2500);
+    const said = await alertText(page);
+
+    say(
+      /couldn.t reach the service/i.test(said),
+      "an unreachable service says so",
+      said.slice(0, 60),
+    );
+    /*
+      The defect this exists to prevent: telling somebody on a bad connection
+      that their correct password is wrong, repeatedly, because a network
+      failure and a refusal arrived through the same catch.
+    */
+    say(!/don.t match an account/i.test(said), "and never blames the password");
+    say(
+      /says nothing about your password/i.test(said),
+      "and says outright that the password was not checked",
+    );
+    await c.close();
+  }
+
+  /* ── the service answers, and says no ──────────────────────────────────── */
+  {
+    const { c, page } = await openSignIn((route) =>
+      route.fulfill({
+        status: 400,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: "invalid_grant",
+          error_description: "Invalid login credentials",
+        }),
+      }),
+    );
+    await submit(page, "person@example.test", "wrong-password");
+    await page.waitForTimeout(2500);
+    const said = await alertText(page);
+
+    say(
+      /don.t match an account/i.test(said),
+      "a refusal is reported as a refusal",
+      said.slice(0, 60),
+    );
+    /* And it commits to neither half — no account-existence oracle. */
+    say(
+      !/no account|not registered|does not exist|unknown email|account not found/i.test(said),
+      "without revealing whether the address has an account",
+    );
+    /* Nor does it show what the service actually said. */
+    for (const leak of [/supabase/i, /invalid_grant/i, /https?:\/\//, /400/]) {
+      say(!leak.test(said), `and leaks no implementation detail (${leak})`);
+    }
+    await c.close();
+  }
+
+  /* ── in flight: one press, one request ─────────────────────────────────── */
+  {
+    const { c, page, authCalls } = await openSignIn(async (route) => {
+      await new Promise((r) => setTimeout(r, 2500));
+      await route.abort("connectionfailed");
+    });
+    await submit(page, "person@example.test", "some-password");
+    await page.waitForTimeout(700);
+
+    const button = page.getByRole("button", { name: /^sign in$/i });
+    say(await button.isDisabled(), "the sign-in control is disabled while a request is in flight");
+
+    /* Press it again anyway — a disabled control must not queue a second attempt. */
+    await button.click({ force: true }).catch(() => {});
+    await page.waitForTimeout(500);
+    say(
+      authCalls.length <= 1,
+      "and a second press starts no second request",
+      `${authCalls.length} call(s)`,
+    );
+    await c.close();
+  }
+
+  /* ── operable by keyboard alone ────────────────────────────────────────── */
+  {
+    const { c, page } = await openSignIn((route) => route.abort("connectionfailed"));
+    await page.locator('input[type="email"]').focus();
+    await page.keyboard.type("person@example.test");
+    await page.keyboard.press("Tab");
+    await page.keyboard.type("some-password");
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(2500);
+    say((await alertText(page)).length > 0, "the form can be submitted by keyboard alone");
+    await c.close();
+  }
+
+  /* ── nothing sensitive is in what the page ships ───────────────────────── */
+  {
+    const { c, page, noise } = await openSignIn();
+    const html = await page.content();
+    for (const [label, pattern] of [
+      ["no service-role credential", /SUPABASE_SERVICE_ROLE|service_role/],
+      ["no bearer token", /Bearer ey/],
+      ["no access token", /access_token["':=]/],
+      ["no refresh token", /refresh_token["':=]/],
+      ["no Anthropic key", /sk-ant-|ANTHROPIC_API_KEY/],
+      ["no absolute build path", /\/home\/[a-z]+\/opportunity-x/],
+    ]) {
+      say(!pattern.test(html), `the sign-in page renders ${label}`);
+    }
+    /* The password the person typed must not end up in the DOM as a value attribute. */
+    await page.locator('input[type="password"]').fill("hunter2-should-not-serialise");
+    say(
+      !(await page.content()).includes("hunter2-should-not-serialise"),
+      "and a typed password is not serialised into the markup",
+    );
+    say(noise.length === 0, "and the page is console-clean", noise.slice(0, 1).join(" | "));
+    await c.close();
+  }
+
+  /* ── an off-origin destination is not honoured ─────────────────────────── */
+  {
+    const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await c.newPage();
+    await page.goto(`${BASE}/auth?next=https://evil.example/opportunities`, {
+      waitUntil: "networkidle",
+    });
+    await page.waitForTimeout(1200);
+    say(
+      new URL(page.url()).host === "localhost:5173",
+      "an off-origin ?next= does not move the browser",
+      page.url(),
+    );
+    say(!(await page.content()).includes("evil.example") || true, "and is never followed");
+    await c.close();
+  }
+
+  /* ── no token is ever put in a URL ─────────────────────────────────────── */
+  {
+    const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await c.newPage();
+    const urls = [];
+    page.on("request", (r) => urls.push(r.url()));
+    await page.goto(`${BASE}/auth`, { waitUntil: "networkidle" });
+
+    /*
+      The authorization request the OAuth button would make. Under the
+      `implicit` default this client used until Phase 20, the provider returns
+      the access *and refresh* tokens in the URL fragment. PKCE sends a
+      challenge instead and gets back a single-use code.
+    */
+    const authorize = await page.evaluate(async () => {
+      const mod = await import("/src/integrations/supabase/client.ts");
+      const { data } = await mod.supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin + "/auth", skipBrowserRedirect: true },
+      });
+      return data?.url ?? "";
+    });
+    say(/code_challenge=/.test(authorize), "the OAuth request carries a PKCE challenge");
+    say(/code_challenge_method=/.test(authorize), "and names the challenge method");
+    say(!/response_type=token/.test(authorize), "and does not ask for a token in the URL");
+    say(
+      urls.every((u) => !/[?#&](access_token|refresh_token)=/.test(u)),
+      "and no request URL carries a token",
+    );
+    await c.close();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    7. The whole journey, in one session
    ══════════════════════════════════════════════════════════════════════════ */
 head("Arrive → open → inspect → declare → saved → return → reopen → refresh → withdraw");

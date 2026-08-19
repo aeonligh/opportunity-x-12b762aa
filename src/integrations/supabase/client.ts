@@ -23,6 +23,38 @@ function createSupabaseClient() {
       storage: typeof window !== "undefined" ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
+      /*
+        ══════════════════════════════════════════════════════════════════════
+        PKCE, BECAUSE THE DEFAULT PUTS TOKENS IN THE URL
+        ══════════════════════════════════════════════════════════════════════
+
+        `@supabase/auth-js` defaults to `flowType: "implicit"`, and nothing here
+        overrode it. Measured rather than read: the authorize URL this client
+        produced for Google carried **no `code_challenge`**, which is what an
+        implicit request looks like.
+
+        Under implicit flow the provider hands back the access *and refresh*
+        tokens in the URL fragment — `#access_token=…&refresh_token=…`. A
+        fragment is not sent to servers, which is the usual reassurance, but it
+        is still written into browser history, visible to every extension with
+        host access, present in any screenshot or screen share of the moment
+        after sign-in, and readable by anything that can call
+        `location.hash`. A refresh token in that position is a long-lived
+        credential in a place nobody treats as sensitive.
+
+        PKCE returns a single-use `?code=` instead, exchanged for tokens by this
+        client using a verifier it generated and kept locally. The code in the
+        URL is worthless without that verifier. This is what the OAuth 2.0
+        Security Best Current Practice requires, and it is one option here
+        rather than a change of architecture: the same provider, the same
+        redirect target, the same `detectSessionInUrl` handling on return.
+
+        Not verifiable end to end from this repository — completing a real
+        Google round trip needs network and credentials neither of which exist
+        here. What *is* verified is that this client now issues a PKCE
+        authorization request; see `test/auth-security.test.ts`.
+      */
+      flowType: "pkce",
     },
   });
 }

@@ -2,10 +2,10 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { safeRedirectPath, AUTH_LANDING_PATH } from "@/lib/safe-redirect";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { BrandLoader } from "@/components/BrandLoader";
 import { classifyAuthFailure, type AuthOutcome } from "@/lib/auth-outcome";
+import { validateCredentials, MAX_EMAIL_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/auth-input";
 import { BrandMark } from "@/components/BrandMark";
 
 export const Route = createFileRoute("/auth")({
@@ -29,10 +29,26 @@ export const Route = createFileRoute("/auth")({
  */
 async function waitForSession(timeoutMs = 8000): Promise<boolean> {
   const start = Date.now();
+  /*
+    The re-validation is bounded separately from the wait.
+
+    This polled every 120ms and called `getUser()` — a network round trip —
+    every time a session was present. If the session existed but the auth
+    service was struggling, that was up to sixty-odd requests in eight seconds,
+    from a client that had just been told the service was having trouble. An
+    application that answers a slow service by asking it more often is a
+    retry storm with a friendly name.
+
+    Waiting for the session to *appear* is a local read and costs nothing, so
+    that keeps its loop. Confirming it with the server is attempted a few times
+    and then given up on.
+  */
+  let confirmations = 0;
   while (Date.now() - start < timeoutMs) {
     const { data } = await supabase.auth.getSession();
     if (data.session) {
-      // Re-validate with auth server to be certain.
+      if (confirmations >= MAX_SESSION_CONFIRMATIONS) return false;
+      confirmations += 1;
       const { data: userData, error } = await supabase.auth.getUser();
       if (!error && userData.user) return true;
     }
@@ -40,6 +56,28 @@ async function waitForSession(timeoutMs = 8000): Promise<boolean> {
   }
   return false;
 }
+
+/**
+ * How many times a present-but-unconfirmable session is re-checked.
+ *
+ * Three, spread across the wait. Enough to ride out one bad round trip; far
+ * short of hammering a service that has already failed twice.
+ */
+const MAX_SESSION_CONFIRMATIONS = 3;
+
+/**
+ * The sentence `classifyAuthFailure` looks for when a sign-in succeeded and no
+ * session followed.
+ *
+ * Shared, because it was written out twice — thrown here, matched by a
+ * lowercase `includes()` there — with nothing binding the two. Changing the
+ * wording in either place would have sent this outcome to the classifier's
+ * residual branch, which is `rejected`: the one branch allowed to blame the
+ * password. A successful password check would have been reported as a wrong
+ * password, and the only clue would have been a diff that read like copy
+ * editing.
+ */
+export const SESSION_NEVER_ARRIVED = "Session did not become available";
 
 /**
  * Where to send this person once they are signed in.
@@ -57,8 +95,30 @@ function destination(): string {
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  /*
+    ══════════════════════════════════════════════════════════════════════════
+    UNCONTROLLED, SO THE CREDENTIAL IS NOT WRITTEN INTO THE MARKUP
+    ══════════════════════════════════════════════════════════════════════════
+
+    These were `useState`. React renders a controlled input's value as an HTML
+    **attribute**, which puts whatever has been typed into
+    `document.documentElement.outerHTML` — measured, with a marker string, in
+    the browser walk.
+
+    That is one DOM serialisation away from a plaintext password leaving the
+    page: session-replay and error-reporting tools attach DOM snapshots, HTML
+    export writes attributes, and any third-party script with DOM access can
+    read it without touching the input element at all. The browser has to hold
+    what was typed — that is unavoidable and lives in the element's *property* —
+    but nothing requires it to also be in the serialised markup.
+
+    Refs keep the values out of React's render output entirely, and nothing else
+    in this component ever needed to read them: they are used once, at submit.
+    Uncontrolled inputs also survive the sign-in/sign-up toggle without losing
+    what somebody has already typed.
+  */
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   // True while an OAuth handshake is in-flight and we've confirmed a session
   // but are about to navigate. Renders the full-screen BrandLoader so no
@@ -109,24 +169,50 @@ function AuthPage() {
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setFailure(null);
+
+    /*
+      Checked here, before anything is sent. The form's `required` and
+      `type="email"` are browser conveniences and are gone the moment a submit
+      is made programmatically or an attribute is edited. See `lib/auth-input.ts`
+      for what this does and does not claim to be — it is not a password policy.
+    */
+    const checked = validateCredentials({
+      email: emailRef.current?.value ?? "",
+      password: passwordRef.current?.value ?? "",
+    });
+    if (!checked.ok) {
+      setFailure(checked.problem);
+      return;
+    }
+
     setLoading(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: checked.email,
+          password: checked.password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Account created. Welcome!");
+        /*
+          No success toast here any more. It said "Account created. Welcome!"
+          before `waitForSession` had established anything — and where a project
+          requires email confirmation, `signUp` returns cleanly with no session
+          at all, so the sequence a person actually saw was a congratulation
+          followed by a failure. A write is not announced until it has been read
+          back; that rule does not stop applying because the write is an account.
+        */
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: checked.email,
+          password: checked.password,
+        });
         if (error) throw error;
       }
       // Wait for a real session, then hand off. The onAuthStateChange
       // listener above will also fire — waitForSession is idempotent.
       const ok = await waitForSession(6000);
-      if (!ok) throw new Error("Session did not become available");
+      if (!ok) throw new Error(SESSION_NEVER_ARRIVED);
       setHandingOff(true);
       await navigate({ to: destination() });
     } catch (err) {
@@ -251,17 +337,27 @@ function AuthPage() {
             <input
               type="email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              maxLength={MAX_EMAIL_LENGTH}
+              autoComplete="email"
+              ref={emailRef}
               placeholder="you@example.com"
               className="w-full px-3 py-2.5 rounded-xl bg-background border border-border focus:border-accent outline-none text-sm"
             />
+            {/*
+              No `minLength` on sign-in. It was 6 on both modes, which is a
+              guess at Supabase's configured minimum applied to the wrong side
+              of the transaction: on sign-in it stops somebody with a shorter
+              existing password from even attempting one, and the product cannot
+              know what that project's minimum was when the account was made.
+              What the password *must* satisfy is Supabase's business; how large
+              a value this form will carry is this application's.
+            */}
             <input
               type="password"
               required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              maxLength={MAX_PASSWORD_LENGTH}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              ref={passwordRef}
               placeholder="Password"
               className="w-full px-3 py-2.5 rounded-xl bg-background border border-border focus:border-accent outline-none text-sm"
             />

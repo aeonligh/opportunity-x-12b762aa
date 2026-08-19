@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { labSurface, labDeclare, labWithdraw } from "@/lib/lab.server";
+import { labSurface, labDeclare, labWithdraw } from "@/lib/lab.functions";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
 
@@ -10,7 +10,7 @@ import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
  * Deliberately outside `_authenticated`. The three product surfaces stay
  * authenticated exactly as they were; this is a separate entrance to fixture
  * data, refused on the server anywhere that is not a development build. See
- * `lab.server.ts` for why the guard lives there rather than here.
+ * `lab.functions.ts` for why the guard lives there rather than here.
  *
  * The layout mirrors `/opportunities` on purpose — same components, same split
  * between declared and undeclared — because a laboratory that looked different

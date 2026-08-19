@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { labInspect, labDeclare, labWithdraw } from "@/lib/lab.server";
+import { labInspect, labDeclare, labWithdraw } from "@/lib/lab.functions";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { OpportunityInspection } from "@/components/opportunity/OpportunityInspection";
 

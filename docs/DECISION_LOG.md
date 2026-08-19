@@ -1746,3 +1746,98 @@ round trip, natural session expiry, a genuine second tab, deep-link return after
 a real sign-in, real mobile hardware, and actual screen-reader announcement are
 all **unverified**. The shell was exercised through `/lab/session` with the real
 component and the real state machine.
+
+---
+
+## Phase 20 — Authentication security audit & hardening
+
+**Feature.** Audit the existing authentication against five security classes and
+implement the controls that genuinely belong to Opportunity X.
+
+**Purpose.** Supabase owns password storage, hashing, comparison and token
+issuance. The question was what this application can still get wrong with an
+authentication system it did not write.
+
+**Files changed.**
+
+- New: `src/lib/auth-input.ts`, `test/auth-security.test.ts`,
+  `docs/PHASE_20_AUTH_SECURITY.md`
+- Renamed: `lib/opportunities.server.ts` → `.functions.ts`,
+  `lib/lab.server.ts` → `.functions.ts` (and 12 importers)
+- Changed: `vite.config.ts`, `src/integrations/supabase/client.ts`,
+  `client.server.ts`, `src/lib/ai.server.ts`, `src/lib/auth-outcome.ts`,
+  `src/routes/auth.tsx`, `scripts/verify-artifact.sh`, `scripts/state-walk.mjs`
+
+**Dependencies.** None added. No custom hashing, JWT, refresh system, lockout or
+CAPTCHA — Supabase owns each, and duplicating any would build the weaker of two
+authentication systems.
+
+### The two that mattered
+
+**OAuth was on the implicit flow.** Established by asking the client what URL it
+would send a person to, not by reading the docs: no `code_challenge`. Implicit
+returns the access *and refresh* tokens in the URL fragment — history,
+extensions, screenshots, `location.hash`. `flowType: "pkce"` replaces them with
+a single-use code that is worthless without the locally-held verifier.
+
+**A client component could import the service-role client and the build said
+nothing.** `importProtection` replaces the framework default rather than adding
+to it, and this project had narrowed `files: ["**/*.server.*"]` to
+`["**/server/**"]`, which matches nothing here. So the guarantee CLAUDE.md states
+was documentation only. Measured: build exit 0, `SUPABASE_SERVICE_ROLE_KEY` in
+the client bundle.
+
+Restoring the pattern broke the build, because `.server.` meant two things:
+`opportunities.server.ts` exported `createServerFn`s and was *meant* to be
+imported by routes. Renaming those to `*.functions.ts` — the convention
+`pursuit.functions.ts` already used — made the suffix unambiguous again.
+
+An intermediate attempt protected the `@/lib/server-only` marker file instead
+and was abandoned when it proved never to fire: a side-effect-only module is
+tree-shaken before the plugin's `generateBundle` hook runs. Worth recording,
+because the marker looks like the obvious answer.
+
+### Three more, and one thing that was already right
+
+A typed password was rendered as an HTML `value` attribute and therefore sat in
+`document.documentElement.outerHTML` — one DOM snapshot from leaving the page.
+The credential inputs are uncontrolled now.
+
+`waitForSession` answered a struggling auth service with up to sixty `getUser()`
+calls in eight seconds. Bounded to three.
+
+`"Session did not become available"` was thrown in one file and matched in
+another with nothing binding them. Rewording either would have sent a
+**successful** password check to the classifier's residual branch — the one
+allowed to blame the password.
+
+Already right, and proven rather than assumed: no password is stored, hashed,
+compared, logged, persisted or placed in a URL by this application; exactly two
+modules mention one, and one of those only validates its size; no authentication
+message contains a stack, a URL, a status code, a project reference or a
+Supabase string; and a wrong password is indistinguishable from a missing
+account.
+
+**Risks.** The session remains in `localStorage`, readable by any script on the
+origin. Not changed here: moving it to cookies rewrites the authenticated gate
+(which is `ssr: false` precisely because the session is invisible server-side),
+the Phase 18 hydration repair that depends on that, and the middleware attaching
+the bearer token. That is a redesign of authentication, which this phase
+forbade. Recommended as its own phase. No CSP exists, which is the control that
+would most reduce the exposure meanwhile.
+
+**Testing.** 349 pass / 0 fail. 241 browser checks. 36 artifact assertions. 13
+security mutations, all caught — plus two build-level proofs that a client
+import of a credential-reading module now fails.
+
+Two of my own tests were wrong and were corrected rather than accommodated: one
+pinned the exact call shape of the validator and broke when the inputs became
+uncontrolled — a change that made the page *more* secure; another counted the
+word "password" in user-facing copy as password handling.
+
+**Future work.** Rate limiting, lockout, CAPTCHA, the configured password
+policy, the project's redirect allowlist, provider configuration, JWT rotation
+and TLS headers are all **NOT VERIFIED — EXTERNAL**: they belong to the Supabase
+project or the deployment platform and cannot be established from this
+repository. A successful sign-in has never been executed here, so every positive
+path in the report is a proof about what happens *around* one.

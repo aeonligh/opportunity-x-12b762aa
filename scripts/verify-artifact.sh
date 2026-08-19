@@ -38,7 +38,7 @@ bad()  { printf "  ${R}FAIL${N}  %s%s\n" "$1" "${2:+ — $2}"; fail=$((fail+1));
 absent() {
   local label="$1" pattern="$2" dir="$3"
   local hits
-  hits=$(grep -rl -- "$pattern" "$dir" 2>/dev/null | head -3 | tr '\n' ' ')
+  hits=$(grep -rlE -- "$pattern" "$dir" 2>/dev/null | head -3 | tr '\n' ' ')
   if [ -z "$hits" ]; then ok "$label"; else bad "$label" "$hits"; fi
 }
 
@@ -60,8 +60,52 @@ absent "no Anthropic key shape ships"                             "sk-ant-"     
 absent "no JWT carrying a service_role claim ships"               "InNlcnZpY2Vfcm9sZSI"   "$CLIENT"
 
 echo
+echo "── No other server-only credential reaches the browser"
+# Every secret named in .env.example that is not VITE_-prefixed. Named
+# individually rather than derived, so adding one to the environment without
+# adding it here is a visible omission rather than a silent gap.
+absent "no Firecrawl key ships"                  "FIRECRAWL_API_KEY"          "$CLIENT"
+absent "no Resend key ships"                     "RESEND_API_KEY"             "$CLIENT"
+absent "no cron secret ships"                    "OPPORTUNITY_X_CRON_SECRET"  "$CLIENT"
+
+echo
+echo "── No credential of any shape reaches the browser"
+# Shapes rather than names, for the things that would arrive as literals: a
+# bearer token, a refresh token, a database URL, a password field. The
+# publishable key is deliberately not here — see the section below.
+absent "no bearer token literal"                 "Bearer ey"                  "$CLIENT"
+absent "no refresh_token literal"                "refresh_token\":\""          "$CLIENT"
+absent "no Postgres connection string"           "postgres://"                "$CLIENT"
+absent "no Postgres connection string (2)"       "postgresql://"              "$CLIENT"
+absent "no database URL variable"                "DATABASE_URL"               "$CLIENT"
+# A query parameter specifically, not the word. The first version of this
+# matched `password=` and hit supabase-js's own `typeof r.weak_password=="object"`
+# — a check that fires on its own dependency is a check nobody will keep.
+absent "no password in a query string"           "[?&]password="              "$CLIENT"
+absent "no token in a query string"              "[?&]access_token="          "$CLIENT"
+
+echo
+echo "── No build-machine detail is baked into the output"
+absent "no absolute source path in the client"   "/home/user/opportunity-x"   "$CLIENT"
+
+echo
+echo "── The service-role client is not reachable from the browser"
+# The module itself, by name. The build now refuses this import outright — see
+# importProtection in vite.config.ts — and this is the check that would notice
+# if that protection were narrowed again, which is exactly what had happened.
+absent "the service-role client module does not ship" "supabaseAdmin"         "$CLIENT"
+absent "and neither does its factory"                 "createSupabaseAdminClient" "$CLIENT"
+
+echo
 echo "── The publishable key is where it belongs, and only there"
-present "the client has the Supabase project URL it must reach" "supabase.co" "$CLIENT"
+# PUBLIC BY DESIGN. The Supabase URL and the `sb_publishable_` key are meant to
+# be in the browser: they identify the project and authorise anonymous requests,
+# and row-level security — not secrecy — is what protects the data behind them.
+# Asserting their PRESENCE keeps this file honest about the distinction, so that
+# "no key in the bundle" can never be satisfied by a build that simply forgot to
+# include the one the application needs.
+present "the client has the Supabase project URL it must reach" "supabase.co"      "$CLIENT"
+present "and the publishable key it is meant to carry"          "sb_publishable_"  "$CLIENT"
 
 echo
 echo "── The fixture corpus is not shipped as product data"

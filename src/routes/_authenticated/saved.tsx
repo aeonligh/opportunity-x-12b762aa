@@ -1,6 +1,6 @@
 import { useEffect, useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { listSaved } from "@/lib/opportunities.server";
+import { listSaved } from "@/lib/opportunities.functions";
 import { EmptyState } from "@/components/ui/absence/EmptyState";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { FreshnessStamp } from "@/components/ui/FreshnessStamp";

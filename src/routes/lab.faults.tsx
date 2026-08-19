@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { labCardsFault, labInspectionFault, labSavedFault } from "@/lib/lab.server";
+import { labCardsFault, labInspectionFault, labSavedFault } from "@/lib/lab.functions";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { AbsentState } from "@/components/ui/absence/AbsentState";

@@ -1,3 +1,17 @@
+/*
+ * Server-only, and it says so in code rather than only in its filename.
+ *
+ * This module reads ANTHROPIC_API_KEY. Until Phase 20 the
+ * `.server.` suffix carried that meaning by convention alone: the build
+ * protection had been narrowed to a directory pattern nothing here matches,
+ * so a client component importing this compiled successfully and put the
+ * credential name into the browser bundle. Measured, not supposed.
+ *
+ * The marker below is what the build now watches for. Importing it from
+ * anything the client reaches is a build error, and evaluating it in a
+ * browser throws. The suffix stays as documentation; this is the guarantee.
+ */
+import "@/lib/server-only";
 /**
  * Shared Anthropic Claude client for server-side AI calls.
  * Server-only — never import from client code.

@@ -1,6 +1,6 @@
 import { useEffect, useTransition } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { listOpportunities } from "@/lib/opportunities.server";
+import { listOpportunities } from "@/lib/opportunities.functions";
 import { OpportunityCard } from "@/components/opportunity/OpportunityCard";
 import { UnknownState } from "@/components/ui/absence/UnknownState";
 import { AbsentState } from "@/components/ui/absence/AbsentState";

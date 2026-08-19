@@ -1,6 +1,6 @@
 import { useEffect, useState, useTransition } from "react";
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
-import { labRefreshProbe, labRefreshShouldFail } from "@/lib/lab.server";
+import { labRefreshProbe, labRefreshShouldFail } from "@/lib/lab.functions";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
 import { Refreshing } from "@/components/ui/state/Refreshing";
@@ -34,7 +34,7 @@ import { lastGood, rememberLastGood } from "@/lib/last-good";
  *
  * The fault is requested by name, server-side, behind `assertDevelopment()`.
  * Nothing in production branches on it and no flag exists there. See
- * `lab.server.ts`.
+ * `lab.functions.ts`.
  *
  * Nothing here is production evidence: the "content" is a counter, and no
  * opportunity is claimed to exist.

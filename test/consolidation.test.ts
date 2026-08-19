@@ -225,7 +225,7 @@ test("the application never touches a legacy table", () => {
 test("exactly one module writes a declaration", () => {
   /*
     There were three: `pursuit.functions.ts`, a dead duplicate pair in
-    `opportunities.server.ts` writing the same table with a differently-shaped
+    `opportunities.functions.ts` writing the same table with a differently-shaped
     return, and the legacy card writing `saved_opportunities` outright. A
     duplicate write path is the one a future change picks by accident.
 
@@ -234,7 +234,7 @@ test("exactly one module writes a declaration", () => {
     fixture walk proves the real control's read-back path.
   */
   const writers = sourceFiles("src/lib").filter((path) => {
-    if (path.endsWith("lab.server.ts")) return false;
+    if (path.endsWith("lab.functions.ts")) return false;
     if (path.endsWith("pursuit/supabase-log.ts")) return false; // the store itself
     return /\blog\.declare\(|\blog\.withdraw\(/.test(code(read(path)));
   });
