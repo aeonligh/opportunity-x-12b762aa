@@ -60,9 +60,13 @@ export const Route = createFileRoute("/_authenticated/opportunities")({
 /**
  * The page's own furniture, on every branch.
  *
- * Loading, failing and succeeding all keep the heading and the way out. A
- * failure that also removes the navigation has turned one broken read into a
- * dead end.
+ * Loading, failing and succeeding all keep the heading. The way *out* moved to
+ * the shell in Phase 19: this used to carry a hand-written "What you've saved"
+ * link while `/saved` carried "← Opportunities", which made two peer surfaces
+ * look like a parent and a child depending on which one you were standing on.
+ * Peer navigation now belongs to one place, and it is the same place on every
+ * page — including this route's failing and pending branches, because the
+ * shell wraps all of them.
  */
 function Masthead() {
   return (
@@ -74,12 +78,6 @@ function Masthead() {
         What has been found, what is actually known about it, and what is still uncertain. Every
         claim here can be traced back to the page it came from.
       </p>
-      <Link
-        to="/saved"
-        className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
-      >
-        What you&rsquo;ve saved
-      </Link>
     </header>
   );
 }

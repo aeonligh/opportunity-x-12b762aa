@@ -28,12 +28,6 @@ export const Route = createFileRoute("/_authenticated/saved")({
 function Masthead() {
   return (
     <header className="flex flex-col gap-3">
-      <Link
-        to="/opportunities"
-        className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s transition-colors duration-[120ms] hover:text-accent"
-      >
-        &larr; Opportunities
-      </Link>
       <h1 className="text-3xl font-black leading-[1.1] tracking-tighter text-foreground sm:text-4xl">
         Saved
       </h1>

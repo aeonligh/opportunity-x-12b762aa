@@ -31,7 +31,30 @@ function firstExisting(href) {
  * `.ts` is deliberately left to Node: routing it through esbuild as well would
  * mean the tests ran a transformed copy of the engine rather than the engine.
  */
+/**
+ * A stylesheet, to a bundler, is either a side effect or a URL. To Node it is a
+ * syntax error.
+ *
+ * `__root.tsx` does `import appCss from "../styles.css?url"`, which Vite turns
+ * into the emitted asset's path. A test that stands up the real route tree — to
+ * render the shell against a real router, rather than asserting its source —
+ * has to import that module, so Node needs an answer for the same import.
+ *
+ * The stand-in is the request path itself. Nothing under test reads the value;
+ * what matters is that importing the module succeeds, so the routes it declares
+ * can be exercised.
+ */
+function stylesheetStub(url) {
+  const clean = url.split("?")[0];
+  return {
+    format: "module",
+    source: `export default ${JSON.stringify(clean)};`,
+    shortCircuit: true,
+  };
+}
+
 export async function load(url, context, next) {
+  if (url.includes(".css")) return stylesheetStub(url);
   if (!url.endsWith(".tsx")) return next(url, context);
 
   const { readFile } = await import("node:fs/promises");
@@ -54,6 +77,11 @@ export function resolve(specifier, context, next) {
     : specifier.startsWith(".") && context.parentURL
       ? new URL(specifier, context.parentURL).href
       : null;
+
+  /* `?url` and `?raw` are bundler queries; the file beside them is real. */
+  if (target !== null && /\.css(\?|$)/.test(target)) {
+    return { url: target, format: "module", shortCircuit: true };
+  }
 
   if (target !== null) {
     const found = firstExisting(target);

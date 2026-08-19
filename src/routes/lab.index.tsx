@@ -89,6 +89,17 @@ function Lab() {
           previous data before the error boundary mounts — so it has to be
           provoked by arming a real loader to throw.
         */}
+        {/*
+          The session's own lifecycle. Its states belong to the shell rather
+          than to a surface, and they are the ones where a wrong claim follows
+          somebody out of the building.
+        */}
+        <Link
+          to="/lab/session"
+          className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
+        >
+          The session, ending
+        </Link>
         <Link
           to="/lab/refresh"
           className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"

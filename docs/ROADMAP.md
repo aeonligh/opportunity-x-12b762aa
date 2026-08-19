@@ -12,7 +12,7 @@ and have not been re-measured since.
 
 ## Quality Gate Status — PASSING in this environment
 
-Re-measured 2026-08-18 at the close of Phase 18. The July assessment (4
+Re-measured 2026-08-19 at the close of Phase 19. The July assessment (4
 TypeScript errors, ~28,540 lint errors, no tests) is superseded.
 
 | Gate            | Status                   | Detail                                                                                             |
@@ -21,14 +21,14 @@ TypeScript errors, ~28,540 lint errors, no tests) is superseded.
 | ESLint          | ✅ **0 errors**          | 8 warnings remain, all pre-existing `react-refresh/only-export-components` in `src/components/ui/` |
 | Build           | ✅ passes                | `bun run build` → Vercel Build Output v3 via Nitro                                                 |
 | Dev server      | ✅ passes                | serves on :5173                                                                                    |
-| Tests           | ✅ **323 pass / 0 fail** | `bun run test` — Node test runner, no framework dependency                                         |
+| Tests           | ✅ **336 pass / 0 fail** | `bun run test` — Node test runner, no framework dependency                                         |
 | Console errors  | ✅ none of ours          | hydration mismatch fixed (P18 §A); one named `@react-three/fiber` deprecation remains (P18 §J)     |
 | Light/dark mode | ✅ both verified         | driven through the real `ThemeProvider`, not `prefers-color-scheme`                                |
 | Responsive      | ✅ 375 / 390 / 768 / 1280 | no overflow, both themes, laboratory **and** product surfaces — `bun run verify:states`           |
 | Accessibility   | ✅ scripted              | tab reach, focus, `aria-pressed`, `aria-busy`, live regions, forced colours, reduced motion        |
 | Performance     | ✅ measured              | 1 doc/route, no duplicates, no N+1, 0-call route transitions; bundle +118 B over Phase 17          |
 | Build artifact  | ✅ **22 / 22**           | `bun run verify:artifact` — greps the built output for credentials, fixtures and legacy            |
-| Browser walk    | ✅ **133 checks**        | `bun run verify:states` — states, compositions, hydration, a11y, and the full journey              |
+| Browser walk    | ✅ **210 checks**        | `bun run verify:states` — states, compositions, hydration, the shell, sign-out, a11y, the journey  |
 
 **The gates are no longer what blocks phase closure.** What blocks it is live
 verification — see Phase 10 below.
@@ -355,6 +355,45 @@ Full report: `docs/PHASE_18_RUNTIME_INTEGRITY.md`.
 
 ---
 
+## Phase 19 — Authenticated shell & session lifecycle ✅ complete
+
+The product had two peer surfaces with incoherent navigation between them —
+`/opportunities` linked to "What you've saved", `/saved` linked back to
+"← Opportunities", so the same pair looked like a parent and a child depending
+on where you stood — and **no way to sign out at all**.
+
+**The shell is deliberately one bar.** The Constitution is silent on navigation,
+so its shape is a recorded product decision constrained by CR-13 (attention is
+the scarce resource) and CR-16 (what friction does this remove?). It removes
+exactly two frictions and does nothing else: no sidebar, no sticky header, no
+hamburger, no bottom bar, no counts. It scrolls away with the page, because on a
+375px phone a fixed header spends a seventh of the viewport permanently on two
+links.
+
+**Sign-out is a write, so it is read back.** `signOut()` returning cleanly is
+the request, not the answer — the answer is what a subsequent read of the
+session says. That settles the two cases nobody hand-writes: a request that
+*rejected* while the server had already ended the session is a success, and one
+that *resolved* while the session is still readable is a failure. Only a
+confirmed sign-out may navigate, and only after it forgets everything this tab
+preserved — Phase 17 wrote `forgetEverythingLastGood` for exactly this moment
+and recorded that nothing called it yet.
+
+Failure and unverifiable stay distinct, and neither ever says "you have been
+signed out" — on a shared machine that sentence is how somebody else reads your
+saved opportunities.
+
+**Three defects were found by verification rather than review:** the brand mark
+and the Opportunities link both claimed `aria-current="page"`; the pending state
+collapsed within a frame because an async transition was given a call instead of
+the function; and a keyboard sign-out that failed dropped focus to the top of the
+document, because a focused button that becomes `disabled` is blurred and never
+restored.
+
+Full report: `docs/PHASE_19_AUTHENTICATED_SHELL.md`.
+
+---
+
 ## Recommended sequence
 
 The July sequence is superseded: the quality gates it led with now pass. What
@@ -367,9 +406,8 @@ remains is external.
    A sweep that retrieves nothing is a valid result; a fabricated one is not.
 3. **Promote a build to production**, then repeat sections 3 and 4 against it.
    READY build ≠ deployed ≠ authenticated and working ≠ real discovery.
-4. **Add a way to sign out** (Phase 18 §D). It is the only product contract the
-   integration audit found missing, and it needs an authenticated app shell.
-5. **Decide whether the AI path is wired or removed** (Phase 18 §P). `callClaude`
-   is the sanctioned entry point and has no callers; no Anthropic request ships.
-6. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
-7. **Phase 8/9** last — they assume the platform below them is solid.
+4. **Decide whether the AI path is wired or removed** (Phase 18 §P, Phase 19 §M).
+   `callClaude` is the sanctioned entry point and has no callers; no Anthropic
+   request ships. This should be a decision, not an accident.
+5. **Then** close the Phase 6/7 gaps (calendar, cover letter, interview prep).
+6. **Phase 8/9** last — they assume the platform below them is solid.

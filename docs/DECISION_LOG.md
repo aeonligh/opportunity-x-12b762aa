@@ -1637,3 +1637,112 @@ unimplemented. The laboratory's UI shell ships as 29.6 KB of code-split chunks
 that refuse server-side in production — recommended as a build-configuration item
 rather than changed here, because making route generation differ between dev and
 prod would put the checked-in `routeTree.gen.ts` in conflict with itself.
+
+---
+
+## Phase 19 — Authenticated shell & session lifecycle
+
+**Feature.** An authenticated shell for Opportunity X, and the session
+lifecycle it was missing — beginning with the ability to sign out.
+
+**Purpose.** Phase 18 found that `grep -rni "sign out|logout" src/` returned
+nothing: the mechanism to *handle* a session ending was correct and wired, and
+the affordance to *cause* one did not exist. The same audit found peer
+navigation hand-rolled differently on every page.
+
+**Files changed.**
+
+- New: `src/lib/sign-out.ts`, `src/components/shell/AppShell.tsx`,
+  `src/components/shell/AccountControl.tsx`, `src/routes/lab.session.tsx`,
+  `test/authenticated-shell.test.ts`, `test/render-shell.ts`,
+  `docs/PHASE_19_AUTHENTICATED_SHELL.md`
+- Changed: `src/routes/_authenticated/route.tsx`,
+  `src/routes/_authenticated/{opportunities,saved}.tsx`,
+  `src/routes/lab.index.tsx`, `scripts/alias-hook.mjs`,
+  `scripts/state-walk.mjs`
+
+**Dependencies.** None added.
+
+### Why the shell is this small
+
+The Constitution is silent on navigation and shells, so its shape is a product
+decision rather than a derived requirement — recorded rather than invented. Two
+ratified constraints decide it. CR-13 makes attention the scarce resource, and a
+shell is the easiest place in a product for chrome to accumulate without anyone
+deciding that it should. CR-16 asks what friction a feature removes; this one
+removes two, so it does two things.
+
+Rejected, each for a stated reason: a sidebar (spends horizontal space, which is
+where evidence lives), a sticky header (a seventh of a 375px viewport, for the
+whole session, to hold two links), a hamburger and a bottom bar (both are
+answers to having more destinations than fit — there are two), and counts beside
+Saved (a number invites checking it, and CR-04 is explicit that success is never
+engagement).
+
+**One decision reversed mid-phase.** The brand mark began as a link home. `Link`
+sets `aria-current="page"` itself when the location matches, so on
+`/opportunities` both the mark and the Opportunities link claimed to be the
+current page, and `activeProps` cannot take it back. It is now inert — and the
+second reason settles it anyway: a link to `/opportunities` sitting immediately
+beside a link to `/opportunities` removes no friction.
+
+### Sign-out is a write, so it is read back
+
+`signOut()` returning cleanly is the request, not the answer. The answer is what
+a subsequent read of the session says, and that is what decides the two cases
+nobody would hand-write: a request that **rejected** while the server had
+already ended the session is a success (a response lost coming back), and a
+request that **resolved** while the session is still readable is a failure. The
+request's own error is used only to explain an outcome the read established.
+
+Only a confirmed sign-out may navigate — and before it does,
+`forgetEverythingLastGood()` runs. `last-good` holds whatever each surface last
+successfully showed so a failed refresh cannot erase it; across a sign-out that
+stops being a safeguard and becomes a leak, because the next person to sign in
+on that tab would see the previous person's list the first time a read failed.
+Phase 17 wrote that function for this moment and recorded that nothing called
+it yet. This is the caller.
+
+Failure and unverifiable stay distinct, and neither says "you have been signed
+out". On a shared machine that sentence is how somebody else reads your saved
+opportunities.
+
+### Three defects found by verification, not review
+
+- **Two elements claimed to be the current page.** Caught by rendering the shell
+  against a real router over the real route tree, rather than asserting
+  `activeProps` from source.
+- **The pending state collapsed within a frame.**
+  `startTransition(() => void run())` returns the instant `run()` is *started*.
+  Caught by the three-second specimen in the browser; React 19 keeps a
+  transition pending for as long as the async function it was given has not
+  settled.
+- **A keyboard sign-out that failed dropped focus to `<body>`.** A focused
+  button that becomes `disabled` is blurred by the browser and never restored,
+  so the person pressed a control, an alert appeared below it, and their place
+  was gone. Switched to `aria-disabled`, which keeps it focusable, with the
+  double-press guard moved into the handler — and a test asserts both halves,
+  because removing the attribute without adding the guard would leave nothing.
+
+**Risks.** `aria-disabled` does not prevent activation at the platform level;
+the guard in `run()` is now the only thing stopping a second sign-out against a
+session the first may already have ended. It is asserted by test and exercised
+in the browser, but it is code where it used to be a browser behaviour.
+
+**Testing.** 336 pass / 0 fail. 210 browser checks. 13 new tests, 14 mutations
+caught. One mutation escaped and was found to be semantically inert rather than a
+gap — `exact` on `/saved` changes nothing while `/saved` has no sub-routes — and
+was replaced with one that does change behaviour.
+
+**Future work.** Unchanged and untouched: the `callClaude` decision, degraded
+partition reachability, the `opportunity_deliveries` writer, and Phase 16's
+external blocker. New and small: the account control's touch target is above
+24px but below the 44px ideal, which is the CR-13 trade-off in miniature and is
+recorded rather than silently chosen.
+
+**Explicitly unverified.** No session can be created in this sandbox, so the
+shell on the real `/opportunities` and `/saved`, a real Supabase `signOut()`
+round trip, natural session expiry, a genuine second tab, deep-link return after
+a real sign-in, real mobile hardware, and actual screen-reader announcement are
+all **unverified**. The shell was exercised through `/lab/session` with the real
+component and the real state machine.

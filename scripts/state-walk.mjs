@@ -31,7 +31,15 @@ const VIEWPORTS = [
   { name: "1280 desktop", width: 1280, height: 900 },
 ];
 
-const LAB = ["/lab", "/lab/states", "/lab/faults", "/lab/mutations", "/lab/refresh", "/lab/saved"];
+const LAB = [
+  "/lab",
+  "/lab/states",
+  "/lab/faults",
+  "/lab/mutations",
+  "/lab/refresh",
+  "/lab/saved",
+  "/lab/session",
+];
 
 /*
   The product surfaces a browser can reach without a session. `/opportunities`
@@ -817,6 +825,340 @@ head("Reduced motion");
       .slice(0, 5),
   );
   say(moving.length === 0, "nothing animates under prefers-reduced-motion", moving.join(" | "));
+  await c.close();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   6b. The authenticated shell, and the session ending
+   ══════════════════════════════════════════════════════════════════════════ */
+head("The shell, at every width and in both themes");
+for (const vp of VIEWPORTS) {
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      colorScheme: scheme,
+    });
+    const page = await c.newPage();
+    const noise = [];
+    watch(page, noise);
+    await page.goto(`${BASE}/lab/session`, { waitUntil: "networkidle" });
+
+    const shellNav = page.locator('nav[aria-label="Opportunity X"]').first();
+    say(
+      (await shellNav.count()) > 0,
+      `[${vp.name} ${scheme}] the shell renders its navigation landmark`,
+    );
+
+    const links = await shellNav
+      .locator("a")
+      .evaluateAll((els) => els.map((e) => e.getAttribute("href")));
+    say(
+      JSON.stringify([...new Set(links)].sort()) === JSON.stringify(["/opportunities", "/saved"]),
+      `[${vp.name} ${scheme}] both destinations, and only those`,
+      links.join(", "),
+    );
+
+    /*
+      The account control must survive the narrowest width. At 375 the address
+      is deliberately hidden and the way out is not — orientation can yield,
+      the exit cannot.
+    */
+    const signOut = page.getByRole("button", { name: /^sign out$/i }).first();
+    say(await signOut.isVisible(), `[${vp.name} ${scheme}] the way out is visible`);
+
+    /* The header must not push the page sideways at any width. */
+    const overflow = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }));
+    say(
+      overflow.scroll <= overflow.client + 1,
+      `[${vp.name} ${scheme}] no horizontal overflow`,
+      `${overflow.scroll}>${overflow.client}`,
+    );
+
+    /*
+      Not sticky, deliberately. A fixed header spends its height on every screen
+      for the whole session — about a seventh of a 375px viewport — to hold two
+      links and a control used once.
+    */
+    const fixed = await page
+      .locator("header")
+      .first()
+      .evaluate((el) => {
+        const p = getComputedStyle(el).position;
+        return p === "fixed" || p === "sticky";
+      });
+    say(!fixed, `[${vp.name} ${scheme}] the header scrolls with the page rather than covering it`);
+
+    say(noise.length === 0, `[${vp.name} ${scheme}] console clean`, noise.slice(0, 1).join(" | "));
+    await c.close();
+  }
+}
+
+head("Ending a session: only a confirmed sign-out may act like one");
+{
+  /*
+    Each specimen is the real control calling the real state machine with only
+    its two network calls substituted — see `/lab/session`. The two that matter
+    most are the ones nobody would hand-write: a request that *rejected* while
+    the server had already ended the session is a success, and a request that
+    *resolved* while the session is still readable is a failure. Both are
+    decided by the read-back.
+  */
+  const press = async (specimen) => {
+    const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await c.newPage();
+    const noise = [];
+    watch(page, noise);
+    await page.goto(`${BASE}/lab/session`, { waitUntil: "networkidle" });
+    const rig = page.locator(`[data-specimen="${specimen}"]`);
+    await rig.getByRole("button", { name: /^sign out$/i }).click();
+    return { page, rig, context: c, noise };
+  };
+
+  /* ── confirmed: the only outcome that may navigate ──────────────────────── */
+  {
+    const { page, context } = await press("confirmed");
+    await page.waitForTimeout(2000);
+    say(
+      new URL(page.url()).pathname === "/auth",
+      "a confirmed sign-out lands on the sign-in page",
+      page.url(),
+    );
+    const body = await page.locator("body").innerText();
+    say(
+      !/nav|opportunities.*saved/i.test(body.slice(0, 200)) || !/sign out/i.test(body),
+      "and no authenticated shell survives the transition",
+    );
+    await context.close();
+  }
+
+  /* ── the request failed and the session is still there ─────────────────── */
+  {
+    const { page, rig, context } = await press("failed");
+    await page.waitForTimeout(2000);
+    say(
+      new URL(page.url()).pathname !== "/auth",
+      "a failed sign-out does not navigate",
+      page.url(),
+    );
+    /*
+      Read from the control's own alert, not the whole specimen. The laboratory
+      prints the lie beside each rig — "The version of this that lies: 'You have
+      been signed out.'" — and an assertion scanning the section matched the
+      warning instead of the output it warns about.
+    */
+    const said = (await rig.locator('[role="alert"]').innerText()).replace(/\s+/g, " ");
+    say(/couldn.t end your session/i.test(said), "it says the session did not end");
+    say(/still signed in/i.test(said), "and says plainly that they are still signed in");
+    /*
+      The sentence that must never appear here. Said on a shared machine, it is
+      how somebody else reads your saved opportunities.
+    */
+    say(!/you have been signed out/i.test(said), "and never claims the session ended");
+    say(
+      (await rig.getByRole("button", { name: /try again/i }).count()) > 0,
+      "and offers a retry, because a retry can help",
+    );
+    await context.close();
+  }
+
+  /* ── a failure must not cost the person their place ────────────────────── */
+  {
+    const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await c.newPage();
+    await page.goto(`${BASE}/lab/session`, { waitUntil: "networkidle" });
+    const rig = page.locator('[data-specimen="failed"]');
+
+    await rig.getByRole("button", { name: /^sign out$/i }).focus();
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(2000);
+
+    /*
+      Measured before it was fixed: a focused button that becomes `disabled` is
+      blurred by the browser, and nothing puts focus back when it is re-enabled.
+      Pressing Sign out by keyboard and having it fail dropped the person at the
+      top of the document — they pressed a control, an alert appeared below it,
+      and their place was gone. `aria-disabled` keeps it focusable.
+    */
+    const focused = await page.evaluate(() => {
+      const el = document.activeElement;
+      return el && el !== document.body ? (el.textContent || "").trim().slice(0, 24) : null;
+    });
+    say(
+      focused !== null,
+      "a failed sign-out does not throw focus back to the top of the document",
+      String(focused),
+    );
+    say(/sign out/i.test(focused ?? ""), "focus stays on the control that was pressed");
+
+    /* And the second press the platform no longer refuses is refused in code. */
+    const before = await rig.locator('[role="alert"]').count();
+    await rig.getByRole("button", { name: /^sign out$/i }).click();
+    await page.waitForTimeout(300);
+    say(
+      (await rig.locator('[role="alert"]').count()) === before,
+      "and pressing again does not stack a second attempt",
+    );
+    await c.close();
+  }
+
+  /* ── the request failed, but the session ended anyway ──────────────────── */
+  {
+    const { page, context } = await press("ambiguous");
+    await page.waitForTimeout(2000);
+    say(
+      new URL(page.url()).pathname === "/auth",
+      "a rejected request whose session is gone is reported as the sign-out it is",
+      page.url(),
+    );
+    await context.close();
+  }
+
+  /* ── the request succeeded and the session did not end ─────────────────── */
+  {
+    const { page, rig, context } = await press("still-there");
+    await page.waitForTimeout(2000);
+    say(
+      new URL(page.url()).pathname !== "/auth",
+      "a clean request is not believed over the session",
+      page.url(),
+    );
+    say(
+      /still signed in/i.test(
+        (await rig.locator('[role="alert"]').innerText()).replace(/\s+/g, " "),
+      ),
+      "and the person is told they are still signed in",
+    );
+    await context.close();
+  }
+
+  /* ── neither claim is available ────────────────────────────────────────── */
+  {
+    const { page, rig, context } = await press("unverifiable");
+    await page.waitForTimeout(3000);
+    const said = (await rig.locator('[role="alert"]').innerText()).replace(/\s+/g, " ");
+    say(
+      new URL(page.url()).pathname !== "/auth",
+      "an unverifiable sign-out does not navigate",
+      page.url(),
+    );
+    say(
+      /can.t tell|couldn.t reach|check whether/i.test(said),
+      "it says it cannot tell",
+      said.slice(0, 70),
+    );
+    say(!/you have been signed out/i.test(said), "and does not claim the session ended");
+    say(!/still signed in/i.test(said), "and does not claim it survived either");
+    /* The one thing that is actually safe to do on a shared machine. */
+    say(/close the browser/i.test(said), "and says what is safe to do instead");
+    await context.close();
+  }
+
+  /* ── in flight ─────────────────────────────────────────────────────────── */
+  {
+    const { page, rig, context } = await press("slow");
+    await page.waitForTimeout(600);
+    const button = rig.getByRole("button", { name: /signing out/i }).first();
+    say((await button.count()) > 0, "a slow sign-out says it is signing out");
+    say(await button.isDisabled(), "and cannot be pressed a second time");
+    say((await button.getAttribute("aria-busy")) === "true", "and announces itself as busy");
+    say(new URL(page.url()).pathname !== "/auth", "and has not navigated yet", page.url());
+
+    await page.waitForTimeout(4000);
+    say(
+      new URL(page.url()).pathname === "/auth",
+      "and lands on sign-in once it has actually finished",
+      page.url(),
+    );
+    await context.close();
+  }
+}
+
+head("The shell by keyboard, and without motion");
+{
+  const c = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const page = await c.newPage();
+  await page.goto(`${BASE}/lab/session`, { waitUntil: "networkidle" });
+
+  /* Tab into the shell and confirm the three things it offers are reachable. */
+  const reached = [];
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press("Tab");
+    const label = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || el === document.body) return null;
+      const s = getComputedStyle(el);
+      const ring =
+        (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== "none";
+      return { text: (el.textContent || "").trim().slice(0, 24), ring };
+    });
+    if (label) reached.push(label);
+  }
+  const texts = reached.map((r) => r.text);
+  say(
+    texts.some((t) => /opportunities/i.test(t)),
+    "Opportunities is reachable by keyboard",
+    texts.slice(0, 4).join(" · "),
+  );
+  say(
+    texts.some((t) => /saved/i.test(t)),
+    "Saved is reachable by keyboard",
+  );
+  say(
+    texts.some((t) => /sign out/i.test(t)),
+    "the account control is reachable by keyboard",
+  );
+  say(
+    reached.every((r) => r.ring),
+    "and every one of them shows a focus indicator",
+  );
+
+  /*
+    Operable, not merely reachable — driven on the confirmed specimen rather
+    than the first control on the page. The first is the one inside the embedded
+    shell, which is rigged to the three-second success, and a keyboard check
+    that has to wait it out is really a check of the timeout.
+  */
+  await page
+    .locator('[data-specimen="confirmed"]')
+    .getByRole("button", { name: /^sign out$/i })
+    .focus();
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(2500);
+  say(new URL(page.url()).pathname === "/auth", "and sign-out works by keyboard alone", page.url());
+  await c.close();
+}
+
+{
+  const c = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    reducedMotion: "reduce",
+  });
+  const page = await c.newPage();
+  await page.goto(`${BASE}/lab/session`, { waitUntil: "networkidle" });
+  const moving = await page
+    .locator("header")
+    .first()
+    .evaluate((el) => {
+      const out = [];
+      for (const node of [el, ...el.querySelectorAll("*")]) {
+        const s = getComputedStyle(node);
+        if (
+          (parseFloat(s.animationDuration) || 0) > 0.02 ||
+          (parseFloat(s.transitionDuration) || 0) > 0.02
+        ) {
+          out.push(node.tagName);
+        }
+      }
+      return out;
+    });
+  say(
+    moving.length === 0,
+    "nothing in the shell animates under reduced motion",
+    moving.slice(0, 3).join(", "),
+  );
   await c.close();
 }
 

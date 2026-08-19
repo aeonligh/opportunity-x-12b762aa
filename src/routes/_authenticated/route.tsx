@@ -2,6 +2,7 @@ import { useTransition } from "react";
 import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLoader } from "@/components/BrandLoader";
+import { AppShell } from "@/components/shell/AppShell";
 import { isHydrated } from "@/lib/hydrated";
 import {
   verifySession,
@@ -79,8 +80,33 @@ export const Route = createFileRoute("/_authenticated")({
     return { user: check.user };
   },
   errorComponent: SessionBoundary,
-  component: () => <Outlet />,
+  component: Authenticated,
 });
+
+/**
+ * The authenticated tree, inside its shell.
+ *
+ * Rendered from the gate's `component`, which the router reaches only when
+ * `beforeLoad` returned a signed-in context. That ordering is the whole of the
+ * "do not flash authenticated chrome before authentication is known"
+ * requirement: while the check is in flight the route shows its
+ * `pendingComponent`, and on either failing outcome it shows the boundary
+ * below. Neither renders the shell, so there is no window in which navigation
+ * and an account address appear for a session nobody has verified.
+ */
+function Authenticated() {
+  const { user } = Route.useRouteContext();
+  const email =
+    typeof (user as { email?: unknown })?.email === "string"
+      ? (user as { email: string }).email
+      : null;
+
+  return (
+    <AppShell email={email}>
+      <Outlet />
+    </AppShell>
+  );
+}
 
 /**
  * What a failed session check looks like.
