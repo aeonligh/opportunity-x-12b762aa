@@ -1,3 +1,79 @@
+# Applying the Opportunity X migrations
+
+> **Current state, verified 2026-08-21. Everything below the horizontal rule is
+> superseded history, kept because it records how the access problem was
+> diagnosed — but its premises are no longer true.**
+
+## Migration state on `anfiojmbgonrtympzjch`
+
+Read directly from `supabase_migrations.schema_migrations` and from
+`information_schema`, not from this repository's filenames.
+
+**Applied — verified present in the ledger:**
+
+| Ledger version | Ledger name | Repository file |
+|---|---|---|
+| `20260815163249` | `opportunity_observations` | `20260810121500_opportunity_observations.sql` |
+| `20260815163311` | `opportunity_verification_events` | `20260810122000_opportunity_verification_events.sql` |
+| `20260815163332` | `opportunity_pursuit_and_delivery` | `20260810160000_opportunity_pursuit_and_delivery.sql` |
+| `20260815163551` | `refusal_functions_are_not_endpoints` | `20260815170000_refusal_functions_are_not_endpoints.sql` |
+| `20260821211057` | `observation_requested_url` | `20260818090000_observation_requested_url.sql` |
+
+**Not applied:**
+
+| Repository file | Status |
+|---|---|
+| `20260817190000_mark_legacy_tables_retired.sql` | **UNAPPLIED — deliberately.** Metadata-only (`COMMENT ON TABLE` and nothing else), non-destructive, idempotent. Held as a separate decision from the schema repair; see the Phase 21A entry in `DECISION_LOG.md`. |
+| `20260610*`, `20260613*`, `20260614*`, `20260615*`, `20260618*`, `20260730_api_keys` | **UNAPPLIED, and not to be applied.** Lovable-era migrations for the legacy product. The tables they create already exist in this project by other means and are marked retired. |
+
+### The version numbers do not match the filenames
+
+The five applied migrations are stamped with the timestamp of *application*, not
+the repository filename, because they were applied through the dashboard and the
+MCP connector rather than by `supabase db push`. **The ledger therefore cannot
+be matched to the repository by version.** It matches by name, and any claim
+about whether a migration is applied must be checked against
+`information_schema` — which is how the `requested_url` gap was found, since the
+ledger alone would not have shown it.
+
+## The `requested_url` repair, 2026-08-21
+
+Applied as `20260821211057 observation_requested_url`. Verified immediately
+after, in one query:
+
+- `opportunity_observations.requested_url` exists, `text`, nullable
+- partial index `opportunity_observations_requested_url` exists
+- the column comment is present
+- **both append-only triggers are still attached**
+- the table still holds **0 rows** — nothing was written
+
+Read path proved by issuing the exact 20-column `SELECT` that
+`src/lib/opportunity/observation/supabase-store.ts` uses; it returns an empty
+result instead of erroring. Write path proved with `EXPLAIN (verbose)` on the
+full `INSERT`, which resolves and type-checks every column **without executing
+it**. No observation was fabricated.
+
+## Environment inspected
+
+| | |
+|---|---|
+| Supabase project | `anfiojmbgonrtympzjch` — "opportunity-x-12b762aa", `eu-north-1`, `ACTIVE_HEALTHY` |
+| Postgres | 17.6.1.147 |
+| Inspected via | Supabase MCP connector (`list_migrations`, `execute_sql`, `apply_migration`) |
+| Verified at | 2026-08-21 |
+
+## Why the section below is wrong now
+
+It states that the connected Supabase account cannot reach
+`anfiojmbgonrtympzjch` and that every call returns a permission error. **That is
+no longer the case** — the connector now reaches the project directly, which is
+how the migration above was applied. The document was never corrected when
+access changed, so it went on describing a blocker that had been resolved. It is
+kept for the record and for the reasoning about not reusing the AEON X database,
+which still stands.
+
+---
+
 # Applying the three Opportunity X migrations
 
 Status: **AUTHORED / UNAPPLIED** on project `anfiojmbgonrtympzjch`.

@@ -517,3 +517,92 @@ test("reduced motion is enforced once, globally", () => {
     "the universal block is duplicated",
   );
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PHASE 21A — A CONTENTLESS SCREEN IS NOT A PLACE FOR A DESCRIPTION OF CONTENT
+   ══════════════════════════════════════════════════════════════════════════ */
+
+test("the product lede is withheld from every contentless state", () => {
+  /*
+    Not a state-model rule — a rule about who gets the top of the screen, added
+    because production showed what the alternative looks like. A phone-sized
+    view of `/opportunities` failing was: heading, two lines promising that
+    every claim can be traced to its source page, a five-line error card saying
+    no claims could be read at all, and a link to fixtures. The reader had to
+    get through a description of what they were about to see before reaching
+    the news that they were not going to see it.
+
+    What is asserted is narrow and deliberate. Each lede must live behind the
+    `lede` flag, and the flag must be tied to the one state that has content to
+    caption. Nothing here constrains what any state *says* — `unknown`,
+    `absent`, `empty` and unreadable keep their exact wording and stay four
+    distinguishable things, which is what the rest of this file is about.
+  */
+  const surfaces = [
+    {
+      path: "src/routes/_authenticated/opportunities.tsx",
+      lede: /Every\s+claim here can be traced back to the page it came from/,
+      guard: /<Masthead lede=\{result\.state === "cards"\} \/>/,
+    },
+    {
+      path: "src/routes/_authenticated/saved.tsx",
+      lede: /What you&rsquo;ve said you care about, most recent first/,
+      guard: /<Masthead lede=\{saved\?\.state === "declarations"\} \/>/,
+    },
+  ];
+
+  for (const { path, lede, guard } of surfaces) {
+    const source = readFileSync(path, "utf8");
+
+    const match = source.match(lede);
+    assert.ok(match, `${path}: the lede this test guards is no longer there`);
+
+    /*
+      The lede must sit inside the `{lede ? (…) : null}` branch of Masthead. Read
+      from the `lede ?` to the closing `: null}` and require the sentence to fall
+      inside it — an unconditional lede put back above the heading would leave
+      that window intact but the sentence outside it.
+    */
+    const conditional = source.match(/\{lede \? \([\s\S]*?\) : null\}/);
+    assert.ok(conditional, `${path}: Masthead no longer has a conditional lede`);
+    assert.match(conditional[0], lede, `${path}: the lede is rendered unconditionally`);
+
+    /* And the flag is driven by the state, not passed as a constant. */
+    assert.match(source, guard, `${path}: the lede flag is not tied to the content state`);
+  }
+});
+
+test("the fixture route is not the forward action on an empty or failed surface", () => {
+  /*
+    "See example opportunities →" was the last thing on `/opportunities` when it
+    had nothing real, and with Try again living inside the error card it was the
+    only onward link. On a page that has just said it has nothing, that reads as
+    "we have nothing, so here are made-up ones" — the sentence this product
+    exists never to say.
+
+    The fixtures stay: they are how somebody sees a well-corroborated
+    opportunity, a single-source one and a contested one before discovery has
+    run, and every card carries its own fixture marker. Only the invitation
+    changed, so this pins the label rather than the link.
+  */
+  const source = readFileSync("src/routes/_authenticated/opportunities.tsx", "utf8");
+  const code = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+
+  assert.doesNotMatch(
+    code,
+    /See example opportunities/,
+    "the fixture link again invites the reader to examples as though they were opportunities",
+  );
+  assert.match(
+    code,
+    /Sample cards, not real openings/,
+    "the fixture link no longer says what is on the other side of it",
+  );
+
+  /* One component, so the three call sites cannot drift apart again. */
+  assert.equal(
+    (code.match(/to="\/opportunities\/examples"/g) ?? []).length,
+    1,
+    "the fixture link is hand-written per branch again instead of going through ExamplesLink",
+  );
+});

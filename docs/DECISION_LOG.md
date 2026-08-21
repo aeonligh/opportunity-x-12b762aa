@@ -1947,3 +1947,155 @@ question and larger than this phase — the landing page link is currently
 labelled "sign-in required" rather than moved. 37 unused shadcn primitives
 remain (reported, not removed). And the honest version of the globe, the
 statistics and the results block is the same in all three cases: run discovery.
+
+---
+
+## Phase 21A — Production truth correction
+
+**Trigger.** Two screenshots of the deployed product, both showing the large
+`SurfaceError` card — "SOMETHING HERE DIDN'T LOAD" — on `/opportunities` and
+`/saved`. That closed the question left open by the Phase 21 audit: the visible
+failure was not an honest empty corpus, it was a production read failing.
+
+### A. The cause, established rather than theorised
+
+`mcp__Vercel__get_runtime_errors` on `prj_FZEGLp6uU9d7iFDfiWLgDcSivDmC`,
+7-day window:
+
+```
+[Supabase] Missing Supabase environment variable(s): SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY. Set them in your environment.
+count=23  users=1  routes=/__server
+first=2026-08-19T08:34:53Z  last=2026-08-19T08:37:25Z
+lastDeployment=dpl_3ASZV8UmG8MkBx3kjVGD3jzNu4uf
+```
+
+That is the throw, verbatim, from the deployment the screenshots were taken
+against. `src/integrations/supabase/auth-middleware.ts` reads `SUPABASE_URL` and
+`SUPABASE_PUBLISHABLE_KEY` from `process.env` and throws before it looks at the
+auth header. Every authenticated server function therefore throws, both route
+loaders reach their `errorComponent`, and both render `SurfaceError`.
+
+The state model behaved correctly throughout. "I couldn't read the record of
+what I've observed" was **true** — the read genuinely failed. This was never a
+case of the UI overclaiming; it was the UI accurately reporting a
+misconfiguration, which is the fourth of the four states the product is required
+to distinguish.
+
+**CONFIGURATION FIX — NOT APPLIED. Blocked: no tooling.** The Vercel MCP surface
+exposes projects, deployments, logs, errors and protection settings. It exposes
+no environment-variable read or write, there is no `vercel` CLI in this
+environment, and no Vercel token. The values are handed over in the report; the
+write is the owner's.
+
+### B. A second, separate production defect found while confirming the first
+
+Every one of the last 20 deployments has `target: null`, and the project reports
+`live: false`. **No production deployment exists.** Fetching
+`https://opportunity-x-12b762aa.vercel.app/` returns a build that predates Phase
+17: "Live Search" pointing at `/search`, `Ranking` and `Matching` still in the
+pipeline list, `$2.4B+`, `94%`, `Apply now`, all six retired features, and
+`Powered by AEON X` in the footer — a string `scripts/verify-artifact.sh` has
+been asserting against for several phases, on an artifact that was never the one
+being served.
+
+The screenshots show the Phase 19 shell, which that build does not contain, so
+the user was testing a **preview** deployment of the feature branch. That
+matters for the fix: preview deployments read Preview-scoped variables, so
+setting the variables for Production alone will not clear the error on the URL
+actually being used.
+
+**CONFIGURATION FIX — NOT APPLIED. Blocked: same tooling gap.**
+
+### C. Schema drift — repaired
+
+**DATABASE FIX — APPLIED.**
+
+Before: `supabase_migrations.schema_migrations` held four rows
+(`opportunity_observations`, `opportunity_verification_events`,
+`opportunity_pursuit_and_delivery`, `refusal_functions_are_not_endpoints`).
+`observation_requested_url` and `mark_legacy_tables_retired` were absent. The
+ledger versions do not match the repository filenames — the four were applied
+through the dashboard and re-stamped — so the ledger alone could not settle it,
+and the column list was read directly: 20 columns, no `requested_url`.
+
+Applied via `mcp__Supabase__apply_migration` to `anfiojmbgonrtympzjch`, stamped
+`20260821211057 observation_requested_url`. Verified afterwards in one query:
+column present (`text`, nullable), partial index
+`opportunity_observations_requested_url` present, column comment present, **both
+append-only triggers still attached**, row count still 0.
+
+Read path: the exact 20-column `select` that
+`observation/supabase-store.ts` issues now returns `[]` instead of erroring.
+Write path: proved with `EXPLAIN (verbose)` on the full insert, which resolves
+and type-checks every column including `requested_url` **without executing**. No
+observation was fabricated to prove anything; the table still holds zero rows.
+
+### D. Legacy retirement migration — deliberately untouched
+
+`20260817190000_mark_legacy_tables_retired.sql` remains unapplied, as instructed.
+Inspected: 97 lines, and the only statements it can execute are `COMMENT ON
+TABLE` — four literal ones and a `DO` block whose loop body is a single
+`format('COMMENT ON TABLE public.%I IS %L', …)` guarded by a `pg_class`
+existence check. No `DROP`, `DELETE`, `TRUNCATE`, `ALTER`, `UPDATE`, `INSERT`,
+`GRANT` or `REVOKE`. It is metadata-only, non-destructive and idempotent.
+
+One fact that bears on the decision and was not previously recorded: in this
+project every legacy table holds **0 rows**. The only table in the database with
+data is `profiles`, at 1 row, which is not in the retired set. The migration's
+own "MAY CONTAIN REAL USER STATEMENTS — export before dropping" warnings are
+about a future `DROP`, which this migration does not perform, and there is
+nothing to export here in any case. Safe to apply; still the owner's call, and
+still a different decision from the one above.
+
+### E. Correction to the Phase 18 verification record
+
+Phase 18 reported the fixture corpus was not shipped as product data. **The test
+behind that claim was narrower than the claim.** `scripts/verify-artifact.sh`
+greps the *client bundle* for `demoCorpus`, `Bilateral Education Agreement`,
+`Federal Ministry of Education`, `education.gov.ng` and `unn.edu.ng`. Those five
+assertions were true and are still true — nothing about the browser build has
+changed.
+
+What they do not cover is the server. `fixtureOpportunities()` is a
+`createServerFn` in `src/lib/opportunities.functions.ts`, and
+`/opportunities/examples` is a real authenticated route. Any signed-in
+production user can reach the fixture corpus; it arrives over the wire from the
+server, which is precisely the path a client-bundle grep cannot see. The Phase
+18 statement should have read "the fixture corpus is not compiled into the
+browser build", which is a claim about a build artifact, not about
+reachability.
+
+The old entry is left as written. This is the amendment, not a rewrite.
+
+**Is the fixture route still intentional?** Yes, and it survives this
+correction. The corpus exists so a person can see how a well-corroborated
+opportunity, a single-source one and a contested one actually read, before
+discovery has run. Every card carries `evidence="fixture"` and renders the
+marker "Fixture — nothing here was retrieved from a real source" on the card
+itself rather than on the page, so the label cannot be separated from the data,
+and `test/lab.test.ts` enforces that every route rendering the corpus passes
+that prop. Deliberate, labelled exposure is not the defect. What was wrong was
+its *priority*, corrected below.
+
+### F. Information architecture
+
+**CONTENT/IA FIX — APPLIED.**
+
+- `/opportunities` and `/saved`: the product lede is now rendered only when
+  there is content to caption. On `unknown`, `absent`, `empty` and error
+  branches the heading stands alone and the state gets the screen. No state's
+  wording changed, and `unknown` / `absent` / `empty` / unreadable remain four
+  distinct things.
+- The fixture link was the only forward motion on a failed or empty
+  `/opportunities`, reading "See example opportunities →". It is now a single
+  `ExamplesLink` component reading "Sample cards, not real openings →", at
+  reduced weight and without the underline. The route is unchanged and still
+  reachable.
+- `/saved`'s empty state is untouched: "Opportunities you save will appear
+  here." No prose was added anywhere to fill space.
+
+### G. What this phase did not do
+
+No new feature, no new state, no new auth, no new copy beyond the two label
+changes above, and no weakening of any absence distinction.

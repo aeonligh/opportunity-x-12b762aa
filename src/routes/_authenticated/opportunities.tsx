@@ -67,18 +67,64 @@ export const Route = createFileRoute("/_authenticated/opportunities")({
  * Peer navigation now belongs to one place, and it is the same place on every
  * page — including this route's failing and pending branches, because the
  * shell wraps all of them.
+ *
+ * ── Why the lede is conditional (Phase 21A) ───────────────────────────────
+ *
+ * This paragraph describes what the page contains. On a screen that contains
+ * nothing it describes nothing, and it was doing real damage: a phone-sized
+ * view of the failure state was a heading, then two lines promising traceable
+ * claims, then a five-line error card, then a link to fixtures. Four blocks of
+ * prose and no product. The reader had to work through a description of what
+ * they were about to see in order to reach the news that they were not going to
+ * see it.
+ *
+ * The state model is not weakened by this — every state still says exactly what
+ * it said, and `unknown`, `absent` and `unreadable` remain distinct. What
+ * changes is only which of them gets the top of the screen.
+ *
+ * Shown with cards, because then it is a caption on something. Withheld
+ * otherwise, including while loading: the skeleton is already content-shaped
+ * and says "something is coming" more directly than a sentence can.
  */
-function Masthead() {
+function Masthead({ lede = false }: { lede?: boolean }) {
   return (
     <header className="flex flex-col gap-3">
       <h1 className="text-3xl font-black leading-[1.1] tracking-tighter text-foreground sm:text-4xl">
         Opportunities
       </h1>
-      <p className="max-w-[62ch] text-[15px] leading-relaxed text-text-s">
-        What has been found, what is actually known about it, and what is still uncertain. Every
-        claim here can be traced back to the page it came from.
-      </p>
+      {lede ? (
+        <p className="max-w-[62ch] text-[15px] leading-relaxed text-text-s">
+          What has been found, what is actually known about it, and what is still uncertain. Every
+          claim here can be traced back to the page it came from.
+        </p>
+      ) : null}
     </header>
+  );
+}
+
+/**
+ * The way to the fixtures, deliberately quiet.
+ *
+ * This link was the last thing on an empty or failed Opportunities page and,
+ * with "Try again" sitting inside the error card, the only forward motion
+ * offered. On a surface that has just said it has nothing real, an invitation
+ * reading "See example opportunities" is close to "we have nothing, so here
+ * are some made-up ones" — which is the sentence this product exists to never
+ * say.
+ *
+ * The fixtures keep their purpose: they are how somebody sees what a
+ * well-corroborated opportunity, a single-source one and a contested one
+ * actually read. That is worth reaching. It is not worth reaching *instead of*
+ * the product, so the label now says what is on the other side of it.
+ */
+function ExamplesLink() {
+  return (
+    <Link
+      to="/opportunities/examples"
+      className="w-fit font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-text-s transition-colors duration-[120ms] hover:text-accent"
+    >
+      Sample cards, not real openings &rarr;
+    </Link>
   );
 }
 
@@ -114,7 +160,7 @@ function Failed() {
   if (kept) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6">
-        <Masthead />
+        <Masthead lede />
         <RefreshFailed
           what="I couldn’t check for new opportunities."
           at={kept.at}
@@ -140,12 +186,7 @@ function Failed() {
         onRetry={retry}
         retrying={retrying}
       />
-      <Link
-        to="/opportunities/examples"
-        className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
-      >
-        See example opportunities &rarr;
-      </Link>
+      <ExamplesLink />
     </div>
   );
 }
@@ -175,7 +216,7 @@ function Opportunities({ data }: { data?: LoaderData }) {
         data ? "flex flex-col gap-10" : "mx-auto flex max-w-3xl flex-col gap-10 px-4 py-14 sm:px-6"
       }
     >
-      {data ? null : <Masthead />}
+      {data ? null : <Masthead lede={result.state === "cards"} />}
       {data ? null : <Refreshing what="for new opportunities" />}
 
       {result.state === "cards" ? (
@@ -228,12 +269,7 @@ function Opportunities({ data }: { data?: LoaderData }) {
             searchedAt={result.searchedAt}
             standing="This is what I found, not a gap in my looking. When something opens, it appears here."
           />
-          <Link
-            to="/opportunities/examples"
-            className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
-          >
-            See example opportunities &rarr;
-          </Link>
+          <ExamplesLink />
         </section>
       ) : (
         /*
@@ -243,12 +279,7 @@ function Opportunities({ data }: { data?: LoaderData }) {
         */
         <section className="flex flex-col gap-5">
           <UnknownState gap={result.gap} />
-          <Link
-            to="/opportunities/examples"
-            className="w-fit font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-s underline decoration-border underline-offset-4 transition-colors duration-[120ms] hover:text-accent hover:decoration-accent"
-          >
-            See example opportunities &rarr;
-          </Link>
+          <ExamplesLink />
         </section>
       )}
     </div>

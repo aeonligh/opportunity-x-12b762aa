@@ -25,16 +25,28 @@ export const Route = createFileRoute("/_authenticated/saved")({
   component: Saved,
 });
 
-function Masthead() {
+/*
+  The lede is conditional for the same reason it is on `/opportunities`: it
+  describes a list, and above a screen with no list it is three lines a reader
+  has to get past to reach the news. Nothing is added to replace it — the empty
+  state already says the one true sentence, and padding a contentless page with
+  prose is the problem, not the fix.
+
+  "most recent first" is also an ordering claim, which is only true when there
+  is something ordered.
+*/
+function Masthead({ lede = false }: { lede?: boolean }) {
   return (
     <header className="flex flex-col gap-3">
       <h1 className="text-3xl font-black leading-[1.1] tracking-tighter text-foreground sm:text-4xl">
         Saved
       </h1>
-      <p className="max-w-[62ch] text-[15px] leading-relaxed text-text-s">
-        What you&rsquo;ve said you care about, most recent first. Saying so keeps it in view — it
-        doesn&rsquo;t apply to anything on your behalf.
-      </p>
+      {lede ? (
+        <p className="max-w-[62ch] text-[15px] leading-relaxed text-text-s">
+          What you&rsquo;ve said you care about, most recent first. Saying so keeps it in view — it
+          doesn&rsquo;t apply to anything on your behalf.
+        </p>
+      ) : null}
     </header>
   );
 }
@@ -85,7 +97,7 @@ function Failed() {
   if (kept) {
     return (
       <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6">
-        <Masthead />
+        <Masthead lede />
         <RefreshFailed
           what="I couldn’t check your saved list for changes."
           at={kept.at}
@@ -132,7 +144,7 @@ function Saved({ data }: { data?: LoaderData }) {
         data ? "flex flex-col gap-8" : "mx-auto flex max-w-2xl flex-col gap-8 px-4 py-14 sm:px-6"
       }
     >
-      {data ? null : <Masthead />}
+      {data ? null : <Masthead lede={saved?.state === "declarations"} />}
       {data ? null : <Refreshing what="what you’ve saved" />}
 
       {saved?.state === "unknown" ? <UnknownState gap={saved.gap} /> : null}
