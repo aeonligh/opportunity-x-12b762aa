@@ -270,10 +270,22 @@ function AuthPage() {
           <h1 className="text-2xl font-bold mb-1">
             {mode === "signin" ? "Welcome back" : "Create your account"}
           </h1>
+          {/*
+            "Sign in to your opportunities feed." A feed is a stream you are
+            meant to keep consuming, and CR-04 makes engagement void as a
+            measure of this product working — the aim is that someone finds one
+            thing and wins it, then has no reason to come back for a while.
+            CR-13 puts it the other way round: attention is the scarce resource,
+            and a product that calls its surface a feed has already decided
+            whose side it is on.
+
+            "in seconds" went with it. Nothing here is instant, and discovery
+            has not run at all yet.
+          */}
           <p className="text-sm text-text-s mb-6">
             {mode === "signin"
-              ? "Sign in to your opportunities feed."
-              : "Start discovering opportunities in seconds."}
+              ? "Sign in to see what has been found for you."
+              : "Create an account to start looking."}
           </p>
 
           {/*

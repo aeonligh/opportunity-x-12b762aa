@@ -2,12 +2,19 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { ShieldCheck, X } from "lucide-react";
+import { X } from "lucide-react";
 
 // ------------------------------------------------------------
 // REAL-WORLD INSTITUTION MAPPING
-// Every node = a real organization at its verified HQ coordinates.
-// Coordinates are cached statically here (no runtime geocoding).
+//
+// Every node is a real organization at its headquarters. The names, cities and
+// coordinates are facts about the world, checked by hand and cached statically
+// here (no runtime geocoding).
+//
+// What this map is NOT: it is not the output of discovery, and it is not an
+// inventory of open opportunities. It is a hand-written atlas of well-known
+// programmes, shown so the globe has something true on it. Nothing here has
+// passed through the observation pipeline, and the UI must not imply it has.
 // ------------------------------------------------------------
 
 export type OpportunityKind =
@@ -29,7 +36,6 @@ export interface OpportunityNode {
   lat: number;
   lng: number;
   kind: OpportunityKind;
-  verified: boolean;
 }
 
 /*
@@ -48,8 +54,39 @@ export interface OpportunityNode {
   organisation.
 
   What remains is what the globe legitimately shows: where opportunities are
-  announced, by whom, of what kind, and whether this system has verified them.
-  Those are facts about the world with a source. A percentage was not.
+  announced, by whom, and of what kind. Those are facts about the world with a
+  source. A percentage was not.
+
+  ══════════════════════════════════════════════════════════════════════════
+  THE SECOND FIELD THAT WAS HERE
+  ══════════════════════════════════════════════════════════════════════════
+
+  `verified: boolean`, carried by all 33 nodes and set to the literal `true` on
+  every one of them. It drove a green "Verified" shield on hover, the phrase
+  "N verified opportunities" on the country panel, and a "Verified — 33 of 33"
+  footer set in gradient text.
+
+  The sentence that stood beside that footer read: "A count, not a score. It
+  says how many of these this system has actually verified — a fact with a
+  source behind it."
+
+  Every clause of that was false. Nothing counted anything: `verified` was a
+  hardcoded literal, so the ratio could only ever be N of N. This system has
+  verified none of them — `opportunity_observations` holds zero rows and
+  discovery has never run against the live web. And there was no source behind
+  it, which is the specific thing the sentence asserted.
+
+  It is a clean example of the failure this phase exists to catch: a previous
+  pass removed the fabricated *score* from these same nodes, wrote a comment
+  congratulating itself for keeping only what was true, and left a fabricated
+  *verification claim* in the field directly below it. Assumed, not measured.
+
+  CR-11 makes verification a continuous process with evidence, not an attribute
+  a node is born with. A programme this system has never read cannot carry the
+  badge that says it did. The field is gone rather than defaulted to `false`,
+  because `false` would also be a claim — the truth is that this atlas is
+  outside the verification pipeline entirely, and the UI now says nothing about
+  verification here at all.
 */
 
 const flag = (cc: string) =>
@@ -66,7 +103,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 50.7374,
     lng: 7.0982,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Chevening",
@@ -78,7 +114,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 51.5074,
     lng: -0.1278,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Fulbright",
@@ -90,7 +125,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 38.9072,
     lng: -77.0369,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "MEXT",
@@ -102,7 +136,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 35.6762,
     lng: 139.6503,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Erasmus Mundus",
@@ -114,7 +147,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 50.8503,
     lng: 4.3517,
     kind: "Program",
-    verified: true,
   },
   {
     name: "Rhodes",
@@ -126,7 +158,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 51.752,
     lng: -1.2577,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Commonwealth",
@@ -138,7 +169,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 51.5074,
     lng: -0.1278,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Mastercard Foundation",
@@ -150,7 +180,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 43.6532,
     lng: -79.3832,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Australia Awards",
@@ -162,7 +191,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -35.2809,
     lng: 149.13,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Swiss Excellence",
@@ -174,7 +202,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 46.9481,
     lng: 7.4474,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Eiffel",
@@ -186,7 +213,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 48.8566,
     lng: 2.3522,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "KAIST",
@@ -198,7 +224,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 36.3729,
     lng: 127.3607,
     kind: "Research",
-    verified: true,
   },
   {
     name: "Holland Scholarship",
@@ -210,7 +235,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 52.0705,
     lng: 4.3007,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "China CSC",
@@ -222,7 +246,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 39.9042,
     lng: 116.4074,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "MITACS",
@@ -234,7 +257,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 49.2827,
     lng: -123.1207,
     kind: "Internship",
-    verified: true,
   },
   {
     name: "African Union",
@@ -246,7 +268,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 9.03,
     lng: 38.74,
     kind: "Fellowship",
-    verified: true,
   },
   {
     name: "OWSD",
@@ -258,7 +279,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 45.6495,
     lng: 13.7768,
     kind: "Research",
-    verified: true,
   },
   {
     name: "Aga Khan",
@@ -270,7 +290,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -1.2921,
     lng: 36.8219,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Wits",
@@ -282,7 +301,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -26.2041,
     lng: 28.0473,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "NTU Singapore",
@@ -294,7 +312,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 1.3521,
     lng: 103.8198,
     kind: "Research",
-    verified: true,
   },
   {
     name: "IIT Bombay",
@@ -306,7 +323,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 19.076,
     lng: 72.8777,
     kind: "Research",
-    verified: true,
   },
   {
     name: "USP",
@@ -318,7 +334,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: -23.5505,
     lng: -46.6333,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "UNAM",
@@ -330,7 +345,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 19.4326,
     lng: -99.1332,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "Google Research",
@@ -342,7 +356,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 37.4419,
     lng: -122.143,
     kind: "Internship",
-    verified: true,
   },
   {
     name: "Max Planck",
@@ -354,7 +367,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 48.1351,
     lng: 11.582,
     kind: "Research",
-    verified: true,
   },
   {
     name: "TU Delft",
@@ -366,7 +378,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 52.0022,
     lng: 4.3736,
     kind: "Research",
-    verified: true,
   },
   {
     name: "ETH Zürich",
@@ -378,7 +389,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 47.3769,
     lng: 8.5417,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "KAUST",
@@ -390,7 +400,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 22.3092,
     lng: 39.1043,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "NYU Abu Dhabi",
@@ -402,7 +411,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 24.4539,
     lng: 54.3773,
     kind: "Scholarship",
-    verified: true,
   },
   {
     name: "MBZUAI",
@@ -414,7 +422,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 24.4667,
     lng: 54.6,
     kind: "Research",
-    verified: true,
   },
   {
     name: "UNESCO",
@@ -426,7 +433,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 48.8499,
     lng: 2.306,
     kind: "Fellowship",
-    verified: true,
   },
   {
     name: "WHO",
@@ -438,7 +444,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 46.2044,
     lng: 6.1432,
     kind: "Internship",
-    verified: true,
   },
   {
     name: "Humboldt",
@@ -450,7 +455,6 @@ export const OPPORTUNITY_NODES: OpportunityNode[] = [
     lat: 50.7374,
     lng: 7.0982,
     kind: "Fellowship",
-    verified: true,
   },
 ];
 
@@ -516,7 +520,6 @@ export interface CountryIntel {
   total: number;
   byKind: Partial<Record<OpportunityKind, number>>;
   organizations: string[];
-  verified: number;
   nodes: OpportunityNode[];
 }
 
@@ -532,7 +535,6 @@ function aggregate(country: string): CountryIntel | null {
     total: nodes.length,
     byKind,
     organizations: orgs,
-    verified: nodes.filter((n) => n.verified).length,
     nodes,
   };
 }
@@ -777,14 +779,15 @@ export default function OpportunityGlobe({ query = "", onCountrySelect }: Opport
             <span className="px-1.5 py-0.5 rounded bg-accent/10 text-accent font-semibold">
               {hovered.kind}
             </span>
-            {hovered.verified && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[oklch(0.6_0.12_152)]/15 text-[oklch(0.78_0.15_152)] font-semibold">
-                <ShieldCheck size={9} /> Verified
-              </span>
-            )}
-            <span className="px-1.5 py-0.5 rounded bg-surface font-mono font-semibold">
-              {hovered.kind}
-            </span>
+            {/*
+              A green "Verified" shield stood between these two chips, and the
+              kind was then printed a second time in a mono chip beside it —
+              the duplication only readable as filler around the badge. Both
+              are gone: the badge because this system has verified nothing (see
+              the note on the removed field above), the duplicate because it
+              was saying the same word twice.
+            */}
+            <span className="px-1.5 py-0.5 rounded bg-surface text-text-s">{hovered.city}</span>
           </div>
         </div>
       )}
@@ -798,8 +801,16 @@ export default function OpportunityGlobe({ query = "", onCountrySelect }: Opport
                 <span className="text-xl leading-none">{flag(intel.countryCode)}</span>
                 <span className="text-sm font-black">{intel.country}</span>
               </div>
+              {/*
+                This read "{n} verified opportunities". Two false words in
+                three. They are not verified, and they are not opportunities —
+                they are programmes on a hand-written atlas, which may or may
+                not be open right now. This system does not know, and the
+                count says only what it can honestly say: how many of these
+                are on the map here.
+              */}
               <div className="text-[10px] font-mono uppercase tracking-widest text-text-s">
-                {intel.total} verified opportunit{intel.total === 1 ? "y" : "ies"}
+                {intel.total} programme{intel.total === 1 ? "" : "s"} on this map
               </div>
             </div>
             <button
@@ -827,10 +838,15 @@ export default function OpportunityGlobe({ query = "", onCountrySelect }: Opport
             ))}
           </div>
 
+          {/*
+            "Top Organizations" — the list is `Array.from(new Set(...)).slice(0, 6)`.
+            There is no ranking, so "Top" was an ordering claim with no ordering
+            behind it. Dropped the word rather than invent a sort.
+          */}
           <div className="text-[10px] font-mono uppercase tracking-widest text-text-s mb-1">
-            Top Organizations
+            Organizations
           </div>
-          <ul className="space-y-1 mb-3">
+          <ul className="space-y-1">
             {intel.organizations.map((o) => (
               <li key={o} className="text-[11px] text-foreground truncate">
                 · {o}
@@ -838,14 +854,20 @@ export default function OpportunityGlobe({ query = "", onCountrySelect }: Opport
             ))}
           </ul>
 
-          {/* A count, not a score. It says how many of these this system has
-              actually verified — a fact with a source behind it. */}
-          <div className="flex items-center justify-between pt-2 border-t border-border">
-            <span className="text-[10px] text-text-s">Verified</span>
-            <span className="text-xs font-black text-gradient">
-              {intel.verified} of {intel.total}
-            </span>
-          </div>
+          {/*
+            A "Verified — 33 of 33" row stood here in gradient text, at the
+            bottom of the panel where a summary figure carries the most weight.
+            It is the row the long note above this file's node list is about.
+
+            What replaces it is the statement that row was standing in the way
+            of: this atlas has not been through verification, and the panel now
+            says so in the same position, at the same weight, where a reader
+            was previously being told the opposite.
+          */}
+          <p className="pt-2 border-t border-border text-[10px] leading-relaxed text-text-s">
+            Hand-written reference points, not discovery results. Opportunity X has not read or
+            verified these programmes, and does not know whether they are open.
+          </p>
         </div>
       )}
     </div>

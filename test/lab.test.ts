@@ -27,6 +27,11 @@ import { join } from "node:path";
 const LAB_SERVER = "src/lib/lab.functions.ts";
 
 /** Every `.ts`/`.tsx` under `src/`, generated route tree excluded. */
+/** Code with block and line comments removed, for rules that are about code. */
+function withoutComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+}
+
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
@@ -189,9 +194,18 @@ test("the fixture corpus is reachable from exactly the surfaces that label it", 
 
     So the rule is a test now. If a new caller imports the fixture corpus, this
     fails and whoever added it has to say which surface labels the result.
+
+    Comments are stripped before the match. The rule is about who can *reach*
+    the corpus, and reaching it is an import — a file that merely names the path
+    in prose has not reached anything. Phase 21 hit this: a note on the landing
+    page cited `surface/demo.ts` as the authority for why the product refuses to
+    deduplicate disagreement, and the test read the citation as a new importer.
+    Matching prose does not make the invariant stricter, it makes it wrong in
+    the direction that punishes writing down why the code is the way it is —
+    which is the same failure the comment above is about.
   */
   const importers = sourceFiles("src").filter((f) =>
-    /surface\/demo|demoCorpus/.test(readFileSync(f, "utf8")),
+    /surface\/demo|demoCorpus/.test(withoutComments(readFileSync(f, "utf8"))),
   );
 
   assert.deepEqual(
