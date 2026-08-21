@@ -1841,3 +1841,109 @@ and TLS headers are all **NOT VERIFIED — EXTERNAL**: they belong to the Supaba
 project or the deployment platform and cannot be established from this
 repository. A successful sign-in has never been executed here, so every positive
 path in the report is a proof about what happens *around* one.
+
+---
+
+## Phase 21 — The public surface, held to the product's own standard
+
+**Feature.** A whole-codebase authenticity audit, and the removal of what it
+found. The finding that shaped the phase: fabrication in this repository is not
+distributed. The product surfaces — `/opportunities`, `/saved`,
+`/opportunities/$id`, the state components, the observation, verification and
+judgment layers — are austere and say what they can support. Essentially every
+untrue claim in Opportunity X was on `src/routes/index.tsx` and the component it
+lazy-loads, and the landing page was the one file twenty phases of governance had
+never audited against the system behind it.
+
+**Purpose.** A product whose entire thesis is that it will not surface an
+unverified opportunity as fact was, on its front door, presenting invented
+statistics, invented match percentages, invented verification, four real
+scholarship programmes as "Live results", and six capabilities of which five had
+been deliberately deleted in Phase 13. Nothing in the epistemic machinery reaches
+the marketing layer, which is exactly why it drifted.
+
+**Files changed.** `src/routes/index.tsx`, `src/components/landing/OpportunityGlobe.tsx`,
+`src/routes/auth.tsx`, `test/lab.test.ts`, `test/landing-authenticity.test.ts` (new).
+
+**What was removed, and why each was disqualifying.**
+
+- *A simulated AI pipeline.* An "Ask AI" button beside the hero input called
+  `simulate()`: a `setInterval` advancing an index every 550ms through
+  "Searching / Discovering / Reading / Verifying / Corroborating / Explaining",
+  then stopping. It never read the query, called nothing, and produced no
+  result. The other fabrications invented data; this one performed the act of
+  working on somebody's real question.
+- *`verified: true`, hardcoded on all 33 globe nodes.* It drove a green shield
+  per node, "N verified opportunities" on the country panel, and a
+  "Verified — 33 of 33" figure in gradient text, beside a comment asserting it
+  was "a count, not a score… a fact with a source behind it". Every clause was
+  false: nothing counted, nothing was verified, no source existed. CR-11.
+- *A ranked list of match percentages* (`92%` Chevening, `88%` DAAD EPOS, `84%`
+  MEXT) and a second `94% Match` ring beside a named real programme. CR-21, and
+  fabricated claims about real institutions.
+- *Fabricated statistics* — `$2.4B+`, `12,000+`, `190+`, `Daily` — and a
+  "Live results" block over DAAD, Chevening, MEXT and Fulbright.
+- *Three dead controls* — "Apply now", "Save", "Share on WhatsApp" — bare
+  `<button>` elements with no handler, href or form. Clicking did nothing,
+  silently. "Apply now" is the action the whole product exists for.
+- *Two claims that inverted the code.* "Duplicates removed — URL hashing and
+  semantic dedup" against `surface/demo.ts` ("the disagreement survives to the
+  surface instead of being deduplicated away"); and "confidence scoring…
+  anything below 0.6 never gets published" against `observation/types.ts`
+  ("there is deliberately no `confidence`"), with `0.6` appearing nowhere in the
+  codebase.
+- *Six advertised features, five deleted in Phase 13.* Verified against the
+  `COMMENT ON TABLE` statements the migration writes into the database itself:
+  `sop_drafts`, `cv_suggestions`, `documents`, `applications` and
+  `sent_reminders` are all marked RETIRED. The sixth, "Application Tracker —
+  Kanban-style pipeline from Interested to Submitted to Outcome", named four
+  things that exist in neither `PursuitState` (two values: `interested`,
+  `not-interested`) nor the schema.
+- *Engagement vocabulary* — "your opportunities feed" on the auth page, "keep
+  your feed clean and signal-rich" on the landing page. CR-04 makes engagement
+  void as a measure of this product working; CR-13 makes attention the scarce
+  resource.
+
+**Dependencies.** None added. No new package, component library, design system
+or route. The globe, the sections and the visual identity are unchanged in form.
+
+**The finding worth carrying forward.** Every fabrication removed here had
+already been removed once, somewhere else in the same file. A `94% Match` ring
+was deleted from `OpportunityGlobe` in an earlier phase, with a careful comment
+citing CR-21 — while a `verified` field one line below it went untouched, and
+the same percentage stood in three other shapes elsewhere on the page. An
+earlier phase edited `AI_STEPS` for constitutional correctness without noticing
+the array was driving an animation of work that never happened. Auditing the
+contents of a fiction is not the same as noticing it is one. A comment saying a
+problem was handled cannot fail; that is why this phase ends in tests rather
+than in prose.
+
+**Risks.** `SectionExecution` now carries a "Not built yet" block naming four
+roadmap capabilities. That is honest today and becomes stale the moment one
+ships, with no test binding it to `docs/ROADMAP.md`. The globe atlas is still 33
+hand-written nodes — true facts about real organisations, now labelled as a
+reference map rather than as discovery output, but it will need replacing with
+real observations rather than relabelling again.
+
+**Testing.** 353 pass / 0 fail (4 new). Build clean, `tsc` 0 errors, ESLint 0
+errors and 8 warnings — measured against a stashed baseline, so a net change of
+zero. 36 artifact assertions, 44 migration assertions. Browser walk across both
+themes and three viewports: no console errors, no horizontal overflow, no
+percentage or "Live" in the rendered text, and the one surviving interactive
+control confirmed to work.
+
+Five mutations, each reintroducing the exact defect its assertion was written
+for, all confirmed caught and reverted.
+
+One existing test had to be corrected rather than worked around: the fixture
+corpus reachability rule in `test/lab.test.ts` matched raw file text, so a note
+*citing* `surface/demo.ts` as the authority for why the product refuses to
+deduplicate read as a new importer. It now strips comments — mutation-tested to
+confirm a genuine new import is still caught. Matching prose did not make the
+invariant stricter; it punished writing down why the code is the way it is.
+
+**Future work.** Whether `/opportunities/examples` should be public is a real
+question and larger than this phase — the landing page link is currently
+labelled "sign-in required" rather than moved. 37 unused shadcn primitives
+remain (reported, not removed). And the honest version of the globe, the
+statistics and the results block is the same in all three cases: run discovery.
