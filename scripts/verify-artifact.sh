@@ -108,6 +108,44 @@ present "the client has the Supabase project URL it must reach" "supabase.co"   
 present "and the publishable key it is meant to carry"          "sb_publishable_"  "$CLIENT"
 
 echo
+echo "── The retired product cannot be reached from this build"
+# ══════════════════════════════════════════════════════════════════════════
+# WHY THIS SECTION EXISTS (Phase 21B)
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Phase 21B established that the production domain was serving commit 8a2090d
+# — origin/main, 79 commits behind — which still contained the whole of System
+# B: /search, /dashboard, /vault, the admin routes, "94% Match", "$2.4B+",
+# "Apply now", and "Powered by AEON X". Every one of those had been removed
+# from the repository phases earlier, and every removal had been reported as
+# done. They were done. They were simply never deployed.
+#
+# That is the gap this section closes. The other checks in this file ask "did
+# the build leak a secret". These ask "is the old product still in here" — of
+# the artifact, which is the only thing a deployment can actually serve.
+#
+# Patterns are literal and narrow on purpose. An earlier draft matched "94%"
+# and hit `hsl(359, 100%, 94%)` in a stylesheet; a check that cries wolf gets
+# switched off. Each of these is a string that only the retired product says.
+absent "no match percentage ships"                "% Match"                  "$CLIENT"
+absent "no fabricated funding statistic ships"    '[$]2[.]4B'                "$CLIENT"
+absent "no fabricated source count ships"         "12,000\+ *(sources)?"     "$CLIENT"
+absent "no 'Live Search' entrance ships"          "Live Search"              "$CLIENT"
+absent "no 'Live results' heading ships"          "Live results"             "$CLIENT"
+absent "no dead 'Apply now' control ships"        "Apply now"                "$CLIENT"
+absent "no dead WhatsApp share control ships"     "Share on WhatsApp"        "$CLIENT"
+absent "no retired-feature grid ships"            "Document Vault|Kanban-style" "$CLIENT"
+absent "no fabricated dedup claim ships"          "Duplicates removed"       "$CLIENT"
+absent "no fabricated confidence threshold ships" "below 0[.]6"              "$CLIENT"
+absent "the previous platform is not named"       "Powered by AEON X"        "$CLIENT"
+# System B's routes. The client bundle carries the route tree, so a resurrected
+# route appears here as a path literal.
+absent "no /search route ships"                   '"/search"'                "$CLIENT"
+absent "no /vault route ships"                    '"/vault"'                 "$CLIENT"
+absent "no /onboarding route ships"               '"/onboarding"'            "$CLIENT"
+absent "no legacy public webhook ships"           "crawl-opportunities|deadline-reminders" "$CLIENT"
+
+echo
 echo "── The fixture corpus is not shipped as product data"
 # The laboratory's *shell* is code-split into the client build, which is inert:
 # every laboratory server function calls assertDevelopment() and refuses off a
