@@ -178,7 +178,17 @@ test("the repository does not claim to hold a Bible", () => {
    The theme: every one of these failures makes the repository look *more*
    self-contained than it is. That is the direction the checks have to point. */
 
-/** Every distinct Bible section cited by src/, canonical form. */
+/**
+ * Every distinct Bible section referenced by `src/`, canonical form.
+ *
+ * Two shapes exist since Phase 23, and the difference is the whole point:
+ *
+ *   `OXD-001 (hist. XB §7)`  — repointed. Current authority first, lineage after.
+ *   `Experience Bible §7`    — bare. An unresolved claim on a missing document.
+ *
+ * Both are inventoried; only the second is an active claim on authority nobody
+ * can read. `bareSections()` below is what failure mode 3 turns on.
+ */
 function citedSections(): Set<string> {
   const alias: Record<string, string> = {
     PB: "Product Bible",
@@ -190,23 +200,71 @@ function citedSections(): Set<string> {
     Flows: "UX Flows Bible",
     "UX Flows": "UX Flows Bible",
   };
+  const norm = (raw: string, num: string) => {
+    const a = raw.replace(/ Bible$/, "");
+    return `${alias[a] ?? `${a} Bible`} §${String(Number(num)).padStart(2, "0")}`;
+  };
+  const out = new Set<string>();
+  for (const f of sourceFiles()) {
+    const t = readFileSync(f, "utf8");
+    for (const m of t.matchAll(
+      /(Product|Experience|Brand|IA|Information Architecture|UX Flows|Flows|Component System|CS|PB|XB|BB)\s*(?:Bible)?\s*§\s*0*(\d+)/g,
+    ))
+      out.add(norm(m[1], m[2]));
+    for (const m of t.matchAll(/(?:Brand Bible|BB)\s+(A-\d+)/g)) out.add(`Brand Bible ${m[1]}`);
+  }
+  return out;
+}
+
+/**
+ * Sections still cited with NO current authority beside them.
+ *
+ * The test is the `hist. ` prefix, not proximity. A first attempt used an
+ * optional leading-authority group, which matched empty at the citation's own
+ * index and reported every repointed citation as bare — the regex was looking
+ * for the marker in a place the scan never started from.
+ */
+function bareSections(): Set<string> {
+  const alias: Record<string, string> = {
+    PB: "Product Bible",
+    XB: "Experience Bible",
+    BB: "Brand Bible",
+    IA: "IA Bible",
+    "Information Architecture": "IA Bible",
+    CS: "Component System Bible",
+    Flows: "UX Flows Bible",
+    "UX Flows": "UX Flows Bible",
+  };
+  const out = new Set<string>();
+  for (const f of sourceFiles()) {
+    /*
+      Everything inside a `(hist. …)` span is lineage, however many sections it
+      names — `(hist. CS §14, IA §18)` is one repoint citing two predecessors.
+      Blanking those spans first is what makes the grouped form work; a
+      lookbehind on `hist. ` alone flagged the second section in every group.
+    */
+    const t = readFileSync(f, "utf8").replace(/\(hist\.[^)]*\)/g, "(hist.)");
+    for (const m of t.matchAll(
+      /(Product|Experience|Brand|IA|Information Architecture|UX Flows|Flows|Component System|CS|PB|XB|BB)\s*(?:Bible)?\s*§\s*0*(\d+)/g,
+    )) {
+      const a = m[1].replace(/ Bible$/, "");
+      out.add(`${alias[a] ?? `${a} Bible`} §${String(Number(m[2])).padStart(2, "0")}`);
+    }
+    for (const m of t.matchAll(/(?:Brand Bible|BB)\s+(A-\d+)/g)) {
+      out.add(`Brand Bible ${m[1]}`);
+    }
+  }
+  return out;
+}
+
+/** Shipped source files. Kept in one place so no check can quietly narrow it. */
+function sourceFiles(): string[] {
   const walk = (d: string): string[] =>
     readdirSync(d, { withFileTypes: true }).flatMap((e) => {
       const p = join(d, e.name);
       return e.isDirectory() ? walk(p) : /\.tsx?$/.test(e.name) ? [p] : [];
     });
-  const out = new Set<string>();
-  for (const f of walk("src")) {
-    const t = readFileSync(f, "utf8");
-    for (const m of t.matchAll(
-      /(Product|Experience|Brand|IA|Information Architecture|UX Flows|Flows|Component System|CS|PB|XB|BB)\s*(?:Bible)?\s*§\s*0*(\d+)/g,
-    )) {
-      const raw = m[1].replace(/ Bible$/, "");
-      out.add(`${alias[raw] ?? `${raw} Bible`} §${String(Number(m[2])).padStart(2, "0")}`);
-    }
-    for (const m of t.matchAll(/Brand Bible\s+(A-\d+)/g)) out.add(`Brand Bible ${m[1]}`);
-  }
-  return out;
+  return walk("src");
 }
 
 test("a citation may not be silently repointed without a decision record", () => {
@@ -238,10 +296,20 @@ test("a citation may not be silently repointed without a decision record", () =>
     );
   }
 
+  /*
+    The register must state its repointing position explicitly and in numbers.
+    "Some citations were updated" is the shape of a sentence that hides a
+    sweep; a count can be checked against the inventory.
+  */
   assert.match(
     decisions,
-    /No citation was repointed in Phase 22/,
-    "the register no longer states whether repointing has occurred — if it now has, say so and give the supporting section",
+    /(\d+) of (\d+) occurrences were repointed/,
+    "the register no longer states how much was repointed — a repoint without a count is not a record",
+  );
+  assert.match(
+    decisions,
+    /REQUIRES_RATIFICATION/,
+    "the register no longer names anything as unresolved; the count must not be driven to zero silently",
   );
 });
 
@@ -266,7 +334,7 @@ test("no new missing-authority citation can be introduced unnoticed", () => {
   );
 
   /* And the count the inventory advertises must be the real one. */
-  const claimed = inventory.match(/cites \*\*(\d+) distinct sections\*\*/);
+  const claimed = inventory.match(/(\d+) distinct sections/);
   assert.ok(claimed, "the inventory no longer states how many sections it covers");
   assert.equal(
     Number(claimed[1]),
@@ -311,7 +379,7 @@ test("every quoted authority fragment is present in the source it names", () => 
     {
       file: "src/lib/opportunity/foundation/evidence.ts",
       section: "Brand Bible A-04, first sentence (declared verbatim)",
-      marker: /Brand Bible A-04, verbatim: "([\s\S]*?)"/,
+      marker: /BB A-04\), verbatim: "([\s\S]*?)"/,
     },
     {
       /*
@@ -326,7 +394,7 @@ test("every quoted authority fragment is present in the source it names", () => 
     },
     {
       file: "src/lib/opportunity/foundation/claim.ts",
-      section: "Component System Bible §01",
+      section: "OXD-004, historically CS §01",
       marker: /Recovered, verbatim[\s\S]*?:\n \* {5}"([\s\S]*?)"/,
     },
   ];
@@ -377,6 +445,33 @@ test("a historical source cannot be presented as current governing authority", (
       `${historical} is no longer classified as historical — if it has been ratified as governing, that needs an explicit decision, not a silent reclassification`,
     );
   }
+
+  /*
+    And the same rows in the precedence table, which is the document a reader
+    actually consults to learn what governs. Mutation N2 flipped the AEON X
+    corpus there from HISTORICAL to CURRENT and escaped, because this assertion
+    only looked at the decision register — two places state the boundary and
+    only one was guarded.
+  */
+  const precedence = readFileSync("docs/AUTHORITY_PRECEDENCE.md", "utf8");
+  for (const [label, expected] of [
+    ["AEON X constitutional corpus", /HISTORICAL/],
+    ["System B / Lovable plan", /RETIRED/],
+    ["Reconstruction Audit", /UNAVAILABLE/],
+  ] as const) {
+    const row = precedence.split("\n").find((l) => l.startsWith("|") && l.includes(label));
+    assert.ok(row, `the precedence table has no row for ${label}`);
+    assert.match(
+      row,
+      expected,
+      `${label} changed status in the precedence table without an explicit decision`,
+    );
+    assert.doesNotMatch(
+      row,
+      /\*\*CURRENT\*\*/,
+      `${label} is marked CURRENT in the precedence table; historical material may not silently govern`,
+    );
+  }
 });
 
 test("every CR cited by the codebase exists in the Constitution", () => {
@@ -415,4 +510,153 @@ test("every CR cited by the codebase exists in the Constitution", () => {
     [],
     `code cites constitutional clauses that do not exist: ${[...dangling].join(", ")}`,
   );
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PHASE 23 — THE SUCCESSION BOUNDARY
+   ══════════════════════════════════════════════════════════════════════════
+
+   The owner ratified `docs/CONSTITUTION.md` as current governing authority and
+   left the recovered AEON X corpus and the System B plan as historical. Those
+   are now two different kinds of document sitting in the same repository, and
+   the only thing keeping them apart is discipline. These make it enforcement. */
+
+test("the ratified Constitution is present and is recorded as governing", () => {
+  /* Failure mode 1. Everything downstream assumes this file exists. */
+  assert.ok(existsSync("docs/CONSTITUTION.md"), "the ratified governing authority is missing");
+  assert.ok(
+    readFileSync("docs/CONSTITUTION.md", "utf8").length > 10_000,
+    "CONSTITUTION.md has been emptied or truncated",
+  );
+
+  const precedence = readFileSync("docs/AUTHORITY_PRECEDENCE.md", "utf8");
+  const row = precedence.split("\n").find((l) => l.includes("CONSTITUTION.md") && l.includes("|"));
+  assert.ok(row, "the precedence table no longer has a row for CONSTITUTION.md");
+  assert.match(
+    row,
+    /CURRENT/,
+    "CONSTITUTION.md is no longer recorded as CURRENT authority — succession cannot be undone silently",
+  );
+});
+
+test("no unresolved Bible citation is presented as current authority", () => {
+  /*
+    Failure mode 3, and the one the whole succession turns on.
+
+    A bare `Experience Bible §7` in source reads as current law about a document
+    nobody can open. A repointed `OXD-001 (hist. XB §7)` says the same lineage
+    while naming an authority a reader can actually inspect. Phase 23 repointed
+    41 occurrences; the rest are genuinely unresolved and stay visible.
+
+    What must not happen is a *repointed* section quietly reverting to bare, or a
+    new bare citation appearing in a file that had none. So the set of bare
+    sections is pinned: it may shrink as decisions are made, never grow.
+  */
+  const RESOLVED = new Set([
+    "Experience Bible §05",
+    "Experience Bible §07",
+    "Experience Bible §15",
+    "Brand Bible §07",
+    "Brand Bible §12",
+    "Brand Bible A-04",
+    "IA Bible §13",
+    "IA Bible §18",
+    "Component System Bible §01",
+    "Component System Bible §14",
+  ]);
+
+  const regressed = [...bareSections()].filter((s) => RESOLVED.has(s)).sort();
+  assert.deepEqual(
+    regressed,
+    [],
+    `these sections were repointed to a current authority and are bare again: ${regressed.join(", ")}. ` +
+      `A repoint is a decision; reverting it is also a decision and needs a record.`,
+  );
+});
+
+test("every OXD decision carries explicit owner authority", () => {
+  /*
+    Failure mode 8. An OXD is only worth anything because a person decided it.
+    A decision that loses its authority line becomes indistinguishable from a
+    paragraph someone wrote — which is exactly how a reconstructed Bible would
+    enter, one plausible entry at a time.
+  */
+  const decisions = readFileSync("docs/OPPORTUNITY_X_DECISIONS.md", "utf8");
+  const blocks = decisions.split(/^## /m).slice(1);
+  assert.ok(blocks.length > 0, "no OXD decisions found");
+
+  for (const block of blocks) {
+    const id = block.slice(0, block.indexOf(" "));
+    assert.match(block, /\*\*Status:\*\* RATIFIED/, `${id} is not marked RATIFIED`);
+    assert.match(block, /\*\*Authority:\*\* Product owner/, `${id} has no owner authority line`);
+    assert.match(block, /\*\*Date:\*\*/, `${id} has no date`);
+    assert.match(block, /What this does NOT claim/, `${id} does not state its limits`);
+  }
+
+  /* Every OXD cited in source must exist in the register. */
+  const defined = new Set([...decisions.matchAll(/^## (OXD-\d+)/gm)].map((m) => m[1]));
+  const used = new Set<string>();
+  for (const f of sourceFiles()) {
+    for (const m of readFileSync(f, "utf8").matchAll(/OXD-\d+/g)) used.add(m[0]);
+  }
+  const dangling = [...used].filter((o) => !defined.has(o)).sort();
+  assert.deepEqual(dangling, [], `source cites undefined decisions: ${dangling.join(", ")}`);
+});
+
+test("System B rules cannot re-enter as current authority", () => {
+  /*
+    Failure mode 5. The recovered `.lovable/plan.md` is the origin of "drop <
+    0.6", the seven-stage pipeline, `match_score` and fuzzy deduplication —
+    every fabrication Phase 21 removed from the landing page. It is in this
+    repository now, which is the first time those rules have been readable here
+    since Phase 13 deleted them.
+
+    They may be quoted as history. They may not reappear in shipped source.
+  */
+  const retired = [
+    /verification_score/,
+    /match_score_default/,
+    /\bdrop *< *0\.6\b/,
+    /Stage [1-7] [A-Z]/,
+    /fuzzy match/i,
+  ];
+  for (const f of sourceFiles()) {
+    if (f.includes("integrations/supabase/types.ts")) continue; // generated from the live DB
+    const text = readFileSync(f, "utf8");
+    for (const rule of retired) {
+      assert.doesNotMatch(
+        text,
+        rule,
+        `${f} reintroduces a retired System B rule (${rule}). It is historical; see docs/authority/PROVENANCE.md.`,
+      );
+    }
+  }
+});
+
+test("the authority scanner covers all of src/, and cannot be narrowed", () => {
+  /*
+    Failure mode 11. Every check above walks `sourceFiles()`. Excluding one
+    directory from that walk would empty the findings without changing a single
+    citation — the cheapest possible way to fake compliance, and invisible in a
+    diff that only touches a test helper.
+
+    So the walk is pinned against a floor and against the directories that
+    actually hold the citations.
+  */
+  const files = sourceFiles();
+  assert.ok(
+    files.length > 50,
+    `the scanner sees only ${files.length} files; src/ is larger than that`,
+  );
+
+  for (const dir of [
+    "src/lib/opportunity/foundation",
+    "src/components/ui/absence",
+    "src/components/opportunity",
+  ]) {
+    assert.ok(
+      files.some((f) => f.startsWith(dir)),
+      `the scanner no longer covers ${dir}, which carries authority citations`,
+    );
+  }
 });

@@ -4,11 +4,11 @@ import { FreshnessStamp } from "../FreshnessStamp";
  * ABSENT — a search ran, succeeded, and returned nothing better. A verdict.
  *
  * Constitutional authority:
- *   Experience Bible §5 — "Nothing better has appeared", never "nothing changed".
+ *   OXD-001 (hist. XB §5) — "Nothing better has appeared", never "nothing changed".
  *                         One reports an absence; the other reports a verdict.
- *   Experience Bible §7 — Absent requires a recorded successful search.
- *   Brand Bible §03     — confidence without provenance is just tone, so the
- *                         search timestamp is mandatory, not decorative.
+ *   OXD-001 (hist. XB §7) — Absent requires a recorded successful search.
+ *   Brand Bible §03       — confidence without provenance is just tone, so the
+ *                           search timestamp is mandatory, not decorative.
  *
  * `searchedAt` is required by the type, not optional by convention. That is the
  * §7 precondition made structural: a broken pipeline returning no rows has no

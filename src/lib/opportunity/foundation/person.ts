@@ -3,7 +3,7 @@
  * about a person, and the terms on which it may use any of it.
  *
  * Constitutional authority:
- *   Product Bible §07  — three honestly distinct tiers. Every entry shows how it
+ *   CR-24 (hist. PB §07) — three honestly distinct tiers. Every entry shows how it
  *                        was learned, its confidence, when it was last updated,
  *                        and which products may use it. Cross-product sharing is
  *                        off by default.
@@ -11,7 +11,7 @@
  *                        disappearing interface: the one place the machinery is
  *                        visible on purpose, because visibility is the trust
  *                        mechanism.
- *   IA Bible §18       — blocking: lineage and per-fact freshness must exist
+ *   OXD-003 (hist. IA §18)       — blocking: lineage and per-fact freshness must exist
  *                        before the first fact is written, and product isolation
  *                        must be enforced at the data layer because convention
  *                        will not hold.
@@ -26,7 +26,7 @@
 
 /**
  * How quickly confidence in a fact should fade without reinforcement. Decay is a
- * property of the fact, not a global clock (Brand Bible §07): a degree earned in
+ * property of the fact, not a global clock (OXD-005 (hist. BB §07)): a degree earned in
  * 2024 is still earned; "currently studying" expires in weeks.
  */
 export type DecayClass = "monotonic" | "slow" | "fast";
@@ -35,7 +35,7 @@ export type DecayClass = "monotonic" | "slow" | "fast";
  * The products a fact can be learned in or granted to.
  *
  * A closed union rather than a string, matching the Postgres enum. Adding a
- * product is a deliberate migration on both sides — IA §13 calls this boundary
+ * product is a deliberate migration on both sides — OXD-003 (hist. IA §13) calls this boundary
  * the hardest engineering constraint in the system, and a boundary you can cross
  * with a typo is not a boundary.
  */
@@ -136,7 +136,7 @@ interface FactBase {
  * Carries no confidence and no observations, and the type has nowhere to put
  * either. A confidence score on something a person told you is the system
  * doubting the person, and it would make the three tiers cosmetic rather than
- * "honestly distinct" (PB §07).
+ * "honestly distinct" (CR-24; hist. PB §07).
  */
 export interface ConfirmedFact extends FactBase {
   tier: "confirmed";
@@ -237,7 +237,7 @@ export type ProfileResolution =
  * recommendation… Both paths, always." A surface reached from a claim must
  * therefore answer for an id it may not recognise.
  *
- * `not-found` and `unknown` are separate for the reason XB §7 gives everywhere
+ * `not-found` and `unknown` are separate for the reason OXD-001 (hist. XB §7) gives everywhere
  * else: one says the record does not exist, the other says the system cannot
  * see. A bad reference reported as a system failure blames Opportunity X for something
  * that is merely absent, and a system failure reported as absence tells a person
@@ -290,7 +290,7 @@ export interface ProfileService {
 
   /**
    * The facts a given product is allowed to use: those learned in it, plus those
-   * explicitly granted to it. This is the product-isolation boundary IA §18
+   * explicitly granted to it. This is the product-isolation boundary OXD-003 (hist. IA §18)
    * requires be enforced at the data layer — callers cannot widen it, because
    * there is no parameter that would let them.
    */
@@ -298,7 +298,7 @@ export interface ProfileService {
 
   record(userId: string, draft: ProfileFactDraft): Promise<ProfileFact>;
 
-  /** Graduates an inference to Confirmed, keeping its lineage. PB §07. */
+  /** Graduates an inference to Confirmed, keeping its lineage. CR-24 (hist. PB §07). */
   confirm(userId: string, factId: string): Promise<ProfileFact>;
 
   /**

@@ -2,10 +2,10 @@
  * Provenance chip — the visible origin of anything Opportunity X believes.
  *
  * Constitutional authority:
- *   Product Bible §07  — the three tiers, and "it always tells me why".
- *   Brand Bible §06    — the tier palette; mono for the machine voice.
- *   Brand Bible §12    — every encoded meaning carries a non-visual carrier.
- *   IA Bible §18       — required as a primitive available in every product.
+ *   Product Bible §07      — the three tiers, and "it always tells me why".
+ *   Brand Bible §06        — the tier palette; mono for the machine voice.
+ *   OXD-002 (hist. BB §12) — every encoded meaning carries a non-visual carrier.
+ *   OXD-003 (hist. IA §18) — required as a primitive available in every product.
  *
  * The glyph is not decoration. Tier is conveyed by glyph *and* label, never by
  * colour alone, so the trust model survives greyscale, colour-blindness, and

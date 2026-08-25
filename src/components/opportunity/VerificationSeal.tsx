@@ -62,7 +62,7 @@ export function VerificationSeal({
       </span>
 
       {/*
-        The verdict as a sentence, not a chip. Brand Bible §12's rule applies
+        The verdict as a sentence, not a chip. OXD-002 (hist. BB §12)'s rule applies
         here as everywhere: every encoded meaning carries a non-visual carrier,
         and this is the field where a misread costs someone a real decision.
       */}

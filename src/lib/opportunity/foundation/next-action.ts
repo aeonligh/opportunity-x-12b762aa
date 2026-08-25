@@ -4,14 +4,14 @@ import type { Claim, ClaimOrigin } from "@/lib/opportunity/foundation/claim";
  * Your Next Best Step — the contract for the Workspace's primary surface.
  *
  * Constitutional authority:
- *   Experience Bible §2  — one step, never two; source always shown; evidence inline.
- *   Experience Bible §7  — Empty, Absent, and Unknown are three distinct states.
- *   Product Bible §07    — the Accountability Principle: state the odds, not only the fit.
- *   Component System §01 — the composition law: nothing states a claim without
- *                          composing the Tier 0 primitives that make it checkable.
+ *   Experience Bible §2   — one step, never two; source always shown; evidence inline.
+ *   OXD-001 (hist. XB §7) — Empty, Absent, and Unknown are three distinct states.
+ *   Product Bible §07     — the Accountability Principle: state the odds, not only the fit.
+ *   OXD-004 (hist. CS §01) — the composition law: nothing states a claim without
+ *                           composing the Tier 0 primitives that make it checkable.
  *
  * This file used to define its own `BaseRate` and `StepEvidence`. Both are gone.
- * CS §14 is explicit that Tier 0 "ships as a published package consumed by every
+ * OXD-003 (hist. CS §14) is explicit that Tier 0 "ships as a published package consumed by every
  * product on every origin — copied primitives become four different trust models
  * within a year", and a second definition inside one repository is already the
  * first of those four. A step is now a `Claim` with an action, so the Step
@@ -26,7 +26,7 @@ import type { Claim, ClaimOrigin } from "@/lib/opportunity/foundation/claim";
 
 /**
  * The only three legitimate origins for a step. There is no fourth — a step that
- * cannot name its source class is not shippable (IA Bible §18, binding).
+ * cannot name its source class is not shippable (OXD-003 (hist. IA §18), binding).
  *
  *   revelation    — something genuinely appeared or changed in the world.
  *   understanding — the model improved; the ranking moved because Opportunity X learned.
@@ -68,7 +68,7 @@ export interface NextStep {
 /**
  * What the Step surface resolves to.
  *
- * The variants encode Experience Bible §7's three absence states as separate
+ * The variants encode OXD-001 (hist. XB §7)'s three absence states as separate
  * cases so they cannot be collapsed into one grey box — the differences between
  * them *are* the trust model.
  *

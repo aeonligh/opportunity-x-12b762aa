@@ -5,7 +5,7 @@
  *   Product Bible §07     — the Visibility Principle: Opportunity X speaks with certainty
  *                           only about what it observed. Missing evidence is not
  *                           negative evidence.
- *   Experience Bible §7   — "I've had no visibility into this since June."
+ *   OXD-001 (hist. XB §7) — "I've had no visibility into this since June."
  *   Brand Bible §03       — first person for the system; the user is never the
  *                           subject of a failure sentence.
  *

@@ -2,13 +2,13 @@
  * Freshness stamp — how long ago Opportunity X last had reason to believe something.
  *
  * Constitutional authority:
- *   Brand Bible §07  — freshness is encoded in weight and opacity, never in hue,
+ *   OXD-005 (hist. BB §07)  — freshness is encoded in weight and opacity, never in hue,
  *                      so a decaying fact stays readable and the semantic palette
  *                      stays uncontaminated.
- *   Brand Bible §05  — mono marks the system describing its own knowledge.
- *   Experience Bible §15 — a stale answer clearly labelled beats a fresh spinner.
+ *   Brand Bible §05        — mono marks the system describing its own knowledge.
+ *   OXD-005 (hist. XB §15) — a stale answer clearly labelled beats a fresh spinner.
  *
- * Decay is a property of the fact, not a global clock (Brand Bible §07): a degree
+ * Decay is a property of the fact, not a global clock (OXD-005 (hist. BB §07)): a degree
  * earned in 2024 is still earned, while "currently studying" expires in weeks.
  * The caller supplies the class; this component only renders the consequence.
  */

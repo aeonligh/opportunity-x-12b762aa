@@ -6,7 +6,7 @@ import type { Evidence, SourceRef, UncheckedEvidence } from "./claim";
  *
  * ── CONSTITUTIONAL SPECIFICATION ──────────────────────────────────────────
  *
- * E1  Brand Bible A-04, verbatim: "Ownership says the user owns the truth of
+ * E1  OXD-004 (hist. BB A-04), verbatim: "Ownership says the user owns the truth of
  *     their life. Visibility says the system speaks with certainty only about
  *     what it observed. Eligibility claims rest on unverified testimony."
  *     Resolution: "self-reported facts are ✓ Confirmed by You, and any claim
@@ -14,14 +14,14 @@ import type { Evidence, SourceRef, UncheckedEvidence } from "./claim";
  *     never laundered into something the system appears to have verified
  *     itself."
  *
- * E2  PB §07 — every entry shows "how it was learned, its confidence, when it
+ * E2  CR-24 (hist. PB §07) — every entry shows "how it was learned, its confidence, when it
  *     was last updated, and which products are allowed to use it."
  *
- * E3  IA §13, §18 — product isolation is "the hardest engineering constraint in
+ * E3  OXD-003 (hist. IA §13), §18 — product isolation is "the hardest engineering constraint in
  *     the system", and must hold at the data layer "because convention will not
  *     hold."
  *
- * E4  CS §01 — the composition law: a statement without provenance is a
+ * E4  OXD-004 (hist. CS §01) — the composition law: a statement without provenance is a
  *     violation, not a component.
  *
  * ── Why this function exists at all ───────────────────────────────────────
@@ -33,8 +33,8 @@ import type { Evidence, SourceRef, UncheckedEvidence } from "./claim";
  * stated. That is precisely the laundering E1 forbids by name.
  *
  * No such call site existed yet, so nothing had been laundered. The defect was
- * that the type permitted it: the constitution's rule lived in prose, and CS §14
- * and IA §18 both say prose does not hold. Provenance is now *computed from* the
+ * that the type permitted it: the constitution's rule lived in prose, and OXD-003 (hist. CS §14)
+ * and OXD-003 (hist. IA §18) both say prose does not hold. Provenance is now *computed from* the
  * fact rather than supplied beside it, so the mismatch is unrepresentable rather
  * than merely discouraged.
  *
@@ -68,7 +68,7 @@ export type EvidenceResult =
  * re-argued at every future call site.
  *
  * Widening this — exporting it, or taking `provenance` as a parameter — reopens
- * the laundering Brand Bible A-04 forbids.
+ * the laundering OXD-004 (hist. BB A-04) forbids.
  */
 function minted(evidence: UncheckedEvidence): Evidence {
   return evidence as Evidence;
@@ -91,7 +91,7 @@ export function evidenceFromFact(
     A fact is usable in the product it was learned in by definition; anywhere
     else it needs a granted permission. Checking here means a cross-product claim
     cannot be constructed without consent, rather than being constructed and then
-    hopefully filtered on the way out. IA §18 calls this boundary the hardest
+    hopefully filtered on the way out. OXD-003 (hist. IA §18) calls this boundary the hardest
     constraint in the system and says convention will not hold it.
 
     A revoked permission is a permission row, not an absent one, so the state is
@@ -118,7 +118,7 @@ export function evidenceFromFact(
     /* E2 — inherited, so a claim can never look fresher than what it rests on. */
     lastConfirmedAt: fact.lastConfirmedAt,
     decay: fact.decay as DecayClass,
-    /* CS §01 / IA §11 — carrying the id is what lets the inspection path
+    /* OXD-004 (hist. CS §01) / IA §11 — carrying the id is what lets the inspection path
        continue from Observation into Permission, landing "directly on the fact
        that produced it". */
     factId: fact.id,

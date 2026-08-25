@@ -4,7 +4,7 @@ import type { ProvenanceTier } from "@/components/ui/ProvenanceChip";
 /**
  * Tier 0 — the trust primitives, as data.
  *
- * Component System Bible §01 states the composition law. One sentence of it can
+ * OXD-004 (hist. CS §01) states the composition law. One sentence of it can
  * be checked and one cannot, and Phase 22 found them presented here as a single
  * quotation:
  *
@@ -22,7 +22,7 @@ import type { ProvenanceTier } from "@/components/ui/ProvenanceChip";
  * is no longer presented as a quotation from a document anyone can read. The
  * Component System Bible is missing; see `docs/AUTHORITY_DECISIONS.md`.
  *
- * A law that lives only in prose is a convention, and CS §14 and IA §18 both say
+ * A law that lives only in prose is a convention, and OXD-003 (hist. CS §14, IA §18) says
  * conventions do not hold. So the law is encoded here: `Claim` requires its
  * evidence and its base rate as non-optional fields. A recommendation, readiness
  * figure, ranking or profile insight that cannot supply them cannot be
@@ -133,13 +133,13 @@ interface EvidenceBase {
 /**
  * Brand: only `evidenceFromFact` may mint Evidence.
  *
- * Brand Bible A-04 requires that a derived claim "inherits and displays" the
+ * OXD-004 (hist. BB A-04) requires that a derived claim "inherits and displays" the
  * provenance of the fact behind it, and that "confidence is never laundered into
  * something the system appears to have verified itself."
  *
  * A constructor that derives provenance correctly is worth nothing if a caller
  * can bypass it with an object literal — that would leave the rule as a
- * convention, and CS §14 and IA §18 both say conventions do not hold. This
+ * convention, and OXD-003 (hist. CS §14, IA §18) says conventions do not hold. This
  * private symbol is not exported, so no other module can satisfy the type by
  * hand. `foundation/evidence.ts` performs the single assertion that
  * mints one, from a `ProfileFact`, with provenance computed rather than passed.
@@ -239,9 +239,10 @@ export interface Claim {
 /**
  * How confidently a claim's underlying understanding is held.
  *
- * Deliberately coarse. CS §02 rejects a confidence percentage outright: "a
+ * Deliberately coarse. CR-21 (hist. CS §02) forbids the composite number: "a
  * number implies precision the model doesn't have, and invites optimising the
- * number." PB §07 nonetheless requires that every Profile entry show "its
+ * number." CR-24 (hist. PB §07) nonetheless requires that a person can inspect
+ * what is known about them, including "its
  * confidence" — so confidence is stored as a float and *rendered* as one of
  * three bands, which satisfies the requirement without publishing a false
  * precision.

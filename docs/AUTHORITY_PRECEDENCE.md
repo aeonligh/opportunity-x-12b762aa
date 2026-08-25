@@ -1,50 +1,53 @@
 # Authority precedence
 
-Every relationship below carries a status. Nothing is ordered by implication, and
-where two documents can conflict with no known ordering, that is recorded as a
-live unresolved condition rather than resolved by prose.
+Established by product-owner ratification, Phase 23 (2026-08-22).
 
-| Higher | Lower | Status | Evidence |
-|---|---|---|---|
-| Product Bible | Brand Bible | `ESTABLISHED` | PB §12, verbatim in `state.md:159-163` |
-| Product Bible | Experience Bible | `ESTABLISHED` | same |
-| Product Bible | IA Bible | `ESTABLISHED` | same |
-| Bibles (any) | Reconstruction Audit | `ESTABLISHED` | `state.md:156` — an argument rejected with *"the audit is not a Bible and CS §06 is"* |
-| Product Bible | UX Flows Bible | `UNKNOWN` | PB §12 as quoted names only three subordinates; the quote is elided |
-| Product Bible | Component System Bible | `UNKNOWN` | same |
-| UX Flows Bible | Component System Bible | `UNKNOWN` | nothing recovered ranks them against each other |
-| `docs/CONSTITUTION.md` | any Bible | `UNKNOWN` | nothing recovered ranks it in either direction |
-| AEON X constitutional corpus | Opportunity X implementation | `HISTORICAL_ONLY` | governs AEON X; speaks about Opportunity X without governing it |
-| Lovable / System B plan | anything | `HISTORICAL_ONLY` | specification of a deleted product; explicitly non-normative |
+| Authority | Status | Role |
+|---|---|---|
+| Explicit product-owner ratification | **CURRENT** | Highest explicit decision authority |
+| `docs/CONSTITUTION.md` | **CURRENT** | Governing constitutional authority |
+| `docs/OPPORTUNITY_X_DECISIONS.md` (OXD) | **CURRENT** | Explicit standalone decisions |
+| AEON X constitutional corpus | **HISTORICAL** | Provenance only |
+| System B / Lovable plan | **RETIRED** | Historical provenance |
+| Product / Brand / Experience / IA / Flows / Component System Bibles | **UNAVAILABLE** | Cannot currently govern |
+| Reconstruction Audit | **UNAVAILABLE** | Cannot currently govern |
 
-## The established part, in full
+A requirement presented as current governing authority must be traceable to
+`docs/CONSTITUTION.md` or to a recorded OXD decision. Historical material never
+silently overrides current authority. If a later explicit owner decision
+conflicts with the Constitution, the later decision controls and the conflict is
+recorded.
 
-**Product Bible §12**, verbatim in `authority/ORIGINAL_SOURCES/aeon-x-constitutional/state.md`:
+## No hierarchy among unavailable documents
 
-> "This is the senior document … The Brand Bible, Experience Bible, and
-> Information Architecture Bible are all subordinate to it. Where any of them
-> conflicts with this document, this document governs."
+The old ordering is preserved below as **historical fact about what the corpus
+said**, not as a live hierarchy. None of these documents can govern anything now.
 
-The `…` is in the source. Whatever it elides may or may not name Flows and CS.
+| Historical relationship | Evidence |
+|---|---|
+| PB senior to BB, XB, IA | PB §12, verbatim in `authority/ORIGINAL_SOURCES/aeon-x-constitutional/state.md:159-163` |
+| Bibles above the Reconstruction Audit | `state.md:156` — *"the audit is not a Bible and CS §06 is"* |
+| PB against Flows and CS | **never established.** PB §12 as quoted names three subordinates; the quote is elided |
 
-## The unresolved conditions, stated as conditions
+No ordering was invented for Flows or CS, then or now.
 
-1. **CS or Flows against PB.** `claim.ts` cites CS §01, §02 and §04 for
-   requirements about ranking, base rates and runner-ups. `person.ts` cites PB
-   §07 for the fact model. If those ever conflicted, nothing recovered says which
-   wins.
-2. **`docs/CONSTITUTION.md` against any Bible.** This is the live one. The product
-   is governed *in practice* by CR-01–37, because that is what Phases 1–21
-   applied. It is governed *on paper* by the Product Bible, because 93 citations
-   in `src/` say so and PB §12 says PB is senior. Those are different documents
-   and no evidence ranks them.
+## What succession did and did not settle
 
-   Where they overlap they agree — the Visibility Principle and CR-31; BB A-04's
-   provenance inheritance and CR-33. Agreement between independently derived rules
-   is evidence about the product, not about precedence.
+**Settled.** The question Phase 22 recorded as a live unresolved condition —
+`docs/CONSTITUTION.md` against the Bibles — is closed. The owner ratified the
+Constitution as current governing authority. The Bibles are unavailable and
+cannot govern.
 
-## What this document does not do
+**Not settled, and deliberately left open.** 52 citations in `src/` name a
+missing section for a requirement that neither the Constitution nor any OXD
+states. Those are `REQUIRES_RATIFICATION`. They were not repointed, because a
+Constitution clause that sounds adjacent is not the same rule — see
+`AUTHORITY_CITATION_RECONCILIATION.md` for each one.
 
-It does not rank `docs/CONSTITUTION.md`, and it does not merge it with anything.
-Choosing an order would answer, by assertion, the question the founder has to
-answer by ratification.
+## Citation convention
+
+In source, `CR-24 (hist. PB §07)` and `OXD-001 (hist. XB §7)` mean: the first
+token is current authority, everything inside `(hist. …)` is lineage. A bare
+Bible citation has no current authority behind it and is unresolved.
+`test/authority-self-containment.test.ts` enforces the distinction and fails if
+a repointed section reverts to bare.
