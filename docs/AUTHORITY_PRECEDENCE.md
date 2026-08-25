@@ -1,69 +1,50 @@
 # Authority precedence
 
-## The part that is established
+Every relationship below carries a status. Nothing is ordered by implication, and
+where two documents can conflict with no known ordering, that is recorded as a
+live unresolved condition rather than resolved by prose.
 
-**Evidence: Product Bible §12, quoted verbatim inside a recovered original**
-(`authority/ORIGINAL_SOURCES/aeon-x-constitutional/state.md`, lines 159–163):
+| Higher | Lower | Status | Evidence |
+|---|---|---|---|
+| Product Bible | Brand Bible | `ESTABLISHED` | PB §12, verbatim in `state.md:159-163` |
+| Product Bible | Experience Bible | `ESTABLISHED` | same |
+| Product Bible | IA Bible | `ESTABLISHED` | same |
+| Bibles (any) | Reconstruction Audit | `ESTABLISHED` | `state.md:156` — an argument rejected with *"the audit is not a Bible and CS §06 is"* |
+| Product Bible | UX Flows Bible | `UNKNOWN` | PB §12 as quoted names only three subordinates; the quote is elided |
+| Product Bible | Component System Bible | `UNKNOWN` | same |
+| UX Flows Bible | Component System Bible | `UNKNOWN` | nothing recovered ranks them against each other |
+| `docs/CONSTITUTION.md` | any Bible | `UNKNOWN` | nothing recovered ranks it in either direction |
+| AEON X constitutional corpus | Opportunity X implementation | `HISTORICAL_ONLY` | governs AEON X; speaks about Opportunity X without governing it |
+| Lovable / System B plan | anything | `HISTORICAL_ONLY` | specification of a deleted product; explicitly non-normative |
+
+## The established part, in full
+
+**Product Bible §12**, verbatim in `authority/ORIGINAL_SOURCES/aeon-x-constitutional/state.md`:
 
 > "This is the senior document … The Brand Bible, Experience Bible, and
 > Information Architecture Bible are all subordinate to it. Where any of them
 > conflicts with this document, this document governs."
 
-That gives, on evidence rather than inference:
+The `…` is in the source. Whatever it elides may or may not name Flows and CS.
 
-```
-Product Bible                    ← senior; governs on conflict
-   ↓
-Brand Bible · Experience Bible · Information Architecture Bible   ← subordinate
-```
+## The unresolved conditions, stated as conditions
 
-A second recovered statement places the Reconstruction Audit below the Bibles.
-`state.md` records an argument being rejected with the words *"the audit is not
-a Bible and CS §06 is"* — the audit does not outrank a Bible section.
+1. **CS or Flows against PB.** `claim.ts` cites CS §01, §02 and §04 for
+   requirements about ranking, base rates and runner-ups. `person.ts` cites PB
+   §07 for the fact model. If those ever conflicted, nothing recovered says which
+   wins.
+2. **`docs/CONSTITUTION.md` against any Bible.** This is the live one. The product
+   is governed *in practice* by CR-01–37, because that is what Phases 1–21
+   applied. It is governed *on paper* by the Product Bible, because 93 citations
+   in `src/` say so and PB §12 says PB is senior. Those are different documents
+   and no evidence ranks them.
 
-## The part that is NOT established
+   Where they overlap they agree — the Visibility Principle and CR-31; BB A-04's
+   provenance inheritance and CR-33. Agreement between independently derived rules
+   is evidence about the product, not about precedence.
 
-**Where the UX Flows Bible and the Component System Bible sit.** PB §12 as
-quoted names only three subordinate documents. Flows and CS are cited by
-Opportunity X (`Flows §01`, `CS §01/§02/§04/§05/§06/§14`) and by the recovered
-corpus, but no recovered text ranks them.
+## What this document does not do
 
-The quotation is elided — the `…` is in the source — so the missing clause may
-name them. It may not. **PRECEDENCE NOT ESTABLISHED for UX Flows Bible and
-Component System Bible.** No order was chosen for them here.
-
-## Where CR-01–37 sits — UNRESOLVED
-
-`docs/CONSTITUTION.md` in this repository is a second, independently authored
-constitution of 37 clauses. Nothing recovered ranks it against the Bibles, in
-either direction.
-
-What the evidence shows is that they are **parallel, not nested**:
-
-- The Bibles govern the AEON X-era product and are cited by 111 places in this
-  repository's source.
-- CR-01–37 governs everything built in Phases 1–21 and is cited nowhere in the
-  recovered corpus.
-- Phase 15 recorded the same conclusion and could not resolve it either.
-
-Several rules appear in both, independently derived — the Visibility Principle
-and CR-31, provenance inheritance in BB A-04 and CR-33. Where they agree, the
-agreement is evidence about the product rather than about precedence. **Whether
-CR-01–37 extends, refines or contradicts the Bibles cannot be settled without
-the Bibles.**
-
-## Two things this document deliberately does not do
-
-1. **It does not rank CR-01–37 against the Bibles.** Choosing an order would be
-   inventing the answer to the question the phase was asked to investigate.
-2. **It does not merge the two.** They have different scopes, different authors
-   and different eras. `docs/CONSTITUTION.md` is untouched by this phase.
-
-## Practical consequence, stated plainly
-
-Opportunity X is currently governed *in practice* by `docs/CONSTITUTION.md`,
-because that is the document its phases have actually applied. It is governed
-*on paper* by the Product Bible, because 111 citations say so and PB §12 says it
-is senior. Those are not the same thing, and only the founder can reconcile
-them — by producing the Bibles, or by ratifying CR-01–37 as the successor and
-saying so in writing.
+It does not rank `docs/CONSTITUTION.md`, and it does not merge it with anything.
+Choosing an order would answer, by assertion, the question the founder has to
+answer by ratification.

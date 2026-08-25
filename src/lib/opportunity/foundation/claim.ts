@@ -4,10 +4,23 @@ import type { ProvenanceTier } from "@/components/ui/ProvenanceChip";
 /**
  * Tier 0 — the trust primitives, as data.
  *
- * Component System Bible §01 states the composition law: "no component may state
- * a claim without composing the Tier 0 primitives that make it checkable. A
- * statement without provenance is not a component in this system — it is a
- * violation."
+ * Component System Bible §01 states the composition law. One sentence of it can
+ * be checked and one cannot, and Phase 22 found them presented here as a single
+ * quotation:
+ *
+ *   Recovered, verbatim — quoted in `docs/authority/ORIGINAL_SOURCES/
+ *   aeon-x-constitutional/opportunity-ownership.md:117`:
+ *     "a statement without provenance is not a component in this system — it is
+ *     a violation."
+ *
+ *   Attributed, unverifiable — no recovered source contains it:
+ *     "no component may state a claim without composing the Tier 0 primitives
+ *     that make it checkable."
+ *
+ * The second sentence is kept because it records what this code was built to
+ * satisfy, and deleting it would destroy provenance rather than correct it. It
+ * is no longer presented as a quotation from a document anyone can read. The
+ * Component System Bible is missing; see `docs/AUTHORITY_DECISIONS.md`.
  *
  * A law that lives only in prose is a convention, and CS §14 and IA §18 both say
  * conventions do not hold. So the law is encoded here: `Claim` requires its
