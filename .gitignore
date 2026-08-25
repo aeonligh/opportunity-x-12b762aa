@@ -16,13 +16,27 @@ dist-ssr
 .nitro
 *.local
 
+# Environment files.
+#
+# `.env` and `.env.example` are committed deliberately and hold only public,
+# browser-safe values — the Supabase URL, project id and publishable key.
+# Every other variant may hold a service-role key or an API key, and `*.local`
+# above only covers `.env.local`; `.env.production` and `.env.development` were
+# not matched by anything.
+.env.*
+!.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
 
+# Vercel
+.vercel
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 .idea
 .DS_Store
 *.suo

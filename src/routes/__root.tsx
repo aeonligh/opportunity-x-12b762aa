@@ -7,10 +7,10 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useTransition, type ReactNode } from "react";
 
+import { markHydrated } from "@/lib/hydrated";
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "sonner";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 
@@ -39,9 +39,14 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+  /*
+    Retry, with evidence that it is happening. Without the transition, pressing
+    Try again on a slow or repeatedly-failing read looks identical to pressing
+    nothing: the button does not change, the page does not change, and the only
+    honest reading available to the person is that the control is broken. A
+    retry that cannot be seen to be retrying is the infinite spinner inverted.
+  */
+  const [retrying, startRetry] = useTransition();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -54,13 +59,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={() =>
+              startRetry(() => {
+                void router.invalidate();
+                reset();
+              })
+            }
+            disabled={retrying}
+            aria-busy={retrying}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            Try again
+            {retrying ? "Trying…" : "Try again"}
           </button>
           <a
             href="/"
@@ -91,8 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Opportunity X — AI Opportunity Intelligence" },
       {
         property: "og:description",
-        content:
-          "Discover, verify, and secure life-changing opportunities from across the world.",
+        content: "Discover, verify, and secure life-changing opportunities from across the world.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -132,6 +140,13 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  /*
+    The moment React has committed the initial client render. Read by exactly
+    one thing — the authenticated gate, deciding whether its redirect can be an
+    ordinary navigation. See `lib/hydrated.ts`.
+  */
+  useEffect(markHydrated, []);
+
   // Single global auth listener: filter to identity transitions so
   // TOKEN_REFRESHED / INITIAL_SESSION don't thrash the router or cache.
   // On any real identity change, invalidate the router so `beforeLoad`
@@ -141,11 +156,7 @@ function RootComponent() {
     let unsub: (() => void) | undefined;
     void import("@/integrations/supabase/client").then(({ supabase }) => {
       const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-        if (
-          event !== "SIGNED_IN" &&
-          event !== "SIGNED_OUT" &&
-          event !== "USER_UPDATED"
-        ) {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") {
           return;
         }
         router.invalidate();

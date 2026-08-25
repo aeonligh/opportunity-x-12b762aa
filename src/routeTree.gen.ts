@@ -9,28 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SearchRouteImport } from './routes/search'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OpportunityIdRouteImport } from './routes/opportunity.$id'
-import { Route as AuthenticatedVaultRouteImport } from './routes/_authenticated/vault'
-import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
-import { Route as AuthenticatedDashboardDocumentsRouteImport } from './routes/_authenticated/dashboard.documents'
-import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
-import { Route as AuthenticatedAdminQueueRouteImport } from './routes/_authenticated/_admin/queue'
-import { Route as AuthenticatedAdminFeaturedRouteImport } from './routes/_authenticated/_admin/featured'
-import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/_admin/analytics'
-import { Route as ApiPublicHooksDeadlineRemindersRouteImport } from './routes/api/public/hooks/deadline-reminders'
-import { Route as ApiPublicHooksCrawlOpportunitiesRouteImport } from './routes/api/public/hooks/crawl-opportunities'
+import { Route as LabIndexRouteImport } from './routes/lab.index'
+import { Route as LabStatesRouteImport } from './routes/lab.states'
+import { Route as LabSessionRouteImport } from './routes/lab.session'
+import { Route as LabSavedRouteImport } from './routes/lab.saved'
+import { Route as LabRefreshRouteImport } from './routes/lab.refresh'
+import { Route as LabMutationsRouteImport } from './routes/lab.mutations'
+import { Route as LabFaultsRouteImport } from './routes/lab.faults'
+import { Route as LabIdRouteImport } from './routes/lab.$id'
+import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
+import { Route as AuthenticatedOpportunitiesExamplesRouteImport } from './routes/_authenticated/opportunities.examples'
+import { Route as AuthenticatedOpportunitiesIdRouteImport } from './routes/_authenticated/opportunities.$id'
 
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -45,195 +39,188 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OpportunityIdRoute = OpportunityIdRouteImport.update({
-  id: '/opportunity/$id',
-  path: '/opportunity/$id',
+const LabIndexRoute = LabIndexRouteImport.update({
+  id: '/lab/',
+  path: '/lab/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedVaultRoute = AuthenticatedVaultRouteImport.update({
-  id: '/vault',
-  path: '/vault',
+const LabStatesRoute = LabStatesRouteImport.update({
+  id: '/lab/states',
+  path: '/lab/states',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabSessionRoute = LabSessionRouteImport.update({
+  id: '/lab/session',
+  path: '/lab/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabSavedRoute = LabSavedRouteImport.update({
+  id: '/lab/saved',
+  path: '/lab/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabRefreshRoute = LabRefreshRouteImport.update({
+  id: '/lab/refresh',
+  path: '/lab/refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabMutationsRoute = LabMutationsRouteImport.update({
+  id: '/lab/mutations',
+  path: '/lab/mutations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabFaultsRoute = LabFaultsRouteImport.update({
+  id: '/lab/faults',
+  path: '/lab/faults',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabIdRoute = LabIdRouteImport.update({
+  id: '/lab/$id',
+  path: '/lab/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/_admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDashboardDocumentsRoute =
-  AuthenticatedDashboardDocumentsRouteImport.update({
-    id: '/documents',
-    path: '/documents',
-    getParentRoute: () => AuthenticatedDashboardRoute,
+const AuthenticatedOpportunitiesRoute =
+  AuthenticatedOpportunitiesRouteImport.update({
+    id: '/opportunities',
+    path: '/opportunities',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedDashboardApplicationsRoute =
-  AuthenticatedDashboardApplicationsRouteImport.update({
-    id: '/applications',
-    path: '/applications',
-    getParentRoute: () => AuthenticatedDashboardRoute,
+const AuthenticatedOpportunitiesExamplesRoute =
+  AuthenticatedOpportunitiesExamplesRouteImport.update({
+    id: '/examples',
+    path: '/examples',
+    getParentRoute: () => AuthenticatedOpportunitiesRoute,
   } as any)
-const AuthenticatedAdminQueueRoute = AuthenticatedAdminQueueRouteImport.update({
-  id: '/queue',
-  path: '/queue',
-  getParentRoute: () => AuthenticatedAdminRouteRoute,
-} as any)
-const AuthenticatedAdminFeaturedRoute =
-  AuthenticatedAdminFeaturedRouteImport.update({
-    id: '/featured',
-    path: '/featured',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedAdminAnalyticsRoute =
-  AuthenticatedAdminAnalyticsRouteImport.update({
-    id: '/analytics',
-    path: '/analytics',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const ApiPublicHooksDeadlineRemindersRoute =
-  ApiPublicHooksDeadlineRemindersRouteImport.update({
-    id: '/api/public/hooks/deadline-reminders',
-    path: '/api/public/hooks/deadline-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksCrawlOpportunitiesRoute =
-  ApiPublicHooksCrawlOpportunitiesRouteImport.update({
-    id: '/api/public/hooks/crawl-opportunities',
-    path: '/api/public/hooks/crawl-opportunities',
-    getParentRoute: () => rootRouteImport,
+const AuthenticatedOpportunitiesIdRoute =
+  AuthenticatedOpportunitiesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedOpportunitiesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/search': typeof SearchRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
-  '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/vault': typeof AuthenticatedVaultRoute
-  '/opportunity/$id': typeof OpportunityIdRoute
-  '/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/featured': typeof AuthenticatedAdminFeaturedRoute
-  '/queue': typeof AuthenticatedAdminQueueRoute
-  '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
-  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
-  '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
-  '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
+  '/saved': typeof AuthenticatedSavedRoute
+  '/lab/$id': typeof LabIdRoute
+  '/lab/faults': typeof LabFaultsRoute
+  '/lab/mutations': typeof LabMutationsRoute
+  '/lab/refresh': typeof LabRefreshRoute
+  '/lab/saved': typeof LabSavedRoute
+  '/lab/session': typeof LabSessionRoute
+  '/lab/states': typeof LabStatesRoute
+  '/lab/': typeof LabIndexRoute
+  '/opportunities/$id': typeof AuthenticatedOpportunitiesIdRoute
+  '/opportunities/examples': typeof AuthenticatedOpportunitiesExamplesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/search': typeof SearchRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
-  '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/vault': typeof AuthenticatedVaultRoute
-  '/opportunity/$id': typeof OpportunityIdRoute
-  '/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/featured': typeof AuthenticatedAdminFeaturedRoute
-  '/queue': typeof AuthenticatedAdminQueueRoute
-  '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
-  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
-  '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
-  '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
+  '/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
+  '/saved': typeof AuthenticatedSavedRoute
+  '/lab/$id': typeof LabIdRoute
+  '/lab/faults': typeof LabFaultsRoute
+  '/lab/mutations': typeof LabMutationsRoute
+  '/lab/refresh': typeof LabRefreshRoute
+  '/lab/saved': typeof LabSavedRoute
+  '/lab/session': typeof LabSessionRoute
+  '/lab/states': typeof LabStatesRoute
+  '/lab': typeof LabIndexRoute
+  '/opportunities/$id': typeof AuthenticatedOpportunitiesIdRoute
+  '/opportunities/examples': typeof AuthenticatedOpportunitiesExamplesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/search': typeof SearchRoute
-  '/_authenticated/_admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
-  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
-  '/_authenticated/vault': typeof AuthenticatedVaultRoute
-  '/opportunity/$id': typeof OpportunityIdRoute
-  '/_authenticated/_admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/_authenticated/_admin/featured': typeof AuthenticatedAdminFeaturedRoute
-  '/_authenticated/_admin/queue': typeof AuthenticatedAdminQueueRoute
-  '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
-  '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
-  '/api/public/hooks/crawl-opportunities': typeof ApiPublicHooksCrawlOpportunitiesRoute
-  '/api/public/hooks/deadline-reminders': typeof ApiPublicHooksDeadlineRemindersRoute
+  '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRouteWithChildren
+  '/_authenticated/saved': typeof AuthenticatedSavedRoute
+  '/lab/$id': typeof LabIdRoute
+  '/lab/faults': typeof LabFaultsRoute
+  '/lab/mutations': typeof LabMutationsRoute
+  '/lab/refresh': typeof LabRefreshRoute
+  '/lab/saved': typeof LabSavedRoute
+  '/lab/session': typeof LabSessionRoute
+  '/lab/states': typeof LabStatesRoute
+  '/lab/': typeof LabIndexRoute
+  '/_authenticated/opportunities/$id': typeof AuthenticatedOpportunitiesIdRoute
+  '/_authenticated/opportunities/examples': typeof AuthenticatedOpportunitiesExamplesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/search'
-    | '/dashboard'
-    | '/onboarding'
-    | '/vault'
-    | '/opportunity/$id'
-    | '/analytics'
-    | '/featured'
-    | '/queue'
-    | '/dashboard/applications'
-    | '/dashboard/documents'
-    | '/api/public/hooks/crawl-opportunities'
-    | '/api/public/hooks/deadline-reminders'
+    | '/opportunities'
+    | '/saved'
+    | '/lab/$id'
+    | '/lab/faults'
+    | '/lab/mutations'
+    | '/lab/refresh'
+    | '/lab/saved'
+    | '/lab/session'
+    | '/lab/states'
+    | '/lab/'
+    | '/opportunities/$id'
+    | '/opportunities/examples'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/search'
-    | '/dashboard'
-    | '/onboarding'
-    | '/vault'
-    | '/opportunity/$id'
-    | '/analytics'
-    | '/featured'
-    | '/queue'
-    | '/dashboard/applications'
-    | '/dashboard/documents'
-    | '/api/public/hooks/crawl-opportunities'
-    | '/api/public/hooks/deadline-reminders'
+    | '/opportunities'
+    | '/saved'
+    | '/lab/$id'
+    | '/lab/faults'
+    | '/lab/mutations'
+    | '/lab/refresh'
+    | '/lab/saved'
+    | '/lab/session'
+    | '/lab/states'
+    | '/lab'
+    | '/opportunities/$id'
+    | '/opportunities/examples'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/search'
-    | '/_authenticated/_admin'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/onboarding'
-    | '/_authenticated/vault'
-    | '/opportunity/$id'
-    | '/_authenticated/_admin/analytics'
-    | '/_authenticated/_admin/featured'
-    | '/_authenticated/_admin/queue'
-    | '/_authenticated/dashboard/applications'
-    | '/_authenticated/dashboard/documents'
-    | '/api/public/hooks/crawl-opportunities'
-    | '/api/public/hooks/deadline-reminders'
+    | '/_authenticated/opportunities'
+    | '/_authenticated/saved'
+    | '/lab/$id'
+    | '/lab/faults'
+    | '/lab/mutations'
+    | '/lab/refresh'
+    | '/lab/saved'
+    | '/lab/session'
+    | '/lab/states'
+    | '/lab/'
+    | '/_authenticated/opportunities/$id'
+    | '/_authenticated/opportunities/examples'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  SearchRoute: typeof SearchRoute
-  OpportunityIdRoute: typeof OpportunityIdRoute
-  ApiPublicHooksCrawlOpportunitiesRoute: typeof ApiPublicHooksCrawlOpportunitiesRoute
-  ApiPublicHooksDeadlineRemindersRoute: typeof ApiPublicHooksDeadlineRemindersRoute
+  LabIdRoute: typeof LabIdRoute
+  LabFaultsRoute: typeof LabFaultsRoute
+  LabMutationsRoute: typeof LabMutationsRoute
+  LabRefreshRoute: typeof LabRefreshRoute
+  LabSavedRoute: typeof LabSavedRoute
+  LabSessionRoute: typeof LabSessionRoute
+  LabStatesRoute: typeof LabStatesRoute
+  LabIndexRoute: typeof LabIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -255,140 +242,118 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/opportunity/$id': {
-      id: '/opportunity/$id'
-      path: '/opportunity/$id'
-      fullPath: '/opportunity/$id'
-      preLoaderRoute: typeof OpportunityIdRouteImport
+    '/lab/': {
+      id: '/lab/'
+      path: '/lab'
+      fullPath: '/lab/'
+      preLoaderRoute: typeof LabIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/vault': {
-      id: '/_authenticated/vault'
-      path: '/vault'
-      fullPath: '/vault'
-      preLoaderRoute: typeof AuthenticatedVaultRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/onboarding': {
-      id: '/_authenticated/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/_admin': {
-      id: '/_authenticated/_admin'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard/documents': {
-      id: '/_authenticated/dashboard/documents'
-      path: '/documents'
-      fullPath: '/dashboard/documents'
-      preLoaderRoute: typeof AuthenticatedDashboardDocumentsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/applications': {
-      id: '/_authenticated/dashboard/applications'
-      path: '/applications'
-      fullPath: '/dashboard/applications'
-      preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/_admin/queue': {
-      id: '/_authenticated/_admin/queue'
-      path: '/queue'
-      fullPath: '/queue'
-      preLoaderRoute: typeof AuthenticatedAdminQueueRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/_admin/featured': {
-      id: '/_authenticated/_admin/featured'
-      path: '/featured'
-      fullPath: '/featured'
-      preLoaderRoute: typeof AuthenticatedAdminFeaturedRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/_admin/analytics': {
-      id: '/_authenticated/_admin/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/api/public/hooks/deadline-reminders': {
-      id: '/api/public/hooks/deadline-reminders'
-      path: '/api/public/hooks/deadline-reminders'
-      fullPath: '/api/public/hooks/deadline-reminders'
-      preLoaderRoute: typeof ApiPublicHooksDeadlineRemindersRouteImport
+    '/lab/states': {
+      id: '/lab/states'
+      path: '/lab/states'
+      fullPath: '/lab/states'
+      preLoaderRoute: typeof LabStatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/crawl-opportunities': {
-      id: '/api/public/hooks/crawl-opportunities'
-      path: '/api/public/hooks/crawl-opportunities'
-      fullPath: '/api/public/hooks/crawl-opportunities'
-      preLoaderRoute: typeof ApiPublicHooksCrawlOpportunitiesRouteImport
+    '/lab/session': {
+      id: '/lab/session'
+      path: '/lab/session'
+      fullPath: '/lab/session'
+      preLoaderRoute: typeof LabSessionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/lab/saved': {
+      id: '/lab/saved'
+      path: '/lab/saved'
+      fullPath: '/lab/saved'
+      preLoaderRoute: typeof LabSavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/refresh': {
+      id: '/lab/refresh'
+      path: '/lab/refresh'
+      fullPath: '/lab/refresh'
+      preLoaderRoute: typeof LabRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/mutations': {
+      id: '/lab/mutations'
+      path: '/lab/mutations'
+      fullPath: '/lab/mutations'
+      preLoaderRoute: typeof LabMutationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/faults': {
+      id: '/lab/faults'
+      path: '/lab/faults'
+      fullPath: '/lab/faults'
+      preLoaderRoute: typeof LabFaultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/$id': {
+      id: '/lab/$id'
+      path: '/lab/$id'
+      fullPath: '/lab/$id'
+      preLoaderRoute: typeof LabIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/saved': {
+      id: '/_authenticated/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof AuthenticatedSavedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/opportunities': {
+      id: '/_authenticated/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/opportunities/examples': {
+      id: '/_authenticated/opportunities/examples'
+      path: '/examples'
+      fullPath: '/opportunities/examples'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesExamplesRouteImport
+      parentRoute: typeof AuthenticatedOpportunitiesRoute
+    }
+    '/_authenticated/opportunities/$id': {
+      id: '/_authenticated/opportunities/$id'
+      path: '/$id'
+      fullPath: '/opportunities/$id'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesIdRouteImport
+      parentRoute: typeof AuthenticatedOpportunitiesRoute
     }
   }
 }
 
-interface AuthenticatedAdminRouteRouteChildren {
-  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
-  AuthenticatedAdminFeaturedRoute: typeof AuthenticatedAdminFeaturedRoute
-  AuthenticatedAdminQueueRoute: typeof AuthenticatedAdminQueueRoute
+interface AuthenticatedOpportunitiesRouteChildren {
+  AuthenticatedOpportunitiesIdRoute: typeof AuthenticatedOpportunitiesIdRoute
+  AuthenticatedOpportunitiesExamplesRoute: typeof AuthenticatedOpportunitiesExamplesRoute
 }
 
-const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+const AuthenticatedOpportunitiesRouteChildren: AuthenticatedOpportunitiesRouteChildren =
   {
-    AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
-    AuthenticatedAdminFeaturedRoute: AuthenticatedAdminFeaturedRoute,
-    AuthenticatedAdminQueueRoute: AuthenticatedAdminQueueRoute,
+    AuthenticatedOpportunitiesIdRoute: AuthenticatedOpportunitiesIdRoute,
+    AuthenticatedOpportunitiesExamplesRoute:
+      AuthenticatedOpportunitiesExamplesRoute,
   }
 
-const AuthenticatedAdminRouteRouteWithChildren =
-  AuthenticatedAdminRouteRoute._addFileChildren(
-    AuthenticatedAdminRouteRouteChildren,
-  )
-
-interface AuthenticatedDashboardRouteChildren {
-  AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
-  AuthenticatedDashboardDocumentsRoute: typeof AuthenticatedDashboardDocumentsRoute
-}
-
-const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
-  {
-    AuthenticatedDashboardApplicationsRoute:
-      AuthenticatedDashboardApplicationsRoute,
-    AuthenticatedDashboardDocumentsRoute: AuthenticatedDashboardDocumentsRoute,
-  }
-
-const AuthenticatedDashboardRouteWithChildren =
-  AuthenticatedDashboardRoute._addFileChildren(
-    AuthenticatedDashboardRouteChildren,
+const AuthenticatedOpportunitiesRouteWithChildren =
+  AuthenticatedOpportunitiesRoute._addFileChildren(
+    AuthenticatedOpportunitiesRouteChildren,
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
-  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedVaultRoute: typeof AuthenticatedVaultRoute
+  AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRouteWithChildren
+  AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
-  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
-  AuthenticatedVaultRoute: AuthenticatedVaultRoute,
+  AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRouteWithChildren,
+  AuthenticatedSavedRoute: AuthenticatedSavedRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -398,10 +363,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  SearchRoute: SearchRoute,
-  OpportunityIdRoute: OpportunityIdRoute,
-  ApiPublicHooksCrawlOpportunitiesRoute: ApiPublicHooksCrawlOpportunitiesRoute,
-  ApiPublicHooksDeadlineRemindersRoute: ApiPublicHooksDeadlineRemindersRoute,
+  LabIdRoute: LabIdRoute,
+  LabFaultsRoute: LabFaultsRoute,
+  LabMutationsRoute: LabMutationsRoute,
+  LabRefreshRoute: LabRefreshRoute,
+  LabSavedRoute: LabSavedRoute,
+  LabSessionRoute: LabSessionRoute,
+  LabStatesRoute: LabStatesRoute,
+  LabIndexRoute: LabIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

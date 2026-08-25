@@ -67,14 +67,42 @@ DO $$ BEGIN
   PERFORM cron.unschedule('opportunity-x-daily-crawl');
 EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
-SELECT cron.schedule(
-  'opportunity-x-daily-crawl',
-  '0 6 * * *',
-  $$
-  SELECT net.http_post(
-    url := 'https://project--e297105a-a0e0-48de-9e7d-d7e7101e7e27.lovable.app/api/public/hooks/crawl-opportunities',
-    headers := '{"Content-Type":"application/json","apikey":"sb_publishable_5sR_3DAfIqPPPlEGkXEZWA_Q3S9g_DI"}'::jsonb,
-    body := '{}'::jsonb
-  ) AS request_id;
-  $$
-);
+-- The daily crawl cron job is intentionally NOT (re)scheduled here.
+-- It previously pointed at a stale preview URL with an old anon key
+-- baked in. Once the app's real deployment URL is decided, schedule
+-- it with:
+--
+-- SELECT cron.schedule(
+--   'opportunity-x-daily-crawl',
+--   '0 6 * * *',
+--   $$
+--   SELECT net.http_post(
+--     url := '<deployment-url>/api/public/hooks/crawl-opportunities',
+--     headers := '{"Content-Type":"application/json","x-opportunity-x-cron-secret":"<OPPORTUNITY_X_CRON_SECRET>"}'::jsonb,
+--     body := '{}'::jsonb
+--   ) AS request_id;
+--   $$
+-- );
+--
+-- The `x-opportunity-x-cron-secret` header is REQUIRED as of Phase 12. Both
+-- hook endpoints previously accepted an unauthenticated POST from anyone;
+-- they now answer 401 without the header and 503 while the secret is unset in
+-- the app's environment. The value must equal the app's
+-- OPPORTUNITY_X_CRON_SECRET.
+--
+-- The `apikey` header this snippet used to carry did nothing: these routes are
+-- application handlers, not PostgREST, and never looked at it.
+--
+-- The reminder job is the same shape and the same requirement:
+--
+-- SELECT cron.schedule(
+--   'opportunity-x-deadline-reminders',
+--   '0 7 * * *',
+--   $$
+--   SELECT net.http_post(
+--     url := '<deployment-url>/api/public/hooks/deadline-reminders',
+--     headers := '{"Content-Type":"application/json","x-opportunity-x-cron-secret":"<OPPORTUNITY_X_CRON_SECRET>"}'::jsonb,
+--     body := '{}'::jsonb
+--   ) AS request_id;
+--   $$
+-- );

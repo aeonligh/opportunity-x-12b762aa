@@ -1,0 +1,301 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { assertDevelopment } from "@/lib/lab-guard";
+
+/**
+ * The fixture laboratory's server boundary — development only.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * WHY THIS EXISTS AT ALL
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * Opportunity X's three product surfaces are authenticated, and they should be:
+ * they read one person's declarations out of a database under row-level
+ * security. But that makes the product impossible to *look at* without a
+ * reachable Supabase and a real account — and for long stretches of this
+ * project neither existed, so nobody could see the thing being built.
+ *
+ * The tempting fix is to drop `_authenticated` from the examples route. That
+ * would be a production auth change made for a development convenience, and it
+ * is exactly the kind of edit that survives into a deployment because it looks
+ * like a routing tidy-up in a diff.
+ *
+ * So the laboratory gets its own door instead. Nothing about the authenticated
+ * routes changes.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * WHY THE GUARD IS A RUNTIME CHECK AND NOT `import.meta.env.DEV`
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * `import.meta.env.DEV` is compiled to `false` and dead-code-eliminated, which
+ * sounds stronger than a runtime check and is weaker where it matters. It is a
+ * *bundler* fact: it protects the client bundle and says nothing about whether
+ * a server handler will run. A server function is registered by its own module
+ * graph, so a route guarded only in the browser still leaves the handler
+ * reachable by anyone who can post to its endpoint.
+ *
+ * `process.env.NODE_ENV` is read inside the handler, on the server, per request
+ * — which is the thing an attacker would have to defeat.
+ *
+ * To be exact about what a production build actually ships, since an earlier
+ * version of this paragraph claimed the route "hides in the client" and it does
+ * not: the laboratory's *chrome* is a lazily-loaded chunk and is present in the
+ * browser bundle. Its **data is not** — a production build was grepped and
+ * contains no `demoCorpus`, no specimen, and none of the fixture opportunities.
+ * Navigating to `/lab` in production therefore renders a frame whose loader
+ * immediately fails with the refusal below. The banner is the only thing that
+ * ships, and no fixture has anywhere to come from.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * WHAT THIS CAN AND CANNOT TOUCH
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * It never constructs a Supabase client, so there is no path from here to
+ * anyone's data — not even a read. It holds no service-role key and takes no
+ * user id from the request. The "person" is a constant. There is no session to
+ * forge because there is no session at all.
+ *
+ * Declarations are real: they go through the same `InMemoryPursuitLog` and the
+ * same projection the live surface uses, so pressing Interested here exercises
+ * the actual write-and-read-back path rather than flipping a boolean. They live
+ * in this process and die with it, which the surface says out loud — a
+ * laboratory that implied durability would be making the one promise the
+ * product refuses to make falsely.
+ */
+
+/** Held across requests so a declaration survives a navigation. */
+const declarations = new Map<string, "interested" | "not-interested" | null>();
+
+async function corpus() {
+  const { demoCorpus } = await import("@/lib/opportunity/surface/demo");
+  return demoCorpus(new Date().toISOString(), declarations);
+}
+
+/**
+ * A named failure, in the real result shape.
+ *
+ * The laboratory's failure-injection door. Every fault is asked for by name,
+ * validated against a closed list, and produced by `surface/faults.ts` in the
+ * genuine resolution type the corresponding read returns — so the route under
+ * test takes the branch it would take in production rather than being handed a
+ * component with error-looking props.
+ *
+ * `assertDevelopment()` runs first, as it does on every function in this module,
+ * so there is no path to this from a production deployment. No flag exists,
+ * nothing branches inside production code, and a fault has to be requested by a
+ * caller production does not have.
+ */
+/*
+  Three functions rather than one taking a surface name, because a single
+  entry point returns the union of all three resolution types and every caller
+  then has to narrow it by hand. Separate functions give each caller the exact
+  result its surface branches on, which is the whole point of injecting real
+  resolutions instead of error-looking props.
+*/
+
+export const labCardsFault = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ fault: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { CARD_FAULTS, cardsUnder } = await import("@/lib/opportunity/surface/faults");
+    const fault = CARD_FAULTS.find((f) => f === data.fault);
+    if (!fault) throw new Error(`Unknown card fault: ${data.fault}`);
+    return cardsUnder(fault);
+  });
+
+export const labInspectionFault = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ fault: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { INSPECTION_FAULTS, inspectionUnder } = await import("@/lib/opportunity/surface/faults");
+    const fault = INSPECTION_FAULTS.find((f) => f === data.fault);
+    if (!fault) throw new Error(`Unknown inspection fault: ${data.fault}`);
+    return inspectionUnder(fault);
+  });
+
+export const labSavedFault = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ fault: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { SAVED_FAULTS, savedUnder } = await import("@/lib/opportunity/surface/faults");
+    const fault = SAVED_FAULTS.find((f) => f === data.fault);
+    if (!fault) throw new Error(`Unknown saved fault: ${data.fault}`);
+    return savedUnder(fault);
+  });
+
+/*
+  ── The refresh probe ─────────────────────────────────────────────────────
+
+  Two functions supporting `/lab/refresh`, which exists to answer one question a
+  browser has to answer rather than a reader: when a re-read fails while valid
+  content is already on screen, does the content survive?
+
+  Held in module state and armed explicitly. There is no flag in production code
+  and no branch anywhere outside this module; both functions run
+  `assertDevelopment()` first, as everything here does.
+*/
+let refreshReadings = 0;
+let refreshFailsNext = false;
+
+export const labRefreshProbe = createServerFn({ method: "GET" }).handler(async () => {
+  assertDevelopment();
+
+  if (refreshFailsNext) {
+    /* One-shot: disarm so the next read recovers, which is the other half of
+       what needs observing. */
+    refreshFailsNext = false;
+    throw new Error("The laboratory's refresh probe was armed to fail this read.");
+  }
+
+  refreshReadings += 1;
+  return { readings: refreshReadings, at: new Date().toISOString() };
+});
+
+export const labRefreshShouldFail = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => z.object({ fail: z.boolean() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    refreshFailsNext = data.fail;
+    return { armed: data.fail };
+  });
+
+/** Every specimen, as cards, plus whatever has been declared in this session. */
+export const labSurface = createServerFn({ method: "GET" }).handler(async () => {
+  assertDevelopment();
+  const { scenarios } = await corpus();
+
+  return {
+    specimens: scenarios.map((s) => ({
+      id: s.card.entityId,
+      label: s.label,
+      demonstrates: s.demonstrates,
+      card: s.card,
+      /*
+        Whether the position on this card is the visitor's own.
+
+        The laboratory now holds two kinds of declaration and they must not be
+        narrated the same way. A specimen ships with a position already taken —
+        that belongs to the fixture person, and telling the visitor "you said you
+        were interested" about it would attribute a statement to someone who
+        never made it. A position taken by pressing the button on this page *is*
+        theirs. Same shape, different owner, so the surface is told which.
+      */
+      yours: declarations.has(s.card.entityId),
+    })),
+  };
+});
+
+/** One specimen, with everything underneath it. */
+export const labInspect = createServerFn({ method: "GET" })
+  .inputValidator((i: unknown) => z.object({ id: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    const { scenarios } = await corpus();
+    const found = scenarios.find((s) => s.card.entityId === data.id);
+    return found
+      ? {
+          found: true as const,
+          label: found.label,
+          demonstrates: found.demonstrates,
+          inspection: found.inspection,
+          /** Whose position this is. See `labSurface` for why it is asked. */
+          yours: declarations.has(data.id),
+        }
+      : { found: false as const };
+  });
+
+/**
+ * What has been declared, as the saved surface shows it.
+ *
+ * Built by reading the corpus back rather than by reading the override map,
+ * which is the whole point of the return leg: it proves the position survived a
+ * write and a re-projection, instead of proving that a Map still holds what was
+ * put into it a moment ago.
+ *
+ * A declaration whose opportunity no longer resolves keeps its row with a null
+ * title. The person's statement is theirs and does not stop existing because the
+ * thing it pointed at did — dropping the row would quietly edit what they said.
+ */
+export const labSaved = createServerFn({ method: "GET" }).handler(async () => {
+  assertDevelopment();
+  const { scenarios } = await corpus();
+
+  const rows: {
+    entityId: string;
+    state: "interested" | "not-interested";
+    declaredAt: string;
+    title: string | null;
+    yours: boolean;
+  }[] = scenarios.flatMap((s) => {
+    const pursuit = s.card.pursuit;
+    if (pursuit.state !== "declared") return [];
+    return [
+      {
+        entityId: s.card.entityId,
+        state: pursuit.declaration.state,
+        declaredAt: pursuit.declaration.declaredAt,
+        title: s.card.shown.statement,
+        yours: declarations.has(s.card.entityId),
+      },
+    ];
+  });
+
+  /*
+    Declarations whose opportunity is not in the corpus.
+
+    Built from the scenarios alone, this list silently dropped them — which is
+    exactly the failure the live `resolveDeclarations` is written to avoid. A
+    person's statement is theirs and does not stop existing because the thing it
+    pointed at did; removing the row would quietly edit what they said, and they
+    would have no way to tell it had happened.
+  */
+  const resolvable = new Set(scenarios.map((s) => s.card.entityId));
+  for (const [entityId, state] of declarations) {
+    if (state === null || resolvable.has(entityId)) continue;
+    rows.push({
+      entityId,
+      state,
+      declaredAt: new Date().toISOString(),
+      title: null,
+      yours: true,
+    });
+  }
+
+  rows.sort((a, b) => b.declaredAt.localeCompare(a.declaredAt));
+
+  return rows.length === 0
+    ? { state: "empty" as const }
+    : { state: "declarations" as const, declarations: rows };
+});
+
+/**
+ * Take a position, for real.
+ *
+ * Written to the log and read back through the projection on the next request,
+ * so what the surface then shows is the stored state rather than an optimistic
+ * echo of the button that was pressed.
+ */
+export const labDeclare = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z
+      .object({
+        entityId: z.string(),
+        state: z.enum(["interested", "not-interested"]),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    declarations.set(data.entityId, data.state);
+    return { recorded: true as const };
+  });
+
+/** Withdraw one. `null` rather than a delete, so the specimen's own position
+    does not silently come back. */
+export const labWithdraw = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => z.object({ entityId: z.string() }).parse(i))
+  .handler(async ({ data }) => {
+    assertDevelopment();
+    declarations.set(data.entityId, null);
+    return { recorded: true as const };
+  });

@@ -38,6 +38,6 @@ export const BrandMark = forwardRef<SVGSVGElement, BrandMarkProps>(
         </g>
       </svg>
     );
-  }
+  },
 );
 BrandMark.displayName = "BrandMark";

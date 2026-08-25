@@ -23,13 +23,18 @@ export default function ThemeToggle() {
           <Icon size={16} />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-40 p-1 bg-surface/95 backdrop-blur-xl border border-border rounded-xl shadow-xl z-50">
+      <PopoverContent
+        align="end"
+        className="w-40 p-1 bg-surface/95 backdrop-blur-xl border border-border rounded-xl shadow-xl z-50"
+      >
         {options.map(({ value, label, icon: I }) => (
           <button
             key={value}
             onClick={() => setTheme(value)}
             className={`w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition ${
-              theme === value ? "bg-accent/10 text-accent" : "text-text-s hover:text-foreground hover:bg-surface"
+              theme === value
+                ? "bg-accent/10 text-accent"
+                : "text-text-s hover:text-foreground hover:bg-surface"
             }`}
           >
             <I size={14} />

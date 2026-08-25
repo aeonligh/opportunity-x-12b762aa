@@ -35,10 +35,7 @@ export function BrandLoader({
         {/* the seed point that ignites first */}
         <span className="brand-loader-seed" aria-hidden />
         {/* the assembling symbol */}
-        <BrandMark
-          size={size}
-          className="brand-loader-mark text-foreground"
-        />
+        <BrandMark size={size} className="brand-loader-mark text-foreground" />
         {/* soft convergence halo */}
         <span className="brand-loader-halo" aria-hidden />
       </div>
