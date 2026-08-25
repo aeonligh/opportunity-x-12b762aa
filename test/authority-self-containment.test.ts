@@ -660,3 +660,176 @@ test("the authority scanner covers all of src/, and cannot be narrowed", () => {
     );
   }
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PHASE 24 — THE LEDGER, AND THE PENDING/RATIFIED BOUNDARY
+   ══════════════════════════════════════════════════════════════════════════
+
+   Phase 24 introduced two things that can rot silently: a ledger that is
+   supposed to account for every unresolved citation, and a set of drafted
+   decisions that are explicitly NOT authority. Both are only useful while they
+   stay honest about themselves. */
+
+/** Every bare (unresolved) citation in src/, as `file:line historical`. */
+function bareOccurrences(): Set<string> {
+  const alias: Record<string, string> = {
+    PB: "Product Bible",
+    XB: "Experience Bible",
+    BB: "Brand Bible",
+    IA: "IA Bible",
+    "Information Architecture": "IA Bible",
+    CS: "Component System Bible",
+    Flows: "UX Flows Bible",
+    "UX Flows": "UX Flows Bible",
+  };
+  const out = new Set<string>();
+  for (const f of sourceFiles()) {
+    const text = readFileSync(f, "utf8").replace(/\(hist\.[^)]*\)/g, "(hist.)");
+    text.split("\n").forEach((line, idx) => {
+      for (const m of line.matchAll(
+        /(Product|Experience|Brand|IA|Information Architecture|UX Flows|Flows|Component System|CS|PB|XB|BB)\s*(?:Bible)?\s*§\s*0*(\d+)/g,
+      )) {
+        const a = m[1].replace(/ Bible$/, "");
+        out.add(
+          `${f.replace("src/", "")}:${idx + 1} ${alias[a] ?? `${a} Bible`} §${String(Number(m[2])).padStart(2, "0")}`,
+        );
+      }
+      for (const m of line.matchAll(/(?:Brand Bible|BB)\s+(A-\d+)/g)) {
+        out.add(`${f.replace("src/", "")}:${idx + 1} Brand Bible ${m[1]}`);
+      }
+    });
+  }
+  return out;
+}
+
+test("the ledger and the source agree in both directions", () => {
+  /*
+    Failure modes 6 and 7, which are the same defect seen from either end. A
+    ledger row with no citation behind it is a record of something that is not
+    there; a citation with no row is an unresolved claim that has stopped being
+    counted. Both make the ledger look complete while it is not, and only a
+    two-way comparison catches both.
+
+    Line numbers are part of the key on purpose. A citation that moves has to be
+    re-examined, because the requirement it invokes depends on the code around
+    it — that is the whole PB §07 lesson.
+  */
+  const ledger = readFileSync("docs/AUTHORITY_LEDGER.md", "utf8");
+  const rowed = new Set(
+    [...ledger.matchAll(/\| `([^`]+):(\d+)` \| ([^|]+?) \|/g)].map(
+      (m) => `${m[1]}:${m[2]} ${m[3].trim()}`,
+    ),
+  );
+  const inSource = bareOccurrences();
+
+  const missingFromLedger = [...inSource].filter((o) => !rowed.has(o)).sort();
+  assert.deepEqual(
+    missingFromLedger,
+    [],
+    `unresolved citations with no ledger row: ${missingFromLedger.join("; ")}. Regenerate docs/AUTHORITY_LEDGER.md.`,
+  );
+
+  const phantom = [...rowed].filter((o) => !inSource.has(o)).sort();
+  assert.deepEqual(
+    phantom,
+    [],
+    `ledger rows with no citation in source: ${phantom.join("; ")}. A row that outlives its citation is a false record.`,
+  );
+});
+
+test("a pending decision cannot be mistaken for a ratified one", () => {
+  /*
+    Failure mode 5, and the one most likely to happen by accident. `OXD-PENDING-001`
+    reads almost exactly like `OXD-001`. If a proposal is ever pasted into the
+    ratified register, or loses its status line, the product acquires a rule the
+    owner never agreed to — which is the failure this whole sequence of phases
+    exists to prevent, arriving through the door marked "drafts".
+  */
+  const pending = readFileSync("docs/OXD_PENDING.md", "utf8");
+  const ratified = readFileSync("docs/OPPORTUNITY_X_DECISIONS.md", "utf8");
+
+  assert.match(
+    pending,
+    /\*\*Nothing in this file is authority\.\*\*/,
+    "the pending file no longer disclaims its own authority",
+  );
+
+  const proposals = [...pending.matchAll(/^## (OXD-PENDING-\d+)/gm)].map((m) => m[1]);
+  assert.ok(proposals.length > 0, "no proposals found; if all were ratified, remove the file");
+  for (const id of proposals) {
+    const block = pending.split(`## ${id}`)[1].split("\n## ")[0];
+    assert.match(
+      block,
+      /\*\*Status:\*\* PENDING USER RATIFICATION/,
+      `${id} has lost its pending status`,
+    );
+    assert.match(
+      block,
+      /Why that authority is insufficient/,
+      `${id} does not say why the closest CR/OXD fails`,
+    );
+    assert.ok(
+      !ratified.includes(id),
+      `${id} appears in the ratified register. A proposal becomes a decision by the owner ratifying it, not by being moved.`,
+    );
+  }
+
+  /* And no ratified decision may carry pending language. */
+  assert.doesNotMatch(
+    ratified,
+    /PENDING USER RATIFICATION/,
+    "a ratified decision is marked pending — the register and the drafts have been mixed",
+  );
+});
+
+test("authority exists in the repository, not only in a test", () => {
+  /*
+    Failure mode 12. Every identifier these tests assert about must be defined in
+    a document a person can read. A rule that exists only as a string inside an
+    assertion is a rule nobody agreed to and nobody can find — and it would keep
+    the suite green forever.
+  */
+  const ratified = readFileSync("docs/OPPORTUNITY_X_DECISIONS.md", "utf8");
+  const pending = readFileSync("docs/OXD_PENDING.md", "utf8");
+  const constitution = readFileSync("docs/CONSTITUTION.md", "utf8");
+  const self = readFileSync("test/authority-self-containment.test.ts", "utf8");
+
+  for (const m of self.matchAll(/OXD-(?:PENDING-)?\d+/g)) {
+    const id = m[0];
+    assert.ok(
+      ratified.includes(id) || pending.includes(id),
+      `${id} is named in the tests but defined in no authority document`,
+    );
+  }
+  for (const m of self.matchAll(/\bCR-(\d+)\b/g)) {
+    if (Number(m[1]) === 0) continue; // the scanner's own regex literal
+    assert.ok(
+      constitution.includes(m[0]),
+      `${m[0]} is named in the tests but not in the Constitution`,
+    );
+  }
+});
+
+test("the unresolved count cannot be lowered without a recorded disposition", () => {
+  /*
+    Failure mode 10. Deleting a `REQUIRES_RATIFICATION` label, or quietly
+    dropping a citation from the source, both make the problem smaller on paper.
+    The ledger is the record that makes either visible: its row count and the
+    live count must move together, and the phase report must state the number it
+    is claiming.
+  */
+  const ledger = readFileSync("docs/AUTHORITY_LEDGER.md", "utf8");
+  const claimed = ledger.match(/\*\*(\d+) rows\.\*\*/);
+  assert.ok(claimed, "the ledger no longer states how many rows it holds");
+  assert.equal(
+    Number(claimed[1]),
+    bareOccurrences().size,
+    `the ledger claims ${claimed?.[1]} rows; src/ has ${bareOccurrences().size} unresolved citations`,
+  );
+
+  assert.match(
+    ledger,
+    /STILL UNRESOLVED/,
+    "the ledger no longer marks anything unresolved; if that is genuinely true, every row needs a disposition that says so",
+  );
+});

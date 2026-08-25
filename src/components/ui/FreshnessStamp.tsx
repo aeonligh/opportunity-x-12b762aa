@@ -5,7 +5,9 @@
  *   OXD-005 (hist. BB §07)  — freshness is encoded in weight and opacity, never in hue,
  *                      so a decaying fact stays readable and the semantic palette
  *                      stays uncontaminated.
- *   Brand Bible §05        — mono marks the system describing its own knowledge.
+ *   Historically BB §05    — mono marks the system describing its own knowledge.
+ *                            Original unavailable; a typographic convention, not
+ *                            a current rule.
  *   OXD-005 (hist. XB §15) — a stale answer clearly labelled beats a fresh spinner.
  *
  * Decay is a property of the fact, not a global clock (OXD-005 (hist. BB §07)): a degree

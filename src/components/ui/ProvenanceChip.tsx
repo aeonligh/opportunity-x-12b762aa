@@ -2,8 +2,13 @@
  * Provenance chip — the visible origin of anything Opportunity X believes.
  *
  * Constitutional authority:
- *   Product Bible §07      — the three tiers, and "it always tells me why".
- *   Brand Bible §06        — the tier palette; mono for the machine voice.
+ *   CR-24 (hist. PB §07)   — the three tiers: the person can tell what is known
+ *                            from what is inferred.
+ *   OXD-PENDING-001        — "it always tells me why". Every tier explains how it
+ *                            was learned. Not stated by any ratified authority.
+ *   Historically BB §06    — the tier palette; mono for the machine voice. The
+ *                            original is unavailable and this governs nothing
+ *                            today; the convention is kept because it is used.
  *   OXD-002 (hist. BB §12) — every encoded meaning carries a non-visual carrier.
  *   OXD-003 (hist. IA §18) — required as a primitive available in every product.
  *
