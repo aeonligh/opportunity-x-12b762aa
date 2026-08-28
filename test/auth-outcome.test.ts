@@ -124,8 +124,21 @@ test("the form renders the outcome and no longer stringifies the error", () => {
     false,
     "an error object is being stringified into a toast again",
   );
-  /* Rendered persistently, and announced. */
-  assert.match(code, /role="alert"/);
+  /*
+    Rendered persistently, and announced — with the severity following the
+    outcome's own tone rather than being fixed.
+
+    `role="alert"` interrupts whatever a screen reader is doing. That is right
+    for a failure and wrong for "your sign-up worked, go and confirm your
+    email", which is now one of the things this card carries: announcing that
+    as an alert tells somebody their account was not created when it was, in
+    exactly the way the red border would.
+  */
+  assert.match(
+    code,
+    /role=\{failure\.tone === "problem" \? "alert" : "status"\}/,
+    "the announcement severity no longer follows the outcome's tone",
+  );
   assert.match(code, /failure\.what/);
   assert.match(code, /failure\.stillTrue/);
   assert.match(code, /failure\.whatYouCanDo/);

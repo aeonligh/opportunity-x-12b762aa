@@ -135,3 +135,171 @@ test("the public surface does not describe anything as live", () => {
     );
   }
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Social identity
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * The two official AEON X profiles, exactly as supplied by the owner.
+ *
+ * Held as literals here rather than imported from the page, deliberately. A
+ * test that reads its expected value out of the file it is checking cannot
+ * fail — that mistake was made once already in Phase 22, where a quotation
+ * assertion compared the corpus against itself and a mutation walked straight
+ * through it. These are the destinations somebody with the authority to say so
+ * gave, written down independently, so editing the page cannot edit the
+ * standard the page is held to.
+ */
+const AEON_X_LINKEDIN =
+  "https://www.linkedin.com/in/aeon-x-technologies-aa8311426?utm_content=profile&utm_medium=member_android&utm_source=chatgpt.com";
+const AEON_X_FACEBOOK =
+  "https://www.facebook.com/profile.php?id=61591914496671&utm_source=chatgpt.com";
+
+test("the only social accounts on the public surface are the official AEON X ones", () => {
+  /*
+    This page shipped `linkedin.com/company/opportunity-x` and
+    `facebook.com/opportunityx`, labelled as Opportunity X's own accounts.
+    Neither exists. They were plausible strings assembled from the product
+    name, which is the same fabrication as a "94% Match" — a confident,
+    checkable-looking claim with nothing behind it — except that this one was
+    clickable and sat in the footer of every page.
+
+    Asserted as a closed set, not as "the real ones are present". A rule that
+    only checks for the presence of the correct URLs is satisfied by a page
+    that lists them alongside three invented ones.
+  */
+  const code = rendered(LANDING);
+  const external = [...code.matchAll(/https?:\/\/[^"'`\s)]+/g)].map((m) => m[0]);
+
+  assert.deepEqual(
+    external.sort(),
+    [AEON_X_LINKEDIN, AEON_X_FACEBOOK].sort(),
+    `the landing page links out to something other than the official AEON X profiles: ${external.join(", ")}`,
+  );
+});
+
+test("no invented handle survives anywhere on the public surface", () => {
+  /*
+    The specific strings, by name. Removing a link from the footer while
+    leaving the handle in a constant, a comment-free helper, or a second
+    component is how half a correction ships.
+  */
+  for (const path of [LANDING, GLOBE]) {
+    const code = rendered(path);
+    for (const invented of [
+      /linkedin\.com\/company\/opportunity-x/i,
+      /facebook\.com\/opportunityx/i,
+      /twitter\.com\/\w/i,
+      /(?<!\/)x\.com\/\w/i,
+      /instagram\.com\/\w/i,
+      /tiktok\.com\/@/i,
+      /youtube\.com\/@/i,
+    ]) {
+      assert.equal(
+        invented.test(code),
+        false,
+        `${path} carries a social destination that was never supplied: ${invented}`,
+      );
+    }
+    /* And no dead placeholder dressed as an account. */
+    assert.equal(
+      /aria-label=\{?[`"'][^`"']*on (LinkedIn|Facebook|X|Instagram)[^`"']*[`"']\}?[\s\S]{0,200}href="#"/.test(
+        code,
+      ),
+      false,
+      `${path} draws a social link that goes nowhere`,
+    );
+  }
+});
+
+test("the official accounts are attributed to AEON X, not to the product", () => {
+  /*
+    Opportunity X is the product; AEON X is the parent company that owns these
+    profiles. The accessible name said "Opportunity X on LinkedIn", which
+    attributed a real company's account to a product that does not have one —
+    and gave a screen-reader user the false attribution with none of the visual
+    context that might have corrected it.
+
+    The product is deliberately NOT renamed: the wordmark and the metadata
+    still say Opportunity X, and this asserts that too, so a later over-correction
+    cannot rebrand the whole surface to the parent company.
+  */
+  const code = rendered(LANDING);
+
+  assert.match(
+    code,
+    /aria-label=\{`\$\{AEON_X\} on \$\{s\.label\}`\}/,
+    "the social links no longer name their owner in their accessible name",
+  );
+  assert.match(code, /const AEON_X = "AEON X"/, "the parent company name is not declared");
+  assert.equal(
+    /aria-label=\{`Opportunity X on /.test(code),
+    false,
+    "a social account is attributed to the product again",
+  );
+
+  /* The product keeps its own name where the product is what is being named. */
+  assert.match(code, /OPPORTUNITY <span className="text-accent">X<\/span>/);
+});
+
+test("every outbound account link opens safely and can be reached by keyboard", () => {
+  /*
+    `target="_blank"` without `rel="noopener"` hands the opened tab a live
+    `window.opener` handle back into this page. `noreferrer` keeps the
+    destination from being told which page sent the visitor.
+
+    The focus ring matters here more than usual: the lift and glow on these
+    cards are driven by `onMouseEnter`/`onMouseLeave`, which a keyboard never
+    fires. Before this, tabbing through the footer moved through two links with
+    no visible indication of which was selected.
+  */
+  const code = rendered(LANDING);
+  const start = code.indexOf("{socials.map(");
+  assert.ok(start > 0, "the social links are no longer rendered from one list");
+  const anchor = code.slice(start, code.indexOf("</a>", start));
+
+  assert.match(anchor, /target="_blank"/);
+  assert.match(anchor, /rel="noopener noreferrer"/, "an outbound link opens without noopener");
+  /*
+    The focus ring is asserted as an `onFocus` handler setting `outline`, not
+    as a Tailwind class, because two Tailwind spellings of this ring were
+    measured producing nothing on screen: `focus-visible:ring-2` is a
+    box-shadow and is overwritten by this element's inline hover glow, and
+    both `focus-visible:outline-2` and the arbitrary
+    `focus-visible:[outline:2px_solid_var(--accent)]` computed to
+    `outline: solid 0px` — right colour, no width.
+
+    Both looked correct in the source. A test asserting the class name would
+    have passed on a footer with no visible focus indicator at all, which is
+    why this pins the mechanism a browser was observed honouring.
+  */
+  assert.match(anchor, /onFocus=\{/, "the outbound links have no keyboard focus handler");
+  assert.match(
+    anchor,
+    /style\.outline = "2px solid var\(--accent\)"/,
+    "the focus handler does not draw an outline",
+  );
+  assert.match(anchor, /onBlur=\{/, "the focus outline is never cleared");
+  /*
+    And the ring is immediate. The class list carries `transition-all
+    duration-300`, which animates every animatable property including
+    `outline-width` — measured, the computed outline read `solid 0px`, then
+    `solid 1px`, and only reached 2px a third of a second after the focus. A
+    focus indicator that fades in is one a person moving down a keyboard path
+    out-runs, so the transition is narrowed to the properties the hover state
+    actually needs.
+  */
+  assert.match(
+    anchor,
+    /transitionProperty: "transform, box-shadow, border-color, background-color"/,
+    "the focus outline is being animated again, so it arrives after the focus does",
+  );
+  assert.equal(
+    /focus-visible:ring/.test(anchor),
+    false,
+    "the focus ring is a box-shadow again, which the inline hover glow overrides",
+  );
+  /* A real anchor with a real destination — not a div with a click handler. */
+  assert.match(anchor, /href=\{s\.href\}/);
+});
