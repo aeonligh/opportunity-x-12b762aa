@@ -2301,3 +2301,85 @@ CR-20 (a state that cannot be told from another state is not a state), CR-24
 (inference must be labelled — the sign-up notice labels what it does not know),
 OXD-004 (no claim without provenance — the password requirement is quoted from
 the party that holds it, or not stated).
+
+---
+
+## Phase 27 — MVP final ship: auth to production
+
+**Feature.** Get the corrected auth journey onto `main`, finish the password
+reveal properly, and establish exactly how far the real user journey can be
+verified from here.
+
+**Merged.** PR #5 (`f544a45`) and PR #6 (`6d3c56b`). `main` moved from
+`c37d58d` to `6d3c56b`. The two throwaway checkpoint commits made during
+mutation runs were squashed away before merge; the tree was confirmed
+byte-identical across the rewrite.
+
+### What driving a browser found that reading the source did not
+
+Two defects in behaviour this repository had already reported as done.
+
+**The caret was lost on reveal.** Type a password, arrow back to position 7,
+click the eye, type a character — the character landed at position 0. The value
+survived the type swap; the selection did not. Instrumenting the real event
+order is what made it fixable, because it defeats the two obvious fixes:
+
+```
+btn click                sel=7-7      <- still intact here
+(React commits the type)
+useLayoutEffect          restore
+document selectionchange sel=0-0      <- the browser collapses it AFTER
+```
+
+Reading the selection at click time is right; restoring it only in a layout
+effect is not. The restore now runs twice, the second time on the next frame.
+`onMouseDown` prevents its default so the press never blurs the field —
+Chromium discards `setSelectionRange` on an unfocused input.
+
+A synthesised `click()` never reproduces any of it: under untrusted events the
+selection is never lost. That is why it survived the previous phase's tests.
+
+**The focus ring drew nothing.** `focus-visible:ring-2` was on the reveal
+control. Under a real Tab the class was present, `:focus-visible` matched, and
+the computed box-shadow was `rgba(0,0,0,0) 0px 0px 0px 0px` — every layer
+emitted, every layer transparent. This is the third variant of the same failure
+this session; the footer produced `outline: solid 0px` twice before an inline
+outline worked. The lesson is recorded here rather than only in the code:
+**a focus indicator is not verified by finding its class in the source.**
+
+### What is verified live, and what is not
+
+Verified in Chromium against the dev server: the gate redirects
+`/opportunities` and `/saved` to `/auth` carrying the destination; labels; the
+reveal control's full contract; blur validation raised and withdrawn; a
+locally-refused submit making **zero** network calls and preserving both
+fields; the mode switch keeping input and clearing the stale outcome; the
+open-redirect allowlist refusing five hostile `?next=` values while a
+legitimate depth link survives; the OAuth callback error read from **both**
+query and fragment, classified, stripped from the address bar, with
+`error_description` never rendered.
+
+Not verified, and not claimed: anything about the production deployment, and
+any authenticated surface. Both need network the sandbox does not have.
+
+### Discovery — not run, deliberately
+
+Two independent blockers, both measured:
+
+1. `SUPABASE_SERVICE_ROLE_KEY` is not available. `.env` does not carry it and
+   the Supabase connector is disconnected. `bun run sweep` refuses, correctly.
+2. All ten announcer domains return `000` — a 403 CONNECT from the egress
+   proxy, whose allowlist is Anthropic APIs and package registries only.
+
+The second matters more than the first. Even with a key, a sweep from here
+would record ten `unreachable` observations against publishers that are
+probably fine, writing sandbox-induced failure into an append-only record that
+by design cannot be revised. **Not running it is the correct action, not a
+limitation.** No opportunity record was fabricated.
+
+**Risks.** None introduced. The unverifiable production state is unchanged in
+kind from the previous phase; what changed is that the fix is now on `main`.
+
+**Authority.** CR-20 (absence states stay distinct — the four `/opportunities`
+states are untouched), CR-11 (verification is continuous and evidenced — no
+discovery claim is made without a run), OXD-004 (no claim without provenance).
