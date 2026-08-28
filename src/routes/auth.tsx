@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { safeRedirectPath, AUTH_LANDING_PATH } from "@/lib/safe-redirect";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -193,6 +193,39 @@ function AuthPage() {
     the markup, which is the one thing this form is careful not to do.
   */
   const [revealed, setRevealed] = useState(false);
+  /*
+    Where the caret was when the reveal was pressed.
+
+    ══════════════════════════════════════════════════════════════════════
+    THE TYPE SWAP LOSES THE CARET, AND IT LOSES IT LATE
+    ══════════════════════════════════════════════════════════════════════
+
+    Measured in Chromium with real key and mouse input: type a password, arrow
+    back to position 7, click the eye, type a character — and the character
+    lands at position 0. The value survives the swap; the selection does not.
+    Somebody doing that is doing the exact thing this control exists for, and
+    the swap silently moves their edit somewhere they did not put it.
+
+    Instrumenting the real event order is what made it fixable, because two
+    plausible fixes are both wrong:
+
+      baseline                     sel=7-7
+      btn mousedown                sel=7-7
+      btn click                    sel=7-7      <- the value is still good here
+      (React commits the new type)
+      useLayoutEffect              restore to 7
+      document selectionchange     sel=0-0      <- the browser collapses it AFTER
+
+    So reading the selection at click time is correct and restoring it in a
+    layout effect is not: the collapse happens after the effect has already run,
+    and overwrites it. The restore therefore also runs on the next frame, which
+    is after the collapse.
+
+    A synthesised `click()` never reproduces any of this — under untrusted
+    events the selection is simply never lost — which is why this was chased
+    with real input rather than a dispatched event.
+  */
+  const caret = useRef<{ start: number; end: number } | null>(null);
   // True while an OAuth handshake is in-flight and we've confirmed a session
   // but are about to navigate. Renders the full-screen BrandLoader so no
   // stale content flashes and no protected surface is exposed.
@@ -265,6 +298,38 @@ function AuthPage() {
       sub.subscription.unsubscribe();
     };
   }, [navigate]);
+
+  /*
+    Restored after the attribute change, not during it. `useLayoutEffect` runs
+    after React has written the new `type` and before the browser paints, so the
+    caret never appears in the wrong place.
+  */
+  useLayoutEffect(() => {
+    const field = passwordRef.current;
+    const at = caret.current;
+    caret.current = null;
+    /*
+      Only while the field is the focused element. `setSelectionRange` on an
+      unfocused input is discarded by Chromium — measured: the call succeeded
+      and reading `selectionStart` back still gave 0 — and a caret restored into
+      a field nobody is standing in would not be visible anyway.
+
+      It *is* focused on the path that matters, because the control prevents the
+      default on `mousedown`, so pressing it never blurs the field. A keyboard
+      user who tabbed to the control is deliberately standing on it and is not
+      dragged into the field.
+    */
+    if (!field || !at || document.activeElement !== field) return;
+
+    const restore = () => {
+      if (document.activeElement !== field) return;
+      field.setSelectionRange(at.start, at.end);
+    };
+    /* Once now, and once after the browser's own late collapse. */
+    restore();
+    const frame = requestAnimationFrame(restore);
+    return () => cancelAnimationFrame(frame);
+  }, [revealed]);
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -593,11 +658,67 @@ function AuthPage() {
                 */}
                 <button
                   type="button"
-                  onClick={() => setRevealed((shown) => !shown)}
+                  /*
+                    Keep the field focused through a mouse press.
+
+                    `mousedown` blurs whatever is focused before `click` fires,
+                    so by the time the handler below ran, `document.activeElement`
+                    was already this button — the caret capture recorded "the
+                    field did not have focus" for somebody who was, in fact,
+                    typing in it a moment earlier, and the caret was lost.
+
+                    Preventing the default on `mousedown` stops the blur
+                    entirely, so a person clicking the eye mid-password never
+                    leaves the field. It affects the mouse only; Tab still moves
+                    focus here normally, which is what the keyboard test above
+                    depends on.
+                  */
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={(event) => {
+                    /*
+                      Read here, where the selection is still intact — see the
+                      trace beside `caret`. The field has not been blurred,
+                      because `onMouseDown` prevented it.
+                    */
+                    const field = passwordRef.current;
+                    if (field && document.activeElement === field) {
+                      caret.current = {
+                        start: field.selectionStart ?? field.value.length,
+                        end: field.selectionEnd ?? field.value.length,
+                      };
+                    }
+                    void event;
+                    setRevealed((shown) => !shown);
+                  }}
                   aria-controls="auth-password"
                   aria-pressed={revealed}
                   aria-label={revealed ? "Hide password" : "Show password"}
-                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-text-s transition-colors duration-[120ms] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  /*
+                    The focus ring, applied here rather than through
+                    `focus-visible:ring-2`.
+
+                    Measured in Chromium under a real Tab: the class was
+                    present, `:focus-visible` matched, and the computed
+                    box-shadow was `rgba(0,0,0,0) 0px 0px 0px 0px, …` — the ring
+                    variables emitted, every layer transparent. A focus
+                    indicator that exists in the class list and not on the
+                    screen, which is why this is asserted against a computed
+                    style in `test/auth-flow.test.ts` rather than against a
+                    class name.
+
+                    `:focus-visible` is checked inside the handler so a mouse
+                    press does not draw a ring the pointer user did not ask for.
+                  */
+                  onFocus={(e) => {
+                    if (!e.currentTarget.matches(":focus-visible")) return;
+                    e.currentTarget.style.outline = "2px solid var(--accent)";
+                    e.currentTarget.style.outlineOffset = "-2px";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.outline = "";
+                    e.currentTarget.style.outlineOffset = "";
+                  }}
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-text-s transition-colors duration-[120ms] hover:text-foreground"
                 >
                   {revealed ? (
                     <EyeOff size={16} aria-hidden="true" />

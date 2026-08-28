@@ -515,7 +515,14 @@ test("the password can be revealed, by a real button that says what it does", ()
   assert.match(toggle, /aria-pressed=\{revealed\}/, "the control's state is not exposed");
   /* Reachable and visibly focused, since it sits between two fields in the tab order. */
   assert.equal(/tabIndex=\{-1\}/.test(toggle), false, "the reveal control is out of the tab order");
-  assert.match(toggle, /focus-visible:ring/, "the reveal control has no visible focus");
+  /*
+    Focus is asserted in "the reveal control's focus ring is one a browser
+    actually draws" below, on the handler rather than on a class: the class that
+    used to be here — `focus-visible:ring-2` — was measured drawing nothing, its
+    computed box-shadow fully transparent. All this line needs to hold is that
+    the control is reachable at all.
+  */
+  assert.equal(/tabIndex=\{-1\}/.test(toggle), false, "the reveal control is out of the tab order");
   /* And the icon is decorative — the accessible name is on the button. */
   assert.match(toggle, /aria-hidden="true"/);
 });
@@ -658,4 +665,98 @@ test("the submit button is disabled only while a request is in flight, and says 
   );
   /* And the wait is stated, not merely spun at. */
   assert.match(submit, /Signing you in|Creating your account/);
+});
+
+test("revealing the password preserves the caret, and survives the browser's late collapse", () => {
+  /*
+    Measured in Chromium with real key and mouse input: type a password, arrow
+    back to position 7, click the eye, type a character — and the character
+    landed at position 0. The value survived the type swap; the selection did
+    not, so the person's edit went somewhere they did not put it, while doing
+    the exact thing the control exists for.
+
+    The event order is what makes this fixable, and it defeats the two obvious
+    fixes:
+
+      btn click                sel=7-7      <- still intact here
+      (React commits the type)
+      useLayoutEffect          restore
+      document selectionchange sel=0-0      <- the browser collapses it AFTER
+
+    Reading the selection at click time is right; restoring it only in a layout
+    effect is not, because the collapse overwrites it. Hence the second restore
+    on the next frame.
+
+    A synthesised click never reproduces it — under untrusted events the
+    selection is never lost at all — so this is asserted on the mechanism rather
+    than left to a test that would pass either way.
+  */
+  const code = withoutComments(source(AUTH_ROUTE));
+
+  /* Captured at click, from the field, while it is still the focused element. */
+  assert.match(
+    code,
+    /caret\.current = \{\s*start: field\.selectionStart/,
+    "the caret is no longer captured when the reveal is pressed",
+  );
+  /* Restored twice: now, and after the collapse. */
+  assert.match(
+    code,
+    /restore\(\);\s*const frame = requestAnimationFrame\(restore\)/,
+    "the caret restore no longer outlives the browser's late collapse",
+  );
+  assert.match(code, /cancelAnimationFrame\(frame\)/, "the queued restore is never cancelled");
+  assert.match(
+    code,
+    /field\.setSelectionRange\(at\.start, at\.end\)/,
+    "nothing puts the caret back",
+  );
+
+  /*
+    And the press must not blur the field. `mousedown` blurs whatever is focused
+    before `click` fires, which both loses the focus the caret belongs to and
+    makes `setSelectionRange` a no-op — Chromium discards it on an unfocused
+    input.
+  */
+  assert.match(
+    code,
+    /onMouseDown=\{\(e\) => e\.preventDefault\(\)\}/,
+    "pressing the reveal blurs the password field again",
+  );
+});
+
+test("the reveal control's focus ring is one a browser actually draws", () => {
+  /*
+    `focus-visible:ring-2 focus-visible:ring-accent` was on this button and drew
+    nothing. Measured under a real Tab: the class was present, `:focus-visible`
+    matched, and the computed box-shadow was
+    `rgba(0,0,0,0) 0px 0px 0px 0px, …` — every ring layer emitted, every layer
+    transparent.
+
+    So the ring is asserted as the handler that was observed working, not as a
+    class name. A test pinned to the class would have passed on a control with
+    no focus indicator at all, which is precisely what shipped.
+  */
+  const code = withoutComments(source(AUTH_ROUTE));
+  const anchor = code.indexOf('aria-controls="auth-password"');
+  assert.ok(anchor > 0, "the reveal control does not point at the field it reveals");
+  const toggle = code.slice(code.lastIndexOf("<button", anchor), code.indexOf("</button>", anchor));
+
+  assert.match(
+    toggle,
+    /style\.outline = "2px solid var\(--accent\)"/,
+    "the reveal control has no focus outline",
+  );
+  assert.match(toggle, /onBlur=\{/, "the focus outline is never cleared");
+  /* Keyboard only — a mouse press should not draw a ring the pointer user did not ask for. */
+  assert.match(
+    toggle,
+    /matches\(":focus-visible"\)/,
+    "the ring is drawn on any focus, including a mouse press",
+  );
+  assert.equal(
+    /focus-visible:ring/.test(toggle),
+    false,
+    "the transparent ring utility is back on the reveal control",
+  );
 });
