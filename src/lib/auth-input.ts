@@ -71,6 +71,51 @@ export const MAX_PASSWORD_LENGTH = 1024;
  */
 const PLAUSIBLE_EMAIL = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/;
 
+/**
+ * What is wrong with an address, as a fault rather than as a sentence.
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * ONE PREDICATE, TWO PLACES THAT SPEAK
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The form checks the address twice now: quietly when the field loses focus,
+ * so a typo is caught while the person is still looking at it, and again at
+ * submit, where a refusal has to stop the request. Those are different
+ * moments needing differently-shaped copy — a one-line hint beside a field
+ * versus the three-part card the rest of this product uses.
+ *
+ * What they must never differ on is *whether* the address is acceptable. A
+ * blur hint that says an address is fine, followed by a submit that refuses
+ * it, is the form arguing with itself in front of the person. So the decision
+ * is made once, here, and returned as a fault that each caller words for its
+ * own surface.
+ */
+export type EmailFault = "empty" | "too-long" | "implausible";
+
+export function emailFault(address: string): EmailFault | null {
+  if (address.length === 0) return "empty";
+  if (address.length > MAX_EMAIL_LENGTH) return "too-long";
+  if (!PLAUSIBLE_EMAIL.test(address)) return "implausible";
+  return null;
+}
+
+/**
+ * The same fault, worded for a hint beside the field.
+ *
+ * Returns null while the field is empty: an untouched field is not a mistake,
+ * and turning "you have not filled this in yet" into an error the moment
+ * somebody tabs past is how a form starts scolding people for doing nothing
+ * wrong. Emptiness is caught at submit, where it actually blocks something.
+ */
+export function describeEmailProblem(value: string): string | null {
+  const fault = emailFault(value.trim());
+  if (fault === null || fault === "empty") return null;
+  if (fault === "too-long") {
+    return `Too long — an email address stops at ${MAX_EMAIL_LENGTH} characters.`;
+  }
+  return "This needs an @ and a domain, like you@example.com.";
+}
+
 /** Accepted, with the exact values that should be sent onward. */
 export interface AcceptedCredentials {
   ok: true;
@@ -89,6 +134,7 @@ function refuse(what: string, whatYouCanDo: string): RefusedCredentials {
     ok: false,
     problem: {
       kind: "invalid-input",
+      tone: "problem",
       what,
       /*
         The half that keeps a refusal from reading as a verdict. Nothing was
@@ -124,7 +170,9 @@ export function validateCredentials(input: {
   /* Trimmed for the address only. See the note above on why never the password. */
   const address = email.trim();
 
-  if (address.length === 0) {
+  /* Decided by the shared predicate, worded for the card. See `emailFault`. */
+  const fault = emailFault(address);
+  if (fault === "empty") {
     return refuse(
       "An email address is needed to sign in.",
       "Enter the address you signed up with.",
@@ -133,7 +181,7 @@ export function validateCredentials(input: {
   if (password.length === 0) {
     return refuse("A password is needed to sign in.", "Enter your password and try again.");
   }
-  if (address.length > MAX_EMAIL_LENGTH) {
+  if (fault === "too-long") {
     return refuse(
       "That email address is longer than any real address can be.",
       `Check it for a paste that went wrong — addresses stop at ${MAX_EMAIL_LENGTH} characters.`,
@@ -145,7 +193,7 @@ export function validateCredentials(input: {
       `Passphrases are welcome, but this one is over ${MAX_PASSWORD_LENGTH} characters.`,
     );
   }
-  if (!PLAUSIBLE_EMAIL.test(address)) {
+  if (fault === "implausible") {
     return refuse(
       "That doesn’t look like an email address.",
       "Check for a missing @ or a typo in the domain.",
