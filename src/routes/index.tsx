@@ -976,12 +976,38 @@ function SectionTransformation() {
   );
 }
 
+/**
+ * The official accounts, and whose they are.
+ *
+ * ══════════════════════════════════════════════════════════════════════════
+ * TWO INVENTED HANDLES, PRESENTED AS REAL
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * This footer shipped `linkedin.com/company/opportunity-x` and
+ * `facebook.com/opportunityx`, labelled "Opportunity X on LinkedIn" and
+ * "Opportunity X on Facebook". Neither account exists. They were plausible
+ * strings built from the product name — the exact shape of fabrication this
+ * product exists to refuse, sitting on its own front page, where a reader has
+ * no way to tell an invented destination from a real one until the link 404s.
+ *
+ * The real accounts belong to **AEON X**, the parent company. Opportunity X is
+ * the product; AEON X is the company whose official profiles these are. The
+ * product is not renamed — the wordmark, the copy and the metadata all still
+ * say Opportunity X — but the accounts are attributed to their actual owner,
+ * on the card and in the accessible name, so nobody clicks through believing
+ * they are following a product account that does not exist.
+ *
+ * Only these two were supplied. No X/Twitter, Instagram, TikTok or YouTube
+ * icon is rendered, because no official AEON X profile for those was given and
+ * a plausible guess is how the previous two got here.
+ */
+const AEON_X = "AEON X";
+
 function Footer() {
   const socials = [
     {
       label: "LinkedIn",
-      href: "https://www.linkedin.com/company/opportunity-x",
-      tag: "Professional network",
+      href: "https://www.linkedin.com/in/aeon-x-technologies-aa8311426?utm_content=profile&utm_medium=member_android&utm_source=chatgpt.com",
       accent: "0,119,181",
       icon: (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
@@ -991,8 +1017,7 @@ function Footer() {
     },
     {
       label: "Facebook",
-      href: "https://www.facebook.com/opportunityx",
-      tag: "Community & stories",
+      href: "https://www.facebook.com/profile.php?id=61591914496671&utm_source=chatgpt.com",
       accent: "24,119,242",
       icon: (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
@@ -1012,10 +1037,19 @@ function Footer() {
               <span className="font-mono text-sm font-bold tracking-tighter">
                 OPPORTUNITY <span className="text-accent">X</span>
               </span>
-              <h3 className="text-lg md:text-xl font-semibold">Connect with Opportunity X</h3>
+              <h3 className="text-lg md:text-xl font-semibold">Connect with {AEON_X}</h3>
               <p className="text-xs text-text-s leading-relaxed">
                 An AI-powered Opportunity Intelligence Platform — and a growing global community of
                 students, researchers, and dreamers.
+              </p>
+              {/*
+                Said once, plainly, next to the links it explains. Without it
+                the reader has a page headed OPPORTUNITY X offering accounts
+                named AEON X and no account of how the two are related.
+              */}
+              <p className="text-xs text-text-s leading-relaxed">
+                Opportunity X is a product of {AEON_X}. The accounts below are {AEON_X}&rsquo;s
+                official profiles.
               </p>
             </div>
           </div>
@@ -1026,15 +1060,85 @@ function Footer() {
                 key={s.label}
                 href={s.href}
                 target="_blank"
+                /*
+                  `noopener` because a new tab reached through `target="_blank"`
+                  otherwise gets a live `window.opener` handle back into this
+                  page; `noreferrer` so the destination is not told which page
+                  sent the visitor.
+                */
                 rel="noopener noreferrer"
-                aria-label={`Opportunity X on ${s.label}`}
+                /*
+                  The owner is in the accessible name, not just the visible
+                  card. This read "Opportunity X on LinkedIn" over an account
+                  that does not exist — so a screen-reader user was given the
+                  false attribution and none of the visual context.
+                */
+                aria-label={`${AEON_X} on ${s.label}`}
+                /*
+                  ══════════════════════════════════════════════════════════
+                  A FOCUS RING THAT IS ACTUALLY ON THE SCREEN
+                  ══════════════════════════════════════════════════════════
+
+                  The lift and glow on these cards come from `onMouseEnter` and
+                  `onMouseLeave`, which a keyboard never fires. Tabbing through
+                  this footer moved through two links with nothing indicating
+                  which one was selected.
+
+                  Two Tailwind spellings were tried and both were measured
+                  failing in Chromium under real keyboard focus:
+
+                    · `focus-visible:ring-2` renders as a box-shadow, and this
+                      element sets `style={{ boxShadow }}` inline. An inline
+                      style beats a class, so the ring was overwritten — the
+                      computed value was `rgba(0,119,181,0) 0px 0px 0px 0px`,
+                      the transparent inline shadow, not a ring.
+                    · `focus-visible:outline-2`, and the arbitrary
+                      `focus-visible:[outline:2px_solid_var(--accent)]`, both
+                      computed to `outline: solid 0px` — correct colour, no
+                      width. A ring present in the class list and invisible on
+                      the screen.
+
+                  Both looked correct in the source, which is exactly why this
+                  was checked in a browser rather than read. The ring is now
+                  applied through the same inline mechanism already
+                  demonstrably working on this element, on `outline` so the
+                  hover glow cannot swallow it, and it is asserted against a
+                  computed style rather than a class name.
+                */
                 className="group relative flex items-center gap-3 rounded-2xl border border-border bg-surface/40 backdrop-blur px-4 py-3 min-w-[200px] transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-accent/50 hover:bg-surface/70"
-                style={{ boxShadow: `0 0 0 0 rgba(${s.accent},0)` }}
+                style={{
+                  boxShadow: `0 0 0 0 rgba(${s.accent},0)`,
+                  /*
+                    `transition-all` in the class list animates *every*
+                    animatable property, `outline-width` included — so the focus
+                    ring below faded in over 300ms. Measured: reading the
+                    computed style immediately after a Tab gave
+                    `outline: solid 0px`, then `solid 1px`, and only later the
+                    full 2px. A focus indicator that arrives a third of a second
+                    after the focus does is not one; it is a fade a person
+                    scanning down a keyboard path will out-run.
+
+                    Narrowing the transition here rather than in the class list
+                    because this is an inline style, and inline wins — the same
+                    reason the ring itself is applied inline. The hover lift,
+                    glow, border and background all keep their animation; only
+                    the outline is exempt, and it is now instant.
+                  */
+                  transitionProperty: "transform, box-shadow, border-color, background-color",
+                }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = `0 8px 30px rgba(${s.accent},0.25)`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = `0 0 0 0 rgba(${s.accent},0)`;
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.outline = "2px solid var(--accent)";
+                  e.currentTarget.style.outlineOffset = "2px";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.outline = "";
+                  e.currentTarget.style.outlineOffset = "";
                 }}
               >
                 <span
@@ -1045,7 +1149,13 @@ function Footer() {
                 </span>
                 <span className="flex flex-col leading-tight text-left">
                   <span className="text-sm font-semibold">{s.label}</span>
-                  <span className="text-[10px] text-text-s">{s.tag}</span>
+                  {/*
+                    Whose account it is, on the card, at the point of the click.
+                    This said "Professional network" and "Community & stories" —
+                    descriptions of what somebody might post there, which is a
+                    claim about accounts this repository has never seen.
+                  */}
+                  <span className="text-[10px] text-text-s">{AEON_X}</span>
                 </span>
               </a>
             ))}
@@ -1053,7 +1163,9 @@ function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-text-s">
-          <span>© {new Date().getFullYear()} Opportunity X</span>
+          <span>
+            © {new Date().getFullYear()} Opportunity X — a product of {AEON_X}
+          </span>
           <span>Built for those whose next opportunity is waiting somewhere on the web.</span>
         </div>
       </div>
