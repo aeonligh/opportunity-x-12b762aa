@@ -1413,8 +1413,8 @@ environmental blocker.
 **Feature.** Audit every state the product can be in, close the collapses, and
 make the verification repeatable.
 
-**Purpose.** One rule: *a UI state must never claim more knowledge than the
-underlying system currently possesses.* Eight specific collapses were forbidden;
+**Purpose.** One rule: _a UI state must never claim more knowledge than the
+underlying system currently possesses._ Eight specific collapses were forbidden;
 this phase found three of them live.
 
 **Files changed.**
@@ -1452,9 +1452,9 @@ outside a failure branch.
 **An unverifiable session took 57.3 seconds to say so.** The classification was
 already correct: `signed-out` and `unverifiable` are held apart, and the gate
 refuses entry on the second rather than redirecting, because a redirect to
-`/auth` *is* the claim "you are signed out". What was wrong was the clock.
+`/auth` _is_ the claim "you are signed out". What was wrong was the clock.
 
-The bound is not a performance tweak. A spinner asserts *this is progressing*,
+The bound is not a performance tweak. A spinner asserts _this is progressing_,
 and after a few seconds against a dead host nothing supports that — the loading
 state becomes the lie. `SESSION_CHECK_DEADLINE_MS` (8s) is the point past which
 that assertion is no longer honest, and it resolves to the **existing**
@@ -1541,14 +1541,14 @@ boundary between what the source says and what the artifact contains.
 A protected route is `ssr: false`, so the server emits the gate's pending shell
 on no evidence — the session lives in `localStorage` and the server cannot see
 it. `beforeLoad` resolved at 449ms (DOMContentLoaded was at 85ms), threw a
-redirect, and the *router* replaced the entire match set with `/auth`. React,
+redirect, and the _router_ replaced the entire match set with `/auth`. React,
 still hydrating, found `<AuthPage>`'s div where the server had written
 `<Suspense>`.
 
 The finding that decided the fix is why the `unverifiable` branch never did this,
 and it is structural rather than a matter of timing: for an `ssr: false` match
 the framework wraps the match in `<ClientOnly fallback={pendingComponent}>`,
-whose first client render is always the fallback. Anything decided *inside* the
+whose first client render is always the fallback. Anything decided _inside_ the
 match is therefore hydration-safe by construction. A router-level redirect leaves
 that guarantee entirely — there is no longer a match to be client-only about.
 
@@ -1575,7 +1575,7 @@ nothing in the repository that would have said so.
 response with no text block — three unlike facts indistinguishable from "the
 model answered, and found nothing". Nothing calls `callClaude`, which is the
 reason to fix it rather than a reason not to: the first caller would inherit the
-collapse silently. Now `answered | refused | unreadable`; a failure to *ask*
+collapse silently. Now `answered | refused | unreadable`; a failure to _ask_
 still throws.
 
 ### Verification moved from source to artifact
@@ -1594,7 +1594,7 @@ because the mutations were run:
 - The safe-redirect set had a vacuous branch — deleting the embedded-scheme guard
   broke nothing, because every scheme-bearing input already failed the
   leading-slash check first. The inputs that reach that guard are schemes carried
-  *inside* an allowed prefix.
+  _inside_ an allowed prefix.
 - The fact-immutability test declared one entity, and a mutation forcing `timing`
   to "open" for declared entities walked straight through it — that specimen's
   deadline was already open. One sample cannot tell "the projection ignores the
@@ -1646,8 +1646,8 @@ prod would put the checked-in `routeTree.gen.ts` in conflict with itself.
 lifecycle it was missing — beginning with the ability to sign out.
 
 **Purpose.** Phase 18 found that `grep -rni "sign out|logout" src/` returned
-nothing: the mechanism to *handle* a session ending was correct and wired, and
-the affordance to *cause* one did not exist. The same audit found peer
+nothing: the mechanism to _handle_ a session ending was correct and wired, and
+the affordance to _cause_ one did not exist. The same audit found peer
 navigation hand-rolled differently on every page.
 
 **Files changed.**
@@ -1713,7 +1713,7 @@ opportunities.
   against a real router over the real route tree, rather than asserting
   `activeProps` from source.
 - **The pending state collapsed within a frame.**
-  `startTransition(() => void run())` returns the instant `run()` is *started*.
+  `startTransition(() => void run())` returns the instant `run()` is _started_.
   Caught by the three-second specimen in the browser; React 19 keeps a
   transition pending for as long as the async function it was given has not
   settled.
@@ -1776,7 +1776,7 @@ authentication systems.
 
 **OAuth was on the implicit flow.** Established by asking the client what URL it
 would send a person to, not by reading the docs: no `code_challenge`. Implicit
-returns the access *and refresh* tokens in the URL fragment — history,
+returns the access _and refresh_ tokens in the URL fragment — history,
 extensions, screenshots, `location.hash`. `flowType: "pkce"` replaces them with
 a single-use code that is worthless without the locally-held verifier.
 
@@ -1788,7 +1788,7 @@ was documentation only. Measured: build exit 0, `SUPABASE_SERVICE_ROLE_KEY` in
 the client bundle.
 
 Restoring the pattern broke the build, because `.server.` meant two things:
-`opportunities.server.ts` exported `createServerFn`s and was *meant* to be
+`opportunities.server.ts` exported `createServerFn`s and was _meant_ to be
 imported by routes. Renaming those to `*.functions.ts` — the convention
 `pursuit.functions.ts` already used — made the suffix unambiguous again.
 
@@ -1832,7 +1832,7 @@ import of a credential-reading module now fails.
 
 Two of my own tests were wrong and were corrected rather than accommodated: one
 pinned the exact call shape of the validator and broke when the inputs became
-uncontrolled — a change that made the page *more* secure; another counted the
+uncontrolled — a change that made the page _more_ secure; another counted the
 word "password" in user-facing copy as password handling.
 
 **Future work.** Rate limiting, lockout, CAPTCHA, the configured password
@@ -1840,7 +1840,7 @@ policy, the project's redirect allowlist, provider configuration, JWT rotation
 and TLS headers are all **NOT VERIFIED — EXTERNAL**: they belong to the Supabase
 project or the deployment platform and cannot be established from this
 repository. A successful sign-in has never been executed here, so every positive
-path in the report is a proof about what happens *around* one.
+path in the report is a proof about what happens _around_ one.
 
 ---
 
@@ -1867,39 +1867,39 @@ the marketing layer, which is exactly why it drifted.
 
 **What was removed, and why each was disqualifying.**
 
-- *A simulated AI pipeline.* An "Ask AI" button beside the hero input called
+- _A simulated AI pipeline._ An "Ask AI" button beside the hero input called
   `simulate()`: a `setInterval` advancing an index every 550ms through
   "Searching / Discovering / Reading / Verifying / Corroborating / Explaining",
   then stopping. It never read the query, called nothing, and produced no
   result. The other fabrications invented data; this one performed the act of
   working on somebody's real question.
-- *`verified: true`, hardcoded on all 33 globe nodes.* It drove a green shield
+- _`verified: true`, hardcoded on all 33 globe nodes._ It drove a green shield
   per node, "N verified opportunities" on the country panel, and a
   "Verified — 33 of 33" figure in gradient text, beside a comment asserting it
   was "a count, not a score… a fact with a source behind it". Every clause was
   false: nothing counted, nothing was verified, no source existed. CR-11.
-- *A ranked list of match percentages* (`92%` Chevening, `88%` DAAD EPOS, `84%`
+- _A ranked list of match percentages_ (`92%` Chevening, `88%` DAAD EPOS, `84%`
   MEXT) and a second `94% Match` ring beside a named real programme. CR-21, and
   fabricated claims about real institutions.
-- *Fabricated statistics* — `$2.4B+`, `12,000+`, `190+`, `Daily` — and a
+- _Fabricated statistics_ — `$2.4B+`, `12,000+`, `190+`, `Daily` — and a
   "Live results" block over DAAD, Chevening, MEXT and Fulbright.
-- *Three dead controls* — "Apply now", "Save", "Share on WhatsApp" — bare
+- _Three dead controls_ — "Apply now", "Save", "Share on WhatsApp" — bare
   `<button>` elements with no handler, href or form. Clicking did nothing,
   silently. "Apply now" is the action the whole product exists for.
-- *Two claims that inverted the code.* "Duplicates removed — URL hashing and
+- _Two claims that inverted the code._ "Duplicates removed — URL hashing and
   semantic dedup" against `surface/demo.ts` ("the disagreement survives to the
   surface instead of being deduplicated away"); and "confidence scoring…
   anything below 0.6 never gets published" against `observation/types.ts`
   ("there is deliberately no `confidence`"), with `0.6` appearing nowhere in the
   codebase.
-- *Six advertised features, five deleted in Phase 13.* Verified against the
+- _Six advertised features, five deleted in Phase 13._ Verified against the
   `COMMENT ON TABLE` statements the migration writes into the database itself:
   `sop_drafts`, `cv_suggestions`, `documents`, `applications` and
   `sent_reminders` are all marked RETIRED. The sixth, "Application Tracker —
   Kanban-style pipeline from Interested to Submitted to Outcome", named four
   things that exist in neither `PursuitState` (two values: `interested`,
   `not-interested`) nor the schema.
-- *Engagement vocabulary* — "your opportunities feed" on the auth page, "keep
+- _Engagement vocabulary_ — "your opportunities feed" on the auth page, "keep
   your feed clean and signal-rich" on the landing page. CR-04 makes engagement
   void as a measure of this product working; CR-13 makes attention the scarce
   resource.
@@ -1937,7 +1937,7 @@ for, all confirmed caught and reverted.
 
 One existing test had to be corrected rather than worked around: the fixture
 corpus reachability rule in `test/lab.test.ts` matched raw file text, so a note
-*citing* `surface/demo.ts` as the authority for why the product refuses to
+_citing_ `surface/demo.ts` as the authority for why the product refuses to
 deduplicate read as a new importer. It now strips comments — mutation-tested to
 confirm a genuine new import is still caught. Matching prose did not make the
 invariant stricter; it punished writing down why the code is the way it is.
@@ -2052,7 +2052,7 @@ still a different decision from the one above.
 
 Phase 18 reported the fixture corpus was not shipped as product data. **The test
 behind that claim was narrower than the claim.** `scripts/verify-artifact.sh`
-greps the *client bundle* for `demoCorpus`, `Bilateral Education Agreement`,
+greps the _client bundle_ for `demoCorpus`, `Bilateral Education Agreement`,
 `Federal Ministry of Education`, `education.gov.ng` and `unn.edu.ng`. Those five
 assertions were true and are still true — nothing about the browser build has
 changed.
@@ -2076,7 +2076,7 @@ marker "Fixture — nothing here was retrieved from a real source" on the card
 itself rather than on the page, so the label cannot be separated from the data,
 and `test/lab.test.ts` enforces that every route rendering the corpus passes
 that prop. Deliberate, labelled exposure is not the defect. What was wrong was
-its *priority*, corrected below.
+its _priority_, corrected below.
 
 ### F. Information architecture
 
@@ -2099,3 +2099,205 @@ its *priority*, corrected below.
 
 No new feature, no new state, no new auth, no new copy beyond the two label
 changes above, and no weakening of any absence distinction.
+
+---
+
+## Auth flow, form UX and credential-boundary audit
+
+**Feature.** Repair the sign-up path, replace the collapsed authentication
+error model with one that distinguishes every state a person can land in, add
+a password visibility control and real form UX, and audit the credential and
+SQL boundaries.
+
+**Purpose.** Two screenshots. A sign-up produced _"Your details were accepted,
+and the session didn't arrive. Nothing is wrong with your account, and nothing
+was changed."_ A sign-in immediately afterwards produced _"That email and
+password don't match an account."_ Both messages were wrong in different ways,
+and one of them was wrong about a sign-up that had worked.
+
+### The root cause, measured rather than inferred
+
+`src/routes/auth.tsx` called `supabase.auth.signUp()` and destructured only
+`{ error }`. That is safe if and only if a sign-up which does not throw always
+returns a session.
+
+It never does on this project. `auth.users` holds exactly one row —
+`created_at` 2026-08-18 10:24:22, `confirmation_sent_at` 10:24:22,
+`email_confirmed_at` 10:27:36 — a three-minute gap that only exists when email
+confirmation is enabled. With confirmation on, `signUp` succeeds and returns
+`session: null` by design.
+
+The code then waited six seconds for a session that was never coming, gave up,
+threw `SESSION_NEVER_ARRIVED`, and rendered the `no-session` outcome. **Every
+successful sign-up on this deployment reported a failure.**
+
+The second screenshot follows from the first: the person, told sign-up had
+failed, tried to sign in — with a new password, against an address that already
+had an account — and Supabase correctly answered `invalid_credentials`.
+
+**Both a code defect and a project setting are causes.** Email confirmation
+being enabled in Supabase is not a bug and is not being changed; the defect was
+that the code did not handle the response that setting produces.
+
+### The response that must not be read too closely
+
+For an address that already belongs to a confirmed account, Supabase returns
+the _same shape_ — a user object, no session, no email sent. Their
+documentation calls it an obfuscated response that "prevents user enumeration
+attacks". The tell is an empty `identities` array.
+
+`classifySignUp` does not look. Reading that field would hand back on demand
+the exact answer Supabase withholds by design, on a form anyone can type any
+address into. Both cases therefore share one outcome, whose copy is true of
+either: it says a link is on its way _if the address still needs confirming_,
+says plainly that it will not reveal whether the address already has an
+account, and tells the person to sign in with their existing password if they
+do. That last sentence is what the person in the screenshots needed.
+
+**This deliberately does not use the wording the brief suggested** — "Your
+account was created. Check your email to confirm it." For an address that
+already exists, nothing was created and no email was sent, so that sentence
+would be false half the time and would leak which half. Specificity was
+required "when specificity is safe and actually known"; here it is neither.
+
+**Files changed.** `src/lib/auth-outcome.ts` (rewritten),
+`src/routes/auth.tsx`, `src/lib/auth-input.ts`, `test/auth-flow.test.ts`
+(new), `test/auth-outcome.test.ts`, `test/auth-security.test.ts`.
+
+### The error-state model
+
+Five outcomes became thirteen, each reached only by evidence that it is the
+right one:
+
+| State                                  | Kind                  | Retryable   |
+| -------------------------------------- | --------------------- | ----------- |
+| Invalid form input                     | `invalid-input`       | no          |
+| Network failure                        | `unreachable`         | yes         |
+| Service unavailable                    | `service-unavailable` | yes         |
+| Rate limited                           | `rate-limited`        | yes         |
+| Invalid credentials                    | `rejected`            | no          |
+| Password refused by policy             | `weak-password`       | no          |
+| Email never confirmed                  | `unconfirmed`         | no          |
+| Account created, confirmation required | `confirm-email`       | no (notice) |
+| Account creation uncertain             | `signup-uncertain`    | yes         |
+| Session establishment failure          | `no-session`          | yes         |
+| Redirect/callback failure              | `callback-failed`     | yes         |
+| Configuration failure                  | `misconfigured`       | no          |
+| Unexpected provider response           | `unexpected`          | yes         |
+
+The fourteenth state — account created _and_ session established — is
+deliberately not a message; there is nothing to say to somebody already being
+taken to the product.
+
+Four specific corrections inside that:
+
+- **The residual branch was `rejected`.** Any unrecognised failure accused the
+  password. It is now `unexpected`, and `rejected` is reached only by an error
+  that says a credential was refused.
+- **`no-session` claimed "Nothing is wrong with your account, and nothing was
+  changed."** A client that has just failed to establish a session knows
+  neither, and on a sign-up the second half is false. Removed.
+- **A network fault and a failing service shared a branch.** "Check your
+  connection" is wrong advice for a 5xx. Separated by status.
+- **A misconfiguration was reported as a wrong password.** A disabled provider,
+  a missing environment variable or a wrong publishable key now says so, and
+  says the person cannot fix it.
+
+### The password policy is not stated, because it cannot be read
+
+The minimum length and character rules are configured in the Supabase project.
+This repository cannot read them: the `auth` schema has 23 tables and none is a
+config table, the project metadata does not carry it, and the auth service is
+not reachable from this environment (measured — `curl` to
+`…supabase.co/auth/v1/settings` returns a 403 CONNECT from the egress proxy).
+
+So no requirement is printed under the field. When Supabase refuses a password,
+its own stated reason is surfaced — capped at 160 characters and rejected
+outright if it carries a URL, a template placeholder or a raw identifier.
+
+### Form and accessibility
+
+- Both fields carry real `<label>` elements. A placeholder is not a label.
+- A show/hide password control: a real `type="button"`, in the tab order, with
+  `aria-label` and `aria-pressed` following its state and a visible focus ring.
+  Implemented as a `type` swap on the same element, so the value and caret
+  survive — **and so the plaintext never reaches the markup.** The obvious
+  alternative, a controlled text input, would have written the password into
+  `outerHTML` as a `value` attribute, reintroducing the exact defect Phase 20
+  removed.
+- The address is checked on blur and the complaint withdrawn on correction,
+  through the same predicate (`emailFault`) the submit refusal uses, so the two
+  cannot disagree. An empty field is never scolded on blur.
+- A synchronous `inFlight` ref guards double submission; `disabled={loading}`
+  is a render away from the click.
+- The submit is disabled only while a request is running and says which
+  ("Signing you in…" / "Creating your account…"). No mysterious disabled state.
+- What was typed survives a failed attempt structurally — the inputs are
+  uncontrolled and nothing in the failure path touches them.
+
+### Security
+
+- A failed OAuth return (`?error=`, `?error_description=`, and the fragment
+  equivalents) was never read: the person came back to a clean empty form with
+  no sign anything had been attempted. It is now read, classified, and stripped
+  from the address bar. The provider's description is used only to tell a
+  refusal from a fault and is **never rendered** — `/auth?error_description=…`
+  is a text field anyone can fill by sending a link.
+- `emailRedirectTo` moved from the origin to `/auth`, so a confirmation link
+  lands on the route that hands off to the product rather than on the marketing
+  page. If `/auth` is not in the project's Redirect URLs allow list Supabase
+  falls back to the Site URL, which is where it went before — the change cannot
+  be worse than what it replaces.
+- Unchanged and re-verified: PKCE flow, `safeRedirectPath` positive
+  enumeration on `?next=`, no password persisted/logged/hashed/URL-borne, the
+  password reaching only `supabase.auth.*`, no server function accepting one,
+  and the service-role key confined to `client.server.ts` and `store.ts`.
+
+### SQL and input safety
+
+Every database read and write in `src/` goes through the typed PostgREST query
+builder (`.from().select()/.insert()/.eq()`), which parameterises. There is no
+raw SQL, no `.rpc()`, no `.or()`, no `.filter()` with a filter string, and no
+`textSearch()` anywhere in the application — the three PostgREST APIs that take
+raw filter expressions are unused. No character blocklist was added; blocking
+quotes or keywords is not an injection defence and would corrupt legitimate
+input.
+
+### Testing
+
+`test/auth-flow.test.ts` — 18 tests. Fifteen mutations were applied to the
+behaviour this phase changed; **all fifteen are caught.** One escaped on the
+first pass: the assertion for the OAuth-return reader matched
+`/takeCallbackFailure\(\)/`, which the function's own _declaration_ satisfies,
+so deleting the call site left the suite green. It is now pinned to the
+assignment and the `setFailure` that follows it.
+
+Two pre-existing assertions were **strengthened**, not relaxed, to accommodate
+the bound `type` and the tone-dependent `role`.
+
+Suite: 397 tests, 396 pass, 0 fail, 1 skipped (a pre-existing build-artifact
+check).
+
+### Risks and what was not done
+
+- **Production is unverified from here.** Egress to both
+  `opportunity-x-12b762aa.vercel.app` and the Supabase auth host returns a 403
+  CONNECT from the agent proxy, and the Vercel and Supabase MCP connectors
+  disconnected mid-session. Nothing in this entry claims the deployed
+  behaviour; it claims the code, the tests and the build artifact.
+- **`redirectTo` for Google still drops `?next=`.** Preserving it would mean
+  appending a query string to the redirect target, and whether Supabase's
+  allow-list matching tolerates that is not verifiable from here. Left as-is
+  deliberately rather than risking a live sign-in path before a deadline.
+- No password reset flow. It does not exist in this product yet and was not in
+  scope.
+- No rate limiting or lockout was added. Supabase already rate-limits and
+  answers 429, which is now a distinct outcome; a second limiter in the client
+  would be a second authentication system.
+
+### Authority
+
+CR-20 (a state that cannot be told from another state is not a state), CR-24
+(inference must be labelled — the sign-up notice labels what it does not know),
+OXD-004 (no claim without provenance — the password requirement is quoted from
+the party that holds it, or not stated).

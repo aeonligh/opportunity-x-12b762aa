@@ -486,15 +486,26 @@ test("the credential inputs are uncontrolled, so nothing types into the markup",
     /type="email"[\s\S]*?ref=\{emailRef\}/,
     "the email input is not uncontrolled",
   );
+  /*
+    The password field's `type` is now bound, because the form has a show/hide
+    control. That is the only thing about it that is bound: it must still be
+    read through a ref, and the reveal must be implemented by swapping the type
+    on the same element.
+
+    The obvious alternative — a controlled text input swapped in when the
+    password is shown — would put the plaintext password straight into
+    `outerHTML` as a `value` attribute, which is the precise defect the
+    uncontrolled inputs exist to prevent, reintroduced by a usability feature.
+  */
   assert.match(
     inputs,
-    /type="password"[\s\S]*?ref=\{passwordRef\}/,
-    "the password input is not uncontrolled",
+    /type=\{revealed \? "text" : "password"\}[\s\S]*?ref=\{passwordRef\}/,
+    "the password input is not uncontrolled, or its reveal is not a type swap",
   );
   assert.equal(
-    /value=\{(email|password)\}/.test(inputs),
+    /value=\{/.test(inputs),
     false,
-    "a credential input is controlled again — its value will be rendered as an attribute",
+    "an input in this form is controlled — its value will be rendered as an attribute",
   );
 
   /* And the submitted values come from the refs, not from React state. */

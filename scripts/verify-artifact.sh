@@ -165,10 +165,58 @@ absent  "and is not something the client can satisfy"     "assertDevelopment" "$
 
 echo
 echo "── Nothing from the retired platform survives"
-for pat in AEON aeon Lovable lovable "~oauth" fonotabhpkpreuegattz; do
+for pat in Lovable lovable "~oauth" fonotabhpkpreuegattz; do
   absent "no '$pat' in the client bundle" "$pat" "$CLIENT"
 done
 absent "no '~oauth' path in the server artifact" "~oauth" "$SERVER"
+
+echo
+echo "── AEON X appears only as the attributed parent company"
+# ══════════════════════════════════════════════════════════════════════════
+# A NARROWED BAN, NOT A LIFTED ONE
+# ══════════════════════════════════════════════════════════════════════════
+#
+# This used to be a blanket `absent AEON` / `absent aeon` over the client
+# bundle, on the understanding that Opportunity X and AEON X were sibling
+# products and naming the other one was therefore always wrong.
+#
+# The owner has since stated the actual relationship: AEON X is the parent
+# company, and the official LinkedIn and Facebook profiles belong to it. The
+# blanket ban is a large part of why the footer previously shipped
+# `linkedin.com/company/opportunity-x` and `facebook.com/opportunityx` — two
+# accounts that do not exist — because there was no permitted way to name the
+# company whose accounts the real ones are.
+#
+# So the ban is narrowed to the strings that actually belong to the retired
+# platform, and the permitted occurrences are pinned positively: the two
+# official profile URLs must be in the artifact, and the *only* other thing
+# spelling the company's name may be the display string "AEON X".
+absent "no 'Powered by AEON X' branding ships"    "Powered by AEON X"    "$CLIENT"
+absent "no AEON-era crawler identity ships"       "AeonXBot"             "$CLIENT"
+absent "no AEON-era contact domain ships"         "aeonx[.]ai"           "$CLIENT"
+absent "no AEON-era entity namespace ships"       "aeon-x:"              "$CLIENT"
+
+# The real accounts must actually be in what ships. An identity correction that
+# is not in the artifact has not corrected anything a visitor can see.
+present "the official AEON X LinkedIn profile ships"  "aeon-x-technologies-aa8311426" "$CLIENT"
+present "the official AEON X Facebook profile ships"  "61591914496671"                "$CLIENT"
+
+# And nothing else in the bundle spells the company's name. Every occurrence is
+# extracted with its surrounding word characters and compared against the two
+# permitted shapes; anything new — a stray brand string, a resurrected
+# namespace, a second invented handle — shows up as an unexpected line.
+# Matched on `aeon-x-technologies` rather than the full profile id: the
+# extraction window is fixed-width, so the id gets clipped and an allowlist
+# pinned to it never matches. The full id is asserted present above, which is
+# where that precision belongs.
+unexpected=$(grep -rhoiE '.{0,12}aeon.{0,20}' "$CLIENT" 2>/dev/null \
+  | grep -viE 'AEON X|aeon-x-technologies' \
+  | sort -u | head -5)
+if [ -z "$unexpected" ]; then
+  ok "the company name appears only as the attributed identity"
+else
+  bad "the company name appears somewhere new" "$(echo "$unexpected" | tr '\n' '|')"
+fi
 
 echo
 echo "── Server-only modules stayed server-only"
