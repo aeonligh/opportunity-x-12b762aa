@@ -1,5 +1,11 @@
 import { useTransition } from "react";
-import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useRouter,
+  type ErrorComponentProps,
+} from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLoader } from "@/components/BrandLoader";
 import { AppShell } from "@/components/shell/AppShell";
@@ -117,7 +123,7 @@ function Authenticated() {
  * caught every error below it would replace every specific message in the
  * product with one generic one.
  */
-function SessionBoundary({ error }: { error: Error }) {
+function SessionBoundary({ error }: ErrorComponentProps) {
   const router = useRouter();
 
   /*
@@ -130,6 +136,14 @@ function SessionBoundary({ error }: { error: Error }) {
 
   if (!isSessionUnverifiable(error)) throw error;
 
+  const detail =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+      ? error.message
+      : "The session check did not complete.";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-14">
       <section role="alert" className="flex max-w-lg flex-col gap-4">
@@ -137,7 +151,7 @@ function SessionBoundary({ error }: { error: Error }) {
           I couldn&rsquo;t check whether you&rsquo;re signed in.
         </h1>
 
-        <p className="text-[15px] leading-relaxed text-text-s">{error.message}</p>
+        <p className="text-[15px] leading-relaxed text-text-s">{detail}</p>
 
         {/*
           The sentence this whole branch exists to make possible. Sending someone

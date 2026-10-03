@@ -10,6 +10,12 @@ Supabase project `anfiojmbgonrtympzjch` is INACTIVE. A read-only count query tim
 
 Recovery requires an owner decision to free a project slot or choose a paid plan. This change does not pause another project or change billing.
 
+## Deployment prerequisite
+
+The first pilot preview was rejected with `BLOCKED_PACKAGE` for the existing TanStack Start release. This draft pins `@tanstack/react-start` to 1.168.60, resolving `@tanstack/start-server-core@1.169.39`, and aligns the router packages. See the [upstream advisory](https://github.com/TanStack/router/security/advisories/GHSA-qx66-fv34-fjm8). Error boundaries were adapted to the router's unknown error type without changing session access checks; the build regenerated the route tree. No deployment override was added.
+
+The production baseline above remains the observed main deployment. A patched draft branch is not evidence that production has been updated. Check the hosted preview, merge decision and resulting production commit before claiming a live fix.
+
 ## Scope
 
 The pilot targets Nigerian undergraduates, initially reachable through UNIBEN. Its source pack has 25 pages across 20 publishers. Sources are starting points for review, not a claim that 25 opportunities are open or eligible for a particular person.
@@ -67,9 +73,10 @@ The operating pilot can conduct interviews and document preparation while these 
 - Build passes.
 - TypeScript: zero errors.
 - ESLint: zero errors; eight pre-existing React refresh warnings, unchanged.
-- Full suite: 410 tests, 409 passed, one build-artifact test skipped while the build was still in progress. The affected consolidation file was run after the build: 11/11 passed, including that check.
+- Full suite after the framework patch and completed build: 410 tests passed, zero failed, zero skipped.
+- Frozen Bun install passes with the committed patched lockfile.
 - New pilot tests: six passed, covering actual CLI invocation, mixed invalid IDs, immutable pilot selection, publisher ownership, exact seed retrieval and preservation of the general mechanisms.
 - Artifact verification: 56 passed, zero failed.
 - Live database, authenticated journey and acquisition: blocked/unverified, not claimed complete.
 
-No new frontend flow was added. The product's existing local UI evidence is not represented as a new production browser test.
+No new application flow was added. Route error boundaries accept the updated framework's unknown error type and guard displayed messages. The product's existing local UI evidence is not represented as a new production browser test.

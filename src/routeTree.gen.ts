@@ -9,80 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LabIndexRouteImport } from './routes/lab.index'
-import { Route as LabStatesRouteImport } from './routes/lab.states'
-import { Route as LabSessionRouteImport } from './routes/lab.session'
-import { Route as LabSavedRouteImport } from './routes/lab.saved'
-import { Route as LabRefreshRouteImport } from './routes/lab.refresh'
-import { Route as LabMutationsRouteImport } from './routes/lab.mutations'
-import { Route as LabFaultsRouteImport } from './routes/lab.faults'
-import { Route as LabIdRouteImport } from './routes/lab.$id'
-import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
-import { Route as AuthenticatedOpportunitiesExamplesRouteImport } from './routes/_authenticated/opportunities.examples'
+import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as LabIndexRouteImport } from './routes/lab.index'
+import { Route as LabIdRouteImport } from './routes/lab.$id'
+import { Route as LabFaultsRouteImport } from './routes/lab.faults'
+import { Route as LabMutationsRouteImport } from './routes/lab.mutations'
+import { Route as LabRefreshRouteImport } from './routes/lab.refresh'
+import { Route as LabSavedRouteImport } from './routes/lab.saved'
+import { Route as LabSessionRouteImport } from './routes/lab.session'
+import { Route as LabStatesRouteImport } from './routes/lab.states'
 import { Route as AuthenticatedOpportunitiesIdRouteImport } from './routes/_authenticated/opportunities.$id'
+import { Route as AuthenticatedOpportunitiesExamplesRouteImport } from './routes/_authenticated/opportunities.examples'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
-} as any)
-const LabIndexRoute = LabIndexRouteImport.update({
-  id: '/lab/',
-  path: '/lab/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabStatesRoute = LabStatesRouteImport.update({
-  id: '/lab/states',
-  path: '/lab/states',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabSessionRoute = LabSessionRouteImport.update({
-  id: '/lab/session',
-  path: '/lab/session',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabSavedRoute = LabSavedRouteImport.update({
-  id: '/lab/saved',
-  path: '/lab/saved',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabRefreshRoute = LabRefreshRouteImport.update({
-  id: '/lab/refresh',
-  path: '/lab/refresh',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabMutationsRoute = LabMutationsRouteImport.update({
-  id: '/lab/mutations',
-  path: '/lab/mutations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabFaultsRoute = LabFaultsRouteImport.update({
-  id: '/lab/faults',
-  path: '/lab/faults',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabIdRoute = LabIdRouteImport.update({
-  id: '/lab/$id',
-  path: '/lab/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
-  id: '/saved',
-  path: '/saved',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOpportunitiesRoute =
   AuthenticatedOpportunitiesRouteImport.update({
@@ -90,16 +45,61 @@ const AuthenticatedOpportunitiesRoute =
     path: '/opportunities',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedOpportunitiesExamplesRoute =
-  AuthenticatedOpportunitiesExamplesRouteImport.update({
-    id: '/examples',
-    path: '/examples',
-    getParentRoute: () => AuthenticatedOpportunitiesRoute,
-  } as any)
+const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const LabIndexRoute = LabIndexRouteImport.update({
+  id: '/lab/',
+  path: '/lab/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabIdRoute = LabIdRouteImport.update({
+  id: '/lab/$id',
+  path: '/lab/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabFaultsRoute = LabFaultsRouteImport.update({
+  id: '/lab/faults',
+  path: '/lab/faults',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabMutationsRoute = LabMutationsRouteImport.update({
+  id: '/lab/mutations',
+  path: '/lab/mutations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabRefreshRoute = LabRefreshRouteImport.update({
+  id: '/lab/refresh',
+  path: '/lab/refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabSavedRoute = LabSavedRouteImport.update({
+  id: '/lab/saved',
+  path: '/lab/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabSessionRoute = LabSessionRouteImport.update({
+  id: '/lab/session',
+  path: '/lab/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabStatesRoute = LabStatesRouteImport.update({
+  id: '/lab/states',
+  path: '/lab/states',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedOpportunitiesIdRoute =
   AuthenticatedOpportunitiesIdRouteImport.update({
     id: '/$id',
     path: '/$id',
+    getParentRoute: () => AuthenticatedOpportunitiesRoute,
+  } as any)
+const AuthenticatedOpportunitiesExamplesRoute =
+  AuthenticatedOpportunitiesExamplesRouteImport.update({
+    id: '/examples',
+    path: '/examples',
     getParentRoute: () => AuthenticatedOpportunitiesRoute,
   } as any)
 
@@ -221,11 +221,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -235,60 +235,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/opportunities': {
+      id: '/_authenticated/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/saved': {
+      id: '/_authenticated/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof AuthenticatedSavedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/lab/': {
       id: '/lab/'
       path: '/lab'
       fullPath: '/lab/'
       preLoaderRoute: typeof LabIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/states': {
-      id: '/lab/states'
-      path: '/lab/states'
-      fullPath: '/lab/states'
-      preLoaderRoute: typeof LabStatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/session': {
-      id: '/lab/session'
-      path: '/lab/session'
-      fullPath: '/lab/session'
-      preLoaderRoute: typeof LabSessionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/saved': {
-      id: '/lab/saved'
-      path: '/lab/saved'
-      fullPath: '/lab/saved'
-      preLoaderRoute: typeof LabSavedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/refresh': {
-      id: '/lab/refresh'
-      path: '/lab/refresh'
-      fullPath: '/lab/refresh'
-      preLoaderRoute: typeof LabRefreshRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/mutations': {
-      id: '/lab/mutations'
-      path: '/lab/mutations'
-      fullPath: '/lab/mutations'
-      preLoaderRoute: typeof LabMutationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/faults': {
-      id: '/lab/faults'
-      path: '/lab/faults'
-      fullPath: '/lab/faults'
-      preLoaderRoute: typeof LabFaultsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/$id': {
@@ -298,32 +270,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LabIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/saved': {
-      id: '/_authenticated/saved'
-      path: '/saved'
-      fullPath: '/saved'
-      preLoaderRoute: typeof AuthenticatedSavedRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/lab/faults': {
+      id: '/lab/faults'
+      path: '/lab/faults'
+      fullPath: '/lab/faults'
+      preLoaderRoute: typeof LabFaultsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/opportunities': {
-      id: '/_authenticated/opportunities'
-      path: '/opportunities'
-      fullPath: '/opportunities'
-      preLoaderRoute: typeof AuthenticatedOpportunitiesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/lab/mutations': {
+      id: '/lab/mutations'
+      path: '/lab/mutations'
+      fullPath: '/lab/mutations'
+      preLoaderRoute: typeof LabMutationsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/opportunities/examples': {
-      id: '/_authenticated/opportunities/examples'
-      path: '/examples'
-      fullPath: '/opportunities/examples'
-      preLoaderRoute: typeof AuthenticatedOpportunitiesExamplesRouteImport
-      parentRoute: typeof AuthenticatedOpportunitiesRoute
+    '/lab/refresh': {
+      id: '/lab/refresh'
+      path: '/lab/refresh'
+      fullPath: '/lab/refresh'
+      preLoaderRoute: typeof LabRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/saved': {
+      id: '/lab/saved'
+      path: '/lab/saved'
+      fullPath: '/lab/saved'
+      preLoaderRoute: typeof LabSavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/session': {
+      id: '/lab/session'
+      path: '/lab/session'
+      fullPath: '/lab/session'
+      preLoaderRoute: typeof LabSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/states': {
+      id: '/lab/states'
+      path: '/lab/states'
+      fullPath: '/lab/states'
+      preLoaderRoute: typeof LabStatesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/opportunities/$id': {
       id: '/_authenticated/opportunities/$id'
       path: '/$id'
       fullPath: '/opportunities/$id'
       preLoaderRoute: typeof AuthenticatedOpportunitiesIdRouteImport
+      parentRoute: typeof AuthenticatedOpportunitiesRoute
+    }
+    '/_authenticated/opportunities/examples': {
+      id: '/_authenticated/opportunities/examples'
+      path: '/examples'
+      fullPath: '/opportunities/examples'
+      preLoaderRoute: typeof AuthenticatedOpportunitiesExamplesRouteImport
       parentRoute: typeof AuthenticatedOpportunitiesRoute
     }
   }

@@ -11,6 +11,11 @@ pack is confirmed open. See [pilot runbook](pilot/README.md) for evidence,
 commands, extraction limits and remaining launch checks. This does not close
 the production verification gates below.
 
+**Deployment prerequisite:** draft PR #7 patches the TanStack Start version
+that Vercel blocked on the first pilot preview. Local build, types and all 410
+tests pass with the patched dependencies. Production has not been updated by
+this draft; Supabase recovery and authenticated verification remain open.
+
 **Assessed:** 2026-08-17, against branch `claude/project-analysis-review-9h7hly`.
 Status claims below were verified by running commands and reading code, not by
 assuming the roadmap was followed. Phase headings below §9 date from 2026-07-29
