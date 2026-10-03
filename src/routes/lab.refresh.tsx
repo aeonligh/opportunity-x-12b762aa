@@ -1,5 +1,5 @@
 import { useEffect, useState, useTransition } from "react";
-import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
+import { createFileRoute, useRouter, Link, type ErrorComponentProps } from "@tanstack/react-router";
 import { labRefreshProbe, labRefreshShouldFail } from "@/lib/lab.functions";
 import { LabFrame } from "@/components/lab/LabFrame";
 import { SurfaceError } from "@/components/ui/state/SurfaceError";
@@ -55,10 +55,17 @@ type Reading = { readings: number; at: string };
 
 const KEY = "lab/refresh";
 
-function RefreshBoundary({ error }: { error: Error }) {
+function RefreshBoundary({ error }: ErrorComponentProps) {
   const router = useRouter();
   const [retrying, startRetry] = useTransition();
   const kept = lastGood<Reading>(KEY);
+  const detail =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+      ? error.message
+      : "The refresh did not complete.";
 
   const retry = () => startRetry(() => void router.invalidate());
 
@@ -92,9 +99,7 @@ function RefreshBoundary({ error }: { error: Error }) {
           <p className="mt-1 font-mono text-[11px] text-text-s">{kept.data.at}</p>
         </div>
 
-        <p className="max-w-[62ch] font-mono text-[11px] leading-relaxed text-text-s">
-          {error.message}
-        </p>
+        <p className="max-w-[62ch] font-mono text-[11px] leading-relaxed text-text-s">{detail}</p>
       </LabFrame>
     );
   }
