@@ -3,6 +3,14 @@
 Canonical roadmap and honest current status. Update this file whenever a phase
 materially changes. Governance rules live in `CLAUDE.md`.
 
+**Pilot execution, 3 October 2026:** current main deployment confirmed. A 25-page
+Nigerian undergraduate source pack and scoped discovery command are prepared.
+Live acquisition remains blocked: Supabase is inactive and restoring it was
+refused by the account's active Free-project limit. No award in the researched
+pack is confirmed open. See [pilot runbook](pilot/README.md) for evidence,
+commands, extraction limits and remaining launch checks. This does not close
+the production verification gates below.
+
 **Assessed:** 2026-08-17, against branch `claude/project-analysis-review-9h7hly`.
 Status claims below were verified by running commands and reading code, not by
 assuming the roadmap was followed. Phase headings below §9 date from 2026-07-29

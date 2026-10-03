@@ -2383,3 +2383,21 @@ kind from the previous phase; what changed is that the fix is now on `main`.
 **Authority.** CR-20 (absence states stay distinct — the four `/opportunities`
 states are untouched), CR-11 (verification is continuous and evidenced — no
 discovery claim is made without a run), OXD-004 (no claim without provenance).
+
+---
+
+## Pilot execution — Nigerian undergraduate cohort, 3 October 2026
+
+**Task.** Put the first CEO-plan execution phase into a usable source and discovery workflow. This is pilot enablement after Phase 27; it does not close live acquisition or authenticated production verification.
+
+**Implementation.** Added 25 fixed source pages across 20 publishers, including UNIBEN, and their publisher identities. Added `bun run sweep --pilot --dry-run` and a pilot run that retrieves only those pages through the existing pipeline, without link following, corpus-wide rechecks or open-web search. General discovery retains its mechanisms and includes the expanded publisher registry. Mixed valid/invalid IDs now refuse the entire request before any network or writes.
+
+**Evidence.** Production was independently confirmed at main commit `6b7439b`; the protected page's HTML returns 200. Supabase metadata reports INACTIVE, a count query timed out, and restoration was refused by the account's two-active-project Free limit. Current database counts and the authenticated journey remain unknown. Source research retrieved 23 of 25 pages and confirms no currently open award in this pack. Research has not been written into the observation store. The default JSON-LD extractor's prose coverage limitation remains visible and the pilot uses manual review alongside it.
+
+**Files.** `scripts/sweep.ts`; announcer registry and pilot seeds; discovery sweep planner; institutional channel link option; `test/pilot-sweep.test.ts`; `docs/pilot/`; roadmap and this journal.
+
+**Validation.** Build and TypeScript pass. ESLint has zero errors and the same eight warnings as baseline. Suite: 410 tests, 409 pass, one artifact test skipped during the concurrent build; the consolidation file was then run after build and all 11 passed, including that test. Six new pilot regressions pass. Artifact check: 56 pass, zero fail. No user-facing flow changed. Live acquisition and authenticated production tests were not claimed.
+
+**Dependencies and risks.** Existing server credentials, account recovery and publisher egress are prerequisites for the live command. The general registry is larger; the pilot remains bounded to its printed pages and additional robots requests. Retrieval does not establish current eligibility, and prose-only pages can remain unreadable to the extractor. No schema, scheduling or billing change was introduced.
+
+**Next.** Owner resolves the project-slot decision; builder verifies a real authenticated journey; curator confirms current open calls; founder conducts interviews and starts consented preparation trials. The separate operational tracker and playbook contain targets and blank participant/application records, not fabricated outcomes.

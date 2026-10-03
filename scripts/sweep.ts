@@ -1,8 +1,10 @@
 /**
  * Run one discovery sweep.
  *
- *   npm run sweep                    every announcer in the registry
- *   npm run sweep -- ng-unn ng-ui    only these
+ *   bun run sweep                          every announcer in the registry
+ *   bun run sweep ng-unn ng-ui              only these
+ *   bun run sweep --pilot --dry-run         print the fixed pilot without writes
+ *   bun run sweep --pilot                   retrieve the fixed pilot pages
  *
  * Requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Writes to
  * `opportunity_observations` and `opportunity_verification_events`, both of
@@ -32,16 +34,35 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import { ANNOUNCERS } from "../src/lib/opportunity/announcers/registry.ts";
+import { planSweep, mechanismsForSweep } from "../src/lib/opportunity/discovery/sweep-plan.ts";
 import { SupabaseObservationStore } from "../src/lib/opportunity/observation/supabase-store.ts";
 import { SupabaseVerificationLog } from "../src/lib/opportunity/verification/log.ts";
 import { runDiscovery } from "../src/lib/opportunity/discovery/run.ts";
-import { changeDetection } from "../src/lib/opportunity/discovery/mechanisms/change-detection.ts";
-import { institutionalChannels } from "../src/lib/opportunity/discovery/mechanisms/institutional-channels.ts";
 import { firecrawlTransport } from "../src/lib/opportunity/discovery/transports/firecrawl.ts";
-import { openWebSearch } from "../src/lib/opportunity/discovery/mechanisms/open-web-search.ts";
 
 async function main(): Promise<void> {
+  const plan = planSweep(process.argv.slice(2));
+  if (!plan.ok) {
+    console.error(plan.error);
+    process.exitCode = 1;
+    return;
+  }
+  const announcers = plan.announcers;
+  if (plan.dryRun) {
+    const pages = announcers.flatMap((a) =>
+      a.knownPaths.map((path) => new URL(path, `https://${a.domain}`).href),
+    );
+    console.log(
+      `Dry run: ${plan.scope} scope, ${announcers.length} publishers, ${pages.length} seed pages. No network calls or database writes.`,
+    );
+    for (const url of pages) console.log(`  ${url}`);
+    console.log(
+      plan.scope === "pilot"
+        ? "Pilot reads only these pages plus robots policies. It does not follow links, recheck the wider corpus, or search the open web. Eligibility and current application windows still require review."
+        : "A live registry run also follows links, rechecks the corpus and searches the open web.",
+    );
+    return;
+  }
   const url = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -53,20 +74,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  const requested = process.argv.slice(2);
-  const announcers =
-    requested.length > 0 ? ANNOUNCERS.filter((a) => requested.includes(a.id)) : ANNOUNCERS;
-
-  if (announcers.length === 0) {
-    console.error(
-      `No announcer matched ${requested.join(", ")}. Known ids: ${ANNOUNCERS.map((a) => a.id).join(", ")}`,
-    );
-    process.exitCode = 1;
-    return;
-  }
-
   const transport = firecrawlTransport() ?? undefined;
-  console.log(`Fetching ${transport ? "through Firecrawl" : "directly"}`);
+  console.log(`Fetching ${transport ? "through Firecrawl" : "directly"} (${plan.scope} scope)`);
 
   const db = createClient(url, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -82,7 +91,7 @@ async function main(): Promise<void> {
       retrieve, and the visited set means it will not re-fetch anything the
       first two mechanisms already read.
     */
-    mechanisms: [institutionalChannels({ announcers }), changeDetection(), openWebSearch()],
+    mechanisms: mechanismsForSweep(plan),
     transport,
   });
 

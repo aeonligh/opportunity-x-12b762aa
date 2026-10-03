@@ -41,6 +41,8 @@ const HREF = /<a\b[^>]*?\bhref\s*=\s*["']([^"']+)["']/gi;
 export interface InstitutionalChannelOptions {
   announcers?: readonly Announcer[];
   maxPagesPerAnnouncer?: number;
+  /** False reads only known paths. Useful for a fixed pilot budget. */
+  followLinks?: boolean;
 }
 
 export function institutionalChannels(options: InstitutionalChannelOptions = {}) {
@@ -66,7 +68,7 @@ export function institutionalChannels(options: InstitutionalChannelOptions = {})
           const observation = await visit(ctx, url, report, touched);
           budget -= 1;
 
-          if (observation?.outcome !== "retrieved") continue;
+          if (observation?.outcome !== "retrieved" || options.followLinks === false) continue;
 
           for (const link of sameDomainLinks(observation.content.body, url, announcer.domain)) {
             if (!queued.has(link)) {
